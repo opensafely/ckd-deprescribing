@@ -158,7 +158,7 @@ def count_recent_meds(index_date, days_before_index=90):
 ##########################################################################
 # Generic extractors
 ##########################################################################
-# TODO: need to refactor all variable extractions to use these functions
+# TODO: need to refactor extraction functions that are not yet using these
 # TODO: decide whether should change .is_on_or_before() to .is_before()
 
 # --- clinical_events, SNOMED -------------------------------------------
