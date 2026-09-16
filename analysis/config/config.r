@@ -47,6 +47,7 @@ write_json(
 #   22: incontinence appliances
 #   23: stoma appliances
 # Rik vd Veen used ch 1-13 to determine 'total chronic prescription load'
+# NHS BSA use ch 1-4 and 6-10 when they are looking at chronic oral prescribing
 exclude_bnf_chapters <- list(
   base = c("14", "15", "18", "19", "20", "21", "22", "23")
 )

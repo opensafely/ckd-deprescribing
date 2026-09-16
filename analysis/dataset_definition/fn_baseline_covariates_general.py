@@ -39,6 +39,8 @@ import json
 with open("output/study_dates.json") as f:
     index_date = json.load(f)["index_date"]
 
+#TODO: finish defining all covariates and tidy up this file.
+
 ##############################################################################
 # Age
 ##############################################################################
@@ -112,10 +114,6 @@ care_home = case(
 most_recent_sbp = last_matching_event_clinical_snomed_before(
     sbp_codes, index_date, where=clinical_events.numeric_value.is_not_null()
     )
-
-# most_recent_cholesterol = last_matching_event_clinical_snomed_before(
-#     cholesterol_codes_snomed, index_date, where=clinical_events.numeric_value.is_not_null()
-#     )
 
 ##############################################################################
 # History of CV disease: previous MI, coronary revascularisation, heart 
