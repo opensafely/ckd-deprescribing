@@ -10,7 +10,7 @@ from ehrql import codelist_from_csv
 # KIDNEY FUNCTION CODELISTS
 ##########################################################################
 
-#  CKD codes ---------------------------------------------------------------------
+# CKD codes ---------------------------------------------------------------------
 primary_care_ckd4_codes = codelist_from_csv(
     "codelists/user-mletts92-chronic-kidney-disease-stage-4.csv",
     column="code"
@@ -24,7 +24,6 @@ primary_care_ckd45_codes = codelist_from_csv(
     "codelists/user-mletts92-chronic-kidney-disease-stage-4-and-5-but-not-receiving-kidney-replacement-therapy.csv",
     column="code"
 )
-
 
 # creatinine values -------------------------------------------------------------
 creatinine_codes = codelist_from_csv(
@@ -57,7 +56,6 @@ primary_care_krt_codes_all = (
     + primary_care_ktx_codes 
     + primary_care_krt_codes
 )
-
 
 ## secondary care KRT codes (ICD10 and OPCS-4)
 # icd10 - dialysis, ktx then all krt
@@ -98,8 +96,7 @@ secondary_care_krt_codes_opcs4 = (
 ##########################################################################
 # COVARIATE CODELISTS
 ##########################################################################
-# TODO: This is a work in progress. Filling in as go. Organise once complete
-# Scaffolds the green covariates in docs/deprescribing_factors.drawio.svg
+# TODO: This is a work in progress. Filling in as go.
 
 # ethnicity codelist -----------------------------------------------------
 ethnicity_codes = codelist_from_csv(
