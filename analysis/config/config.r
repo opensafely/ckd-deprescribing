@@ -53,6 +53,8 @@ exclude_bnf_chapters <- list(
 )
 
 # How to define whether a medicine is chronically prescribed -------------
+# make sure that lookback_days are <= the number of days of prescription information
+# obtained from the OpenSAFELY backend
 chronic_med_definitions <- list(
   # Base: >=2 prescriptions within 180 days, have to have one in the 0-90
   # window and one in the 91-180 day window and AND >=21 days between oldest

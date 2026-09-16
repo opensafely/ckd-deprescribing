@@ -5,6 +5,7 @@
 ##########################################################################
 
 from ehrql import codelist_from_csv
+import csv
 
 ##########################################################################
 # KIDNEY FUNCTION CODELISTS
@@ -272,3 +273,21 @@ dm_drug_codes_dmd = codelist_from_csv(
 #     #"codelists/user-mletts92-aki-electrolyte-disturbance-icd10.csv",
 #     column="code"
 # )
+# Medication codelists ------------------------------------------------------------------
+
+# All the paths to medications_of_interest codelists are defined
+# in analysis/config/medication_of_interest.csv (this is the central source of truth)
+# Below code loops over csv rows and builds a dict with each medicine/codelist in it:
+
+# {
+#    "statin": <codelist>
+#    "other": <codelist>
+# }
+
+with open("analysis/config/medication_of_interest.csv") as f:
+    medication_of_interest_codelists = {}
+    for row in csv.DictReader(f):
+        medication_of_interest_codelists[row["name"]] = codelist_from_csv(
+            row["codelist_path"],
+            column="code"
+        )
