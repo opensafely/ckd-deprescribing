@@ -3,7 +3,7 @@ version: '5.0'
 actions:
 
   study_dates:
-    run: r:v2 analysis/config/config.r
+    run: r:v3 analysis/config/config.r
     outputs:
       highly_sensitive:
         study_dates_json: output/study_dates.json
@@ -22,7 +22,7 @@ actions:
 
 
   dataset_cleaning_inex:
-    run: r:v2 analysis/dataset_processing/dataset_cleaning_inex.r
+    run: r:v3 analysis/dataset_processing/dataset_cleaning_inex.r
     needs: [generate_dataset_inex]
     outputs:
       highly_sensitive:
@@ -47,7 +47,7 @@ actions:
 
 
   dataset_process_baseline_meds:
-    run: r:v2 analysis/dataset_processing/dataset_process_baseline_meds.r
+    run: r:v3 analysis/dataset_processing/dataset_process_baseline_meds.r
     needs: [generate_dataset_baseline_meds, study_dates]
     outputs:
       highly_sensitive:
@@ -62,7 +62,7 @@ actions:
 
 
   analyse_baseline_meds:
-    run: r:v2 analysis/dataset_analysis/analyse_baseline_meds.r
+    run: r:v3 analysis/dataset_analysis/analyse_baseline_meds.r
     needs: [dataset_process_baseline_meds, study_dates]
     outputs:
       highly_sensitive:
@@ -76,6 +76,14 @@ actions:
         meds_prevalence_substance: output/data_descriptions/analyse_baseline_meds/meds_prevalence_substance.csv
         meds_prevalence_subparagraph: output/data_descriptions/analyse_baseline_meds/meds_prevalence_subparagraph.csv
         meds_prevalence_paragraph: output/data_descriptions/analyse_baseline_meds/meds_prevalence_paragraph.csv
+
+
+  table_1:
+    run: r:v3 analysis/dataset_analysis/table_1.r
+    needs: [dataset_cleaning_inex]
+    outputs:
+      moderately_sensitive:
+        table_1: output/tables/table_1.csv
 
 
   generate_dataset_discont_meds_baseline_statins:
@@ -106,7 +114,7 @@ actions:
 
 
   dataset_process_moi_at_baseline:
-    run: r:v2 analysis/discontinuation/dataset_processing/dataset_process_moi_at_baseline.r
+    run: r:v3 analysis/discontinuation/dataset_processing/dataset_process_moi_at_baseline.r
     needs: [generate_dataset_discont_meds_baseline_statins, generate_dataset_discont_meds_baseline_ppis, study_dates]
     outputs:
       highly_sensitive:
