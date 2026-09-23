@@ -103,7 +103,9 @@ region = (
 # potential care-home match flag at index_date.
 care_home = case(
     when(
-        addresses.for_patient_on(index_date).care_home_is_potential_match
+        addresses.for_patient_on(index_date).care_home_is_potential_match |
+        addresses.for_patient_on(index_date).care_home_requires_nursing |
+        addresses.for_patient_on(index_date).care_home_does_not_require_nursing
     ).then(True),
     otherwise=False,
 )
