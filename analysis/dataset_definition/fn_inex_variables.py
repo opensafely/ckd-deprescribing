@@ -9,22 +9,25 @@
 #####################################################################
 
 from ehrql.tables.tpp import (
-    patients, 
-    practice_registrations, 
-    clinical_events, 
-    ons_deaths, 
-    apcs
+    patients,
+    practice_registrations,
+    clinical_events,
+    ons_deaths,
+    apcs,
+    medications
 )
 from ehrql import (
-    months, 
-    days, 
-    case, 
+    months,
+    days,
+    case,
     when
 )
-from fn_misc_variables import (
+from variable_helper_functions import (
     get_imd,
     get_latest_ethnicity,
-    count_recent_meds
+    count_recent_meds,
+    ever_matching_event_clinical_snomed_before,
+    ever_matching_event_clinical_ctv3_before,
 )
 from codelists import *
 
@@ -88,11 +91,10 @@ def add_ckd_inex_variables(
     ### creatinine variables ###
 
     # All non-null creatinine values before index date
-    creatinine_values = (
-        clinical_events
-        .where(clinical_events.snomedct_code.is_in(creatinine_codes))
-        .where(clinical_events.numeric_value.is_not_null())
-        .where(clinical_events.date < index_date)
+    creatinine_values = ever_matching_event_clinical_snomed_before(
+        creatinine_codes,
+        index_date,
+        where=clinical_events.numeric_value.is_not_null(),
     )
 
     # Most recent creatinine per patient
@@ -122,10 +124,8 @@ def add_ckd_inex_variables(
     ### CKD codes ###
 
     # CKD stage 4/5 codes before index date
-    coded_ckd45 = (
-        clinical_events
-        .where(clinical_events.snomedct_code.is_in(primary_care_ckd45_codes))
-        .where(clinical_events.date < index_date)
+    coded_ckd45 = ever_matching_event_clinical_snomed_before(
+        primary_care_ckd45_codes, index_date
     )
 
     # binary flag if a person has a CKD 4/5 code
@@ -185,10 +185,8 @@ def add_krt_inex_variables(
     ### Primary care codes - all CTV3 ###
    
     # CTV3 krt code before index date
-    primary_care_krt_code = (
-        clinical_events
-        .where(clinical_events.ctv3_code.is_in(primary_care_krt_codes_all))
-        .where(clinical_events.date < index_date)
+    primary_care_krt_code = ever_matching_event_clinical_ctv3_before(
+        primary_care_krt_codes_all, index_date
     )
 
     # binary flag if a person has a secondary care krt code prior to index date
@@ -225,7 +223,7 @@ def add_krt_inex_variables(
             apcs.all_diagnoses.contains_any_of(secondary_care_krt_codes_icd10)
             | apcs.all_procedures.contains_any_of(secondary_care_krt_codes_opcs4)
         )
-        .where(apcs.admission_date < index_date)
+        .where(apcs.admission_date.is_on_or_before(index_date))
     )
 
     # binary flag if a person has a secondary care krt code
@@ -309,6 +307,7 @@ def add_krt_inex_variables(
 
 
 # SIMPLE PRE-INDEX DATE MEDICATION COUNTS -----------------------------
+# count_recent_meds() is defined in variable_helper_functions.py
 
 def add_medication_inex_variables(
     index_date
@@ -350,7 +349,7 @@ def add_qa_inex_variables(
 
         # known ethnicity
         "inex_qa_bin_ethnicity": (
-            get_latest_ethnicity(index_date, ethnicity_snomed, grouping=6)
+            get_latest_ethnicity(index_date, ethnicity_codes, grouping=6)
             .is_not_null()
         ),
 

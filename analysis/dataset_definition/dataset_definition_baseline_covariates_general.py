@@ -2,16 +2,16 @@
 # This script does the following:
 # 1. Reads study dates from output/study_dates.json
 # 2. Filters the population to patients in dataset_inex_cleaned
-# 3. Calls add_prescription_columns() to create wide format prescription
-#    columns for up to max_med prescriptions in the days_before_index 
-#    window before index date.
+# 3. Calls add_baseline_covariates() to add covariate columns
 #
-# Output: dataset_baseline_meds.arrow (see yaml: generate_dataset_baseline_meds)
-# Test: test_dataset_definition_baseline_meds.py
+# Output: output/dataset_baseline_covariates_general.arrow
+#         (see yaml: generate_dataset_baseline_covariates_general)
+# Test: test_dataset_definition_baseline_covariates_general.py
 ##########################################################################
 
 from ehrql import create_dataset, table_from_file
-from fn_baseline_meds_variables import add_prescription_columns
+from fn_baseline_covariates_general import add_baseline_covariates_general
+import datetime
 
 # define the project-relevant dates
 import json
@@ -23,13 +23,18 @@ index_date = study_dates["index_date"]
 # required other than patient_id which is automatically imported
 dataset_inex_cleaned = table_from_file(
     "output/data/dataset_inex_cleaned.arrow",
-    columns={}
+    columns={
+        "inex_dem_num_age": float,
+        "inex_dem_cat_sex": str,
+        "inex_num_egfr_1": float,
+        "inex_ckd_date_scr_date_1": datetime.date,
+        "inex_ckd_cat_ckd_code_stage": str
+    }
 )
 
 # initialise new dataset
 dataset = create_dataset()
 dataset.define_population(dataset_inex_cleaned.exists_for_patient())
 
-# add wide format prescription columns for up to max_meds prescriptions
-# in the days_before_index window before index date
-add_prescription_columns(dataset, index_date, max_meds=90, days_before_index=180)
+# add baseline covariates to the dataset
+add_baseline_covariates_general(dataset, dataset_inex_cleaned)
