@@ -71,3 +71,32 @@ fn_describe_and_flow <- function(project_stage) {
 
   return(flow)
 }
+
+
+#############################################################################
+# fn_median_iqr()
+#
+# Computes "median (IQR)" for an input_var within given data
+# Optionally grouped by strata_var, but default is to pass no stratification
+#############################################################################
+
+fn_median_iqr <- function(
+  data,
+  input_var,
+  output_var,
+  strata_var = character(0)
+) {
+  data |>
+    group_by(across(all_of(strata_var))) |>
+    summarise(
+      !!output_var := paste0(
+        round(median(.data[[input_var]], na.rm = TRUE), 1),
+        " (",
+        round(quantile(.data[[input_var]], 0.25, na.rm = TRUE), 1),
+        "-",
+        round(quantile(.data[[input_var]], 0.75, na.rm = TRUE), 1),
+        ")"
+      ),
+      .groups = "drop"
+    )
+}
