@@ -216,13 +216,9 @@ fn_modify_dummy_data <- function(
         )),
         inex_krt_bin_secondary_care_only = inex_krt_bin_has_secondary_care_krt_code &
           !inex_krt_bin_has_primary_care_krt_code
-      ) |>
-
-      ## Reapply the QA criteria from inex_variables.py ##
-
-      mutate(
-        inex_qa_bin_ethnicity = as.logical(rbinom(n(), 1, p = 0.99))
       )
+
+    ## Reapply the QA criteria from inex_variables.py ##
   } else if (project_stage == "process_baseline_meds") {
     # intentionally leave blank - no modifications to dummy data
   } else if (project_stage == "process_moi_at_baseline") {
