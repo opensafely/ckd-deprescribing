@@ -14,30 +14,16 @@ fn_qa <- function(
   # Count the numbers that fail each qa criteria respectively
   counts <- arrow_data |>
     summarise(
-      n_before = n(),
-      n_missing_sex = sum(!inex_qa_bin_sex, na.rm = TRUE),
-      n_missing_region = sum(!inex_qa_bin_region, na.rm = TRUE),
-      n_missing_ethnicity = sum(!inex_qa_bin_ethnicity, na.rm = TRUE),
-      n_missing_imd = sum(!inex_qa_bin_imd, na.rm = TRUE)
+      n_before = n()
     ) |>
     collect()
 
   # Print exclusion counts
   message("\nQA exclusions:")
   message("n before QA exclusions: ", counts$n_before)
-  message("Missing sex: ", counts$n_missing_sex)
-  message("Missing region: ", counts$n_missing_region)
-  message("Missing ethnicity: ", counts$n_missing_ethnicity)
-  message("Missing deprivation level: ", counts$n_missing_imd)
 
   # Apply QA filters lazily
-  arrow_data_qa_applied <- arrow_data |>
-    filter(
-      inex_qa_bin_sex,
-      inex_qa_bin_region,
-      inex_qa_bin_ethnicity,
-      inex_qa_bin_imd
-    )
+  arrow_data_qa_applied <- arrow_data
 
   return(arrow_data_qa_applied)
 }
