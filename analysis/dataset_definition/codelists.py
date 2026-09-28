@@ -64,6 +64,11 @@ secondary_care_dialysis_codes_icd10 = codelist_from_csv(
     "codelists/ukrr-dialysis-icd10.csv",
     column="code"
 )
+secondary_care_dialysis_codes_icd10 = secondary_care_dialysis_codes_icd10 + [
+    code + "X" for code in secondary_care_dialysis_codes_icd10 if len(code) == 3
+] # deal with three character icd10 codes queried against APCS
+# https://docs.opensafely.org/ehrql/how-to/codelists/#using-an-icd-10-codelist-with-the-apcs-dataset
+
 secondary_care_ktx_codes_icd10 = ["Z940"] # only one code for kidney transplant
 secondary_care_unclear_krt_codes_icd10 = ["T861"] # "complications of kidney transplant"; may refer to transplant failure hence unknown treatment modality
 secondary_care_krt_codes_icd10 = (
@@ -123,6 +128,9 @@ mi_codes_icd10 = codelist_from_csv(
     "codelists/reducehf-myocardial-infarction-icd10.csv",
     column="code"
 )
+mi_codes_icd10 = mi_codes_icd10 + [
+    code + "X" for code in mi_codes_icd10 if len(code) == 3
+] # as above 3 character padded to 4 with X
 
 # Coronary revascularisation codelist
 coronary_revasc_codes_opcs4 = codelist_from_csv(
@@ -136,10 +144,14 @@ cva_codes_snomed = codelist_from_csv(
     "codelists/nhsd-primary-care-domain-refsets-strk_cod.csv",
     column="code"
 )
+
 cva_codes_icd10 = codelist_from_csv(
     "codelists/user-mletts92-stroke-secondary-care-codes.csv",
     column="code"
 )
+cva_codes_icd10 = cva_codes_icd10 + [
+    code + "X" for code in cva_codes_icd10 if len(code) == 3
+] # as above 3 character padded to 4 with X
 
 # Heart failure codelists
 # Primary + secondary care as HF often diagnosed in hospital
@@ -152,6 +164,9 @@ hf_codes_icd10 = codelist_from_csv(
     "codelists/reducehf-heart-failure-primary-outcome-icd.csv",
     column="code"
 )
+hf_codes_icd10 = hf_codes_icd10 + [
+    code + "X" for code in hf_codes_icd10 if len(code) == 3
+] # as above 3 character padded to 4 with X
 
 # Diabetes codelists
 # Primary care dm codes only - diabetes activity coded well in primary care
