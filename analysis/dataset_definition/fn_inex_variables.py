@@ -352,11 +352,6 @@ def add_qa_inex_variables(
 ):
     
     return {
-        # known ethnicity
-        "inex_qa_bin_ethnicity": (
-            get_latest_ethnicity(index_date, ethnicity_codes, grouping=6)
-            .is_not_null()
-        ),
 
     }
 
