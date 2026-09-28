@@ -64,6 +64,23 @@ def add_demographic_inex_variables(
             )
         ).exists_for_patient(
     )
+
+    known_sex = (
+        (patients.sex == "male") |
+        (patients.sex == "female")
+    )
+
+    known_region = (
+        practice_registrations
+        .for_patient_on(index_date)
+        .practice_nuts1_region_name
+        .is_not_null()
+    )
+
+    known_imd = (
+        get_imd(index_date, groups=5, max_imd=32844)
+        .is_not_null()
+    )
     
     return {
 
@@ -71,7 +88,10 @@ def add_demographic_inex_variables(
         "inex_dem_bin_age_include": (age >= 18) & (age <= 110),
         "inex_dem_bin_12m_registered": registered_12m, # what about if someone has no end_date on a previous registration and they have two 'active registrations'
         "inex_dem_num_age": age,
-        "inex_dem_cat_sex": patients.sex
+        "inex_dem_cat_sex": patients.sex,
+        "inex_dem_bin_sex": known_sex,
+        "inex_dem_bin_region": known_region,
+        "inex_dem_bin_imd": known_imd
 
     }
 
@@ -332,32 +352,11 @@ def add_qa_inex_variables(
 ):
     
     return {
-
-        # known sex that is male or female
-        "inex_qa_bin_sex": (
-            (patients.sex == "male") |
-            (patients.sex == "female")
-        ),
-
-        # known region
-        "inex_qa_bin_region": (
-            practice_registrations
-            .for_patient_on(index_date)
-            .practice_nuts1_region_name
-            .is_not_null()
-        ),
-
         # known ethnicity
         "inex_qa_bin_ethnicity": (
             get_latest_ethnicity(index_date, ethnicity_codes, grouping=6)
             .is_not_null()
         ),
-
-        # known IMD
-        "inex_qa_bin_imd": (
-            get_imd(index_date, groups=5, max_imd=32844)
-            .is_not_null()
-        )
 
     }
 

@@ -109,7 +109,10 @@ test_data = {
             "inex_dem_bin_age_include": True,                         
             "inex_dem_bin_12m_registered": True,                    
             "inex_dem_num_age": 72,
-            "inex_dem_cat_sex": "female",                               
+            "inex_dem_cat_sex": "female",    
+            "inex_dem_bin_sex": True,                                 
+            "inex_dem_bin_region": True,                                                   
+            "inex_dem_bin_imd": True,                           
             "inex_ckd_bin_has_two_scr": True,                    
             "inex_ckd_num_scr_value_1": 150,                        
             "inex_ckd_date_scr_date_1": date(2022, 1, 1),                       
@@ -123,10 +126,6 @@ test_data = {
             "inex_krt_bin_has_secondary_care_krt_code": True,
             "inex_krt_cat_secondary_care_krt_type": "transplant",
             "inex_krt_bin_secondary_care_only": False,
-            "inex_qa_bin_sex": True,                                 
-            "inex_qa_bin_region": True,                             
-            "inex_qa_bin_ethnicity": True,                           
-            "inex_qa_bin_imd": True,
             "inex_med_num_90": 1,
             "inex_med_num_180": 2   
         },
@@ -220,7 +219,10 @@ test_data = {
             "inex_dem_bin_age_include": False,                         
             "inex_dem_bin_12m_registered": False,                    
             "inex_dem_num_age": 112,
-            "inex_dem_cat_sex": "intersex",                               
+            "inex_dem_cat_sex": "intersex",    
+            "inex_dem_bin_sex": False,                                 
+            "inex_dem_bin_region": False,                                                  
+            "inex_dem_bin_imd": True,                              
             "inex_ckd_bin_has_two_scr": False,                    
             "inex_ckd_num_scr_value_1": 150,                        
             "inex_ckd_date_scr_date_1": date(2022, 1, 1),                       
@@ -233,11 +235,7 @@ test_data = {
             "inex_krt_cat_primary_care_krt_type": None,
             "inex_krt_bin_has_secondary_care_krt_code": False,
             "inex_krt_cat_secondary_care_krt_type": None,
-            "inex_krt_bin_secondary_care_only": False,
-            "inex_qa_bin_sex": False,                                 
-            "inex_qa_bin_region": False,                             
-            "inex_qa_bin_ethnicity": True,                           
-            "inex_qa_bin_imd": True   
+            "inex_krt_bin_secondary_care_only": False
         },
     },
 
@@ -325,7 +323,10 @@ test_data = {
             "inex_dem_bin_age_include": True,                         
             "inex_dem_bin_12m_registered": False,                    
             "inex_dem_num_age": 72,
-            "inex_dem_cat_sex": "female",                               
+            "inex_dem_cat_sex": "female", 
+            "inex_dem_bin_sex": True,                                 
+            "inex_dem_bin_region": False,                                                 
+            "inex_dem_bin_imd": False,                                 
             "inex_ckd_bin_has_two_scr": False,                    
             "inex_ckd_num_scr_value_1": 160, # both on the same date, appears to take the latter measurement                        
             "inex_ckd_date_scr_date_1": date(2021, 1, 1),                       
@@ -338,11 +339,7 @@ test_data = {
             "inex_krt_cat_primary_care_krt_type": None,
             "inex_krt_bin_has_secondary_care_krt_code": True,
             "inex_krt_cat_secondary_care_krt_type": "unknown",
-            "inex_krt_bin_secondary_care_only": True,
-            "inex_qa_bin_sex": True,                                 
-            "inex_qa_bin_region": False,                             
-            "inex_qa_bin_ethnicity": False,                           
-            "inex_qa_bin_imd": False   
+            "inex_krt_bin_secondary_care_only": True
         },
     },
 
@@ -435,7 +432,10 @@ test_data = {
             "inex_dem_bin_age_include": True,                         
             "inex_dem_bin_12m_registered": False,                    
             "inex_dem_num_age": 72,
-            "inex_dem_cat_sex": "unknown",                               
+            "inex_dem_cat_sex": "unknown",
+            "inex_dem_bin_sex": False,                                 
+            "inex_dem_bin_region": True,                             
+            "inex_dem_bin_imd": False,                                
             "inex_ckd_bin_has_two_scr": False,                    
             "inex_ckd_num_scr_value_1": None,                        
             "inex_ckd_date_scr_date_1": None,                       
@@ -448,11 +448,7 @@ test_data = {
             "inex_krt_cat_primary_care_krt_type": "transplant",
             "inex_krt_bin_has_secondary_care_krt_code": True,
             "inex_krt_cat_secondary_care_krt_type": "dialysis",
-            "inex_krt_bin_secondary_care_only": False,
-            "inex_qa_bin_sex": False,                                 
-            "inex_qa_bin_region": True,                             
-            "inex_qa_bin_ethnicity": False,                           
-            "inex_qa_bin_imd": False   
+            "inex_krt_bin_secondary_care_only": False
         },
     },
 }
