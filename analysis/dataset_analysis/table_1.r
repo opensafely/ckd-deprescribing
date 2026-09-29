@@ -189,16 +189,27 @@ categorical_vars_wide <- categorical_vars_counts |>
 message("Now continuous variables")
 continuous_vars_long <- tibble()
 
+# decide number of decimal places to round to for every continuous variable
+round_value_lookup <- c(
+  inex_dem_num_age = 0
+  # add more as becomes necessary - every continuous var needs to be here
+)
+
 # Loop over each continuous variable
 for (variable in continuous_vars) {
   message(sprintf("---Loop start - %s", variable))
+
+  # set the round_value
+  round_value <- round_value_lookup[[variable]]
+
   # initially calculate the median_iqr for each strata_var strata
   variable_summary <-
     fn_median_iqr(
       dataset,
       variable,
       "median_iqr",
-      strata_var
+      strata_var,
+      round_value = round_value
     ) |>
     # then bind on the overall median_iqr for that variable
     bind_rows(
@@ -206,7 +217,8 @@ for (variable in continuous_vars) {
         dataset,
         variable,
         "median_iqr",
-        character(0) # no stratification
+        character(0), # no stratification
+        round_value = round_value
       ) |>
         mutate(!!strata_var := "Overall")
     ) |>

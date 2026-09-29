@@ -84,17 +84,18 @@ fn_median_iqr <- function(
   data,
   input_var,
   output_var,
-  strata_var = character(0)
+  strata_var = character(0),
+  round_value = 1
 ) {
   data |>
     group_by(across(all_of(strata_var))) |>
     summarise(
       !!output_var := paste0(
-        round(median(.data[[input_var]], na.rm = TRUE), 1),
+        round(median(.data[[input_var]], na.rm = TRUE), round_value),
         " (",
-        round(quantile(.data[[input_var]], 0.25, na.rm = TRUE), 1),
+        round(quantile(.data[[input_var]], 0.25, na.rm = TRUE), round_value),
         "-",
-        round(quantile(.data[[input_var]], 0.75, na.rm = TRUE), 1),
+        round(quantile(.data[[input_var]], 0.75, na.rm = TRUE), round_value),
         ")"
       ),
       .groups = "drop"
