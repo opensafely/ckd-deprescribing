@@ -31,17 +31,8 @@ message("Create output folder")
 dir_create(here::here("output", "tables"))
 
 # Load the population dataset --------------------------------------------
-message("Load the dataset")
+message("Load the desired columns of the dataset")
 
-input_filename <- "dataset_inex_cleaned.arrow"
-dataset <- arrow::open_dataset(
-  here::here("output", "data", input_filename),
-  format = "ipc"
-) |>
-  collect()
-
-# Narrow dataset to desired columns -------------------------------------
-message("Process the dataset")
 wanted_cols <- c(
   "patient_id",
   "inex_dem_num_age",
@@ -51,7 +42,16 @@ wanted_cols <- c(
   # add more as desired
 )
 
-dataset <- dataset |> select(all_of(wanted_cols))
+input_filename <- "dataset_inex_cleaned.arrow"
+dataset <- arrow::open_dataset(
+  here::here("output", "data", input_filename),
+  format = "ipc"
+) |>
+  select(all_of(wanted_cols)) |>
+  collect()
+
+# Process the dataset -------------------------------------
+message("Process the dataset")
 
 # Create a CKD stage column
 dataset <- dataset |>
