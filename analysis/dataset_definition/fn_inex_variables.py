@@ -24,12 +24,12 @@ from ehrql import (
 )
 from variable_helper_functions import (
     get_imd,
-    get_latest_ethnicity,
     count_recent_meds,
     ever_matching_event_clinical_snomed_before,
     ever_matching_event_clinical_ctv3_before,
 )
 from codelists import *
+from datetime import date
 
 #####################################################################
 # INCLUSION/EXCLUSION FUNCTIONS
@@ -347,12 +347,36 @@ def add_medication_inex_variables(
 # QA VARIABLES -------------------------------------------------------
 # generates booleans for each of the quality assurance criteria
 
-def add_qa_inex_variables(
-    index_date
-):
+def add_qa_inex_variables():
     
-    return {
+    today = date.today()
 
+    dob_known = patients.date_of_birth.is_not_null()
+
+    dob_before_dod_patients = (
+        patients.date_of_death.is_null() |
+        patients.date_of_birth.is_on_or_before(patients.date_of_death)
+    )
+
+    dob_before_dod_ons = (
+        ons_deaths.date.is_null() |
+        patients.date_of_birth.is_on_or_before(ons_deaths.date)
+    )
+
+    dob_before_dod = dob_before_dod_patients & dob_before_dod_ons
+
+    dob_not_future = patients.date_of_birth.is_on_or_before(today)
+
+    dod_not_future = (
+        (patients.date_of_death.is_null() | patients.date_of_death.is_on_or_before(today)) &
+        (ons_deaths.date.is_null() | ons_deaths.date.is_on_or_before(today))
+    )
+
+    return {
+        "inex_qa_bin_dob_known": dob_known,
+        "inex_qa_bin_dob_before_dod": dob_before_dod,
+        "inex_qa_bin_dob_not_future": dob_not_future,
+        "inex_qa_bin_dod_not_future": dod_not_future,
     }
 
 
@@ -388,9 +412,7 @@ def add_inex_variables(dataset, index_date):
             secondary_care_ktx_codes_icd10=secondary_care_ktx_codes_icd10,
             index_date=index_date,
         ),
-        **add_qa_inex_variables(
-            index_date
-        ),
+        **add_qa_inex_variables(),
         **add_medication_inex_variables(
             index_date
         )
