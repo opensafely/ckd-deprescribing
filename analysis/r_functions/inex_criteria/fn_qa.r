@@ -6,38 +6,51 @@
 ##########################################################################
 
 fn_qa <- function(
-  arrow_data
+  arrow_data,
+  flow,
+  describe = TRUE
 ) {
   require(arrow)
   require(dplyr)
 
   # Count the numbers that fail each qa criteria respectively
-  counts <- arrow_data |>
-    summarise(
-      n_before = n(),
-      n_dob_unknown = sum(!inex_qa_bin_dob_known, na.rm = TRUE),
-      n_dob_after_dod = sum(!inex_qa_bin_dob_before_dod, na.rm = TRUE),
-      n_dob_future = sum(!inex_qa_bin_dob_not_future, na.rm = TRUE),
-      n_dod_future = sum(!inex_qa_bin_dod_not_future, na.rm = TRUE)
-    ) |>
-    collect()
-
-  # Print exclusion counts
   message("\nQA exclusions:")
-  message("n before QA exclusions: ", counts$n_before)
-  message("Missing date of birth: ", counts$n_dob_unknown)
-  message("Date of birth after date of death: ", counts$n_dob_after_dod)
-  message("Date of birth in the future: ", counts$n_dob_future)
-  message("Date of death in the future: ", counts$n_dod_future)
+  interim_list <- fn_apply_flow_filter(
+    arrow_data,
+    flow,
+    "inex_qa_bin_dob_known",
+    "Quality Assurance: Date of birth not missing"
+  )
+  interim_list <- fn_apply_flow_filter(
+    interim_list$data,
+    interim_list$flow,
+    "inex_qa_bin_dob_before_dod",
+    "Quality Assurance: Date of birth before date of death"
+  )
+  interim_list <- fn_apply_flow_filter(
+    interim_list$data,
+    interim_list$flow,
+    "inex_qa_bin_dob_not_future",
+    "Quality Assurance: Date of birth not in future"
+  )
+  output_list <- fn_apply_flow_filter(
+    interim_list$data,
+    interim_list$flow,
+    "inex_qa_bin_dod_not_future",
+    "Quality Assurance: Date of death not in future"
+  )
 
-  # Apply QA filters lazily
-  arrow_data_qa_applied <- arrow_data |>
-    filter(
-      inex_qa_bin_dob_known,
-      inex_qa_bin_dob_before_dod,
-      inex_qa_bin_dob_not_future,
-      inex_qa_bin_dod_not_future
+  if (isTRUE(describe)) {
+    fn_describe_data(
+      data = collect(output_list$data),
+      filepath = here::here(
+        "output",
+        "data_descriptions",
+        "cleaning_inex",
+        "qa_applied.txt"
+      )
     )
+  }
 
-  return(arrow_data_qa_applied)
+  return(output_list)
 }
