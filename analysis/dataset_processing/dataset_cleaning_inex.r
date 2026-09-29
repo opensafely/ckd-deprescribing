@@ -46,6 +46,12 @@ source(here::here(
   "inex_criteria",
   "fn_ckd_inex_criteria.r"
 ))
+source(here::here(
+  "analysis",
+  "r_functions",
+  "inex_criteria",
+  "fn_apply_flow_filter.r"
+))
 
 # Create output folders --------------------------------------------------
 message("Create output folders")
@@ -61,23 +67,39 @@ study_dates <- lapply(study_dates, function(x) as.Date(x))
 # Load dataset, keeping in arrow format for speed ------------------------
 message("Load the dataset for lazy processing")
 input_filename <- "dataset_inex.arrow"
-dataset_cleaning_inex_1_input <- arrow::open_dataset(
+data_input <- arrow::open_dataset(
   here::here("output", input_filename),
   format = "ipc"
 )
 
+# Initialise the flow data frame -----------------------------------------
+flow <- data.frame(
+  Description = "Input",
+  N = data_input |> summarise(n = n()) |> collect() |> pull(n),
+  stringsAsFactors = FALSE
+)
+
 # Preprocess data: transform variables and modify dummy data -------------
-dataset_cleaning_inex_2_preprocessed <- fn_preprocess(
-  arrow_data = dataset_cleaning_inex_1_input,
+data_preprocessed <- fn_preprocess(
+  arrow_data = data_input,
   project_stage = "cleaning_inex",
   index_date = study_dates$index_date,
   one_row_per_patient = TRUE
 )
+flow <- fn_add_flow_row(
+  data_preprocessed,
+  flow,
+  "Preprocessed: Removed rows with missing patient_id"
+)
 
 # Apply qa criteria ------------------------------------------------------
-dataset_cleaning_inex_3_qa_applied <- fn_qa(
-  arrow_data = dataset_cleaning_inex_2_preprocessed
+qa_output_list <- fn_qa(
+  arrow_data = data_preprocessed,
+  flow = flow,
+  describe = TRUE
 )
+data_qa_applied <- qa_output_list$data
+flow <- qa_output_list$flow
 
 # Apply demographic inclusion and exclusion criteria ---------------------
 dataset_cleaning_inex_4_demographic_inex_applied <- fn_dem_inex_criteria(
