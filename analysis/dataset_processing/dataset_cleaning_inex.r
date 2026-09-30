@@ -3,7 +3,7 @@
 # 1. Loads output/dataset_inex.arrow created by generate_dataset_inex
 # 2. Modifies the dummy data if being run locally
 # 3. Type formats the variables
-# 4. Applies QA criteria and inclusion/exclusion criteria
+# 4. Applies QA criteria and inclusion/exclusion criteria and compiles flow table
 # 5. Plots and tabulates medication counts 90 + 180 days before index date
 # 6. Saves cleaned dataset, plots, data-flow table and description files
 ##########################################################################
@@ -102,9 +102,14 @@ data_qa_applied <- qa_output_list$data
 flow <- qa_output_list$flow
 
 # Apply demographic inclusion and exclusion criteria ---------------------
-dataset_cleaning_inex_4_demographic_inex_applied <- fn_dem_inex_criteria(
-  arrow_data = dataset_cleaning_inex_3_qa_applied
+dem_inex_output_list <- fn_dem_inex_criteria(
+  arrow_data = data_qa_applied,
+  flow = flow,
+  describe = TRUE
 )
+data_dem_inex_applied <- dem_inex_output_list$data
+flow <- dem_inex_output_list$flow
+
 
 # Apply CKD inclusion criteria -------------------------------------------
 # 4 new variables added to data:
