@@ -1,9 +1,10 @@
 ##########################################################################
-# This script defines three functions used to apply inclusion and
+# This script defines four functions used to apply inclusion and
 # exclusion criteria related to CKD and KRT
 #   fn_egfr_ckdepi2009() - calculates eGFR from serum creatinine
 #   fn_ckd_inex_criteria() - applies CKD stage 4/5 inclusion criteria
-#   fn_krt_inex_criteria() - applies KRT exclusion criteria
+#   fn_krt_inex_criteria_dialysis() - applies dialysis exclusion criteria
+#   fn_krt_inex_criteria_transplant() - applies transplant exclusion criteria
 ##########################################################################
 
 ##########################################################################
@@ -61,12 +62,14 @@ fn_egfr_ckdepi2009 <- function(
 # 3. Include patients with either a CKD 4/5 code OR eGFR-derived CKD 4/5.
 # 4. Recalculate eGFR for all included patients post-filter (captures
 #    those included via CKD code who may only have one SCr value).
-# 5. Output counts before and after filtering.
+# 5. Add the post-filter count to the flow table.
 ##########################################################################
 
 fn_ckd_inex_criteria <- function(
   arrow_data,
-  index_date
+  flow,
+  index_date,
+  describe = TRUE
 ) {
   require(arrow)
   require(dplyr)
@@ -146,18 +149,27 @@ fn_ckd_inex_criteria <- function(
       )
     )
 
-  # 5. Output counts
-  n_before <- arrow_data |> summarise(n = n()) |> collect() |> pull(n)
-  n_after <- arrow_data_ckd_inex_applied |>
-    summarise(n = n()) |>
-    collect() |>
-    pull(n)
-
+  # 5. Add flow row
   message("\nCKD 4/5 inclusion criteria:")
-  message("Before: ", n_before)
-  message("Excluded (no evidence of CKD 4/5): ", n_before - n_after)
+  flow <- fn_add_flow_row(
+    arrow_data_ckd_inex_applied,
+    flow,
+    "Kidney function: Has G4/G5 CKD by code or 2x eGFRs"
+  )
 
-  return(arrow_data_ckd_inex_applied)
+  if (isTRUE(describe)) {
+    fn_describe_data(
+      data = collect(arrow_data_ckd_inex_applied),
+      filepath = here::here(
+        "output",
+        "data_descriptions",
+        "cleaning_inex",
+        "ckd_inex_applied.txt"
+      )
+    )
+  }
+
+  return(list(data = arrow_data_ckd_inex_applied, flow = flow))
 }
 
 
