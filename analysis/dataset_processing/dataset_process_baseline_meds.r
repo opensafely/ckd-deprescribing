@@ -41,6 +41,14 @@ source(here::here(
   "utilities",
   "fn_data_describing.r"
 ))
+source(here::here(
+  "analysis",
+  "r_functions",
+  "utilities",
+  "fn_disclosure_control.r"
+))
+source(here::here("analysis", "r_functions", "medications", "fn_med_flow.r"))
+
 
 # Create output folders --------------------------------------------------
 message("Create output folders")
