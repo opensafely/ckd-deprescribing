@@ -78,6 +78,21 @@ dmd_cols <- grep(
   names(dataset_process_baseline_meds_2_preprocessed),
   value = TRUE
 )
+
+n_slots <- length(dmd_cols)
+last_slot <- paste0("med_dmd_code_", n_slots)
+n_patients_at_slot_cap <- dataset_process_baseline_meds_2_preprocessed |>
+  filter(!is.na(.data[[last_slot]])) |>
+  nrow()
+
+if (n_patients_at_slot_cap > 0) {
+  warning(sprintf(
+    "%d patients filled all %d medication slots: medications may be truncated",
+    n_patients_at_slot_cap,
+    n_slots
+  ))
+}
+
 dataset_process_baseline_meds_2_preprocessed <-
   dataset_process_baseline_meds_2_preprocessed |>
   mutate(.no_meds = if_all(all_of(dmd_cols), is.na))
@@ -86,10 +101,6 @@ dataset_process_baseline_meds_3_remove_no_meds <- dataset_process_baseline_meds_
   filter(!.no_meds) |>
   select(-.no_meds)
 
-message(sprintf(
-  "%d patients with no medicines recorded",
-  sum(dataset_process_baseline_meds_2_preprocessed$.no_meds)
-))
 
 # Load pre-built medication lookup table ---------------------------------
 dmd_lookup <- readRDS(here::here(
