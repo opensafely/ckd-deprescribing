@@ -111,6 +111,9 @@ meet all the following criteria:
   - A SNOMED code indicating a diagnosis of CKD 4 and 5
     ([OpenCodelists](https://www.opencodelists.org/codelist/user/mletts92/chronic-kidney-disease-stage-4-and-5-but-not-receiving-kidney-replacement-therapy/49c071e2/))
     on any prior date.
+- Known sex that is exactly ‘male’ or ‘female’
+- Known region
+- Known IMD
 
 ### Exclusion criteria
 
@@ -133,15 +136,10 @@ earliest of:
 
 ### Data quality assurance criteria
 
-Individuals will only be included if they meet all the following
-criteria:
-
-- Known sex that is exactly ‘male’ or ‘female’
-- Known year of birth
-- (Known IMD
-- Known ethnicity
-- Known STP) - *I’m not sure about these bottom three - they may well
-  exclude people unnecessarily*
+We will remove patients whose data fails quality assurance checks: -
+Remove patients whose year of birth is missing - Remove patients whose
+year of birth after year of death - Remove patients whose date of death
+is after today - Remove patients whose year of birth is after today
 
 ## Prescribing information
 

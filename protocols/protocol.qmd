@@ -70,6 +70,9 @@ Individuals will be included in the cohort if on the index date they meet all th
 * Evidence of advanced chronic kidney disease, confirmed by the presence of one or both of the following [@Sparks2025]: 
   + The two most recent serum creatinine measurements that are >90 days apart are consistent with an estimated glomerular filtration rate (eGFR) <30 mls/min/1.73m^2^ (calculated using the 2009 CKD-EPI equation as recommended by the [UK Kidney Association](https://www.ukkidney.org/health-professionals/information-resources/uk-eckd-guide/measurement-kidney-function)).
   + A SNOMED code indicating a diagnosis of CKD 4 and 5 ([OpenCodelists](https://www.opencodelists.org/codelist/user/mletts92/chronic-kidney-disease-stage-4-and-5-but-not-receiving-kidney-replacement-therapy/49c071e2/)) on any prior date.
+* Known sex that is exactly 'male' or 'female'
+* Known region
+* Known IMD
 
 
 ### Exclusion criteria
@@ -87,13 +90,12 @@ Study participants will be followed up from the index date until the earliest of
 
 ### Data quality assurance criteria
 
-Individuals will only be included if they meet all the following criteria:
+We will remove patients whose data fails quality assurance checks:
+- Remove patients whose year of birth is missing
+- Remove patients whose year of birth after year of death
+- Remove patients whose date of death is after today
+- Remove patients whose year of birth is after today
 
-- Known sex that is exactly 'male' or 'female'
-- Known year of birth
-- (Known IMD
-- Known ethnicity
-- Known STP) - *I'm not sure about these bottom three - they may well exclude people unnecessarily*
 
 ## Prescribing information
 

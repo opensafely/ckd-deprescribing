@@ -5,39 +5,68 @@
 # - Excludes patients outside the eligible age range at index date
 # - Excludes patients without 12 months of continuous registration
 #    prior to index date
-# - Counts and records exclusions at each step
+# - Excludes patients with missing sex, region or IMD
+# - Counts N at each step and adds to flow table
 ##########################################################################
 
 fn_dem_inex_criteria <- function(
-  arrow_data
+  arrow_data,
+  flow,
+  describe = TRUE
 ) {
   require(arrow)
   require(dplyr)
 
-  # Count the numbers that fail each qa criteria respectively
-  counts <- arrow_data |>
-    summarise(
-      n_before = n(),
-      n_not_alive = sum(!inex_dem_bin_alive, na.rm = TRUE),
-      n_age_out_of_range = sum(!inex_dem_bin_age_include, na.rm = TRUE),
-      n_not_registered_1yr = sum(!inex_dem_bin_12m_registered, na.rm = TRUE),
-    ) |>
-    collect()
-
-  # Print exclusion counts
+  # Filter and count the numbers with each demographic criteria pass
   message("\nDemographic exclusions:")
-  message("n before demographic exclusions: ", counts$n_before)
-  message("Not alive at index date: ", counts$n_not_alive)
-  message("Age out of range: ", counts$n_age_out_of_range)
-  message("Registered <1 yr: ", counts$n_not_registered_1yr)
+  interim_list <- fn_apply_flow_filter(
+    arrow_data,
+    flow,
+    "inex_dem_bin_alive",
+    "Demographic: Alive at index date"
+  )
+  interim_list <- fn_apply_flow_filter(
+    interim_list$data,
+    interim_list$flow,
+    "inex_dem_bin_age_include",
+    "Demographic: Aged between 18 and 110 on index date"
+  )
+  interim_list <- fn_apply_flow_filter(
+    interim_list$data,
+    interim_list$flow,
+    "inex_dem_bin_12m_registered",
+    "Demographic: Registered for 12+ months on index date"
+  )
+  interim_list <- fn_apply_flow_filter(
+    interim_list$data,
+    interim_list$flow,
+    "inex_dem_bin_sex",
+    "Demographic: Known sex that is male or female"
+  )
+  interim_list <- fn_apply_flow_filter(
+    interim_list$data,
+    interim_list$flow,
+    "inex_dem_bin_region",
+    "Demographic: Known region"
+  )
+  output_list <- fn_apply_flow_filter(
+    interim_list$data,
+    interim_list$flow,
+    "inex_dem_bin_imd",
+    "Demographic: Known deprivation level"
+  )
 
-  # Apply demographic filters lazily
-  arrow_data_dem_inex_applied <- arrow_data |>
-    filter(
-      inex_dem_bin_alive,
-      inex_dem_bin_age_include,
-      inex_dem_bin_12m_registered
+  if (isTRUE(describe)) {
+    fn_describe_data(
+      data = collect(output_list$data),
+      filepath = here::here(
+        "output",
+        "data_descriptions",
+        "cleaning_inex",
+        "dem_inex_applied.txt"
+      )
     )
+  }
 
-  return(arrow_data_dem_inex_applied)
+  return(output_list)
 }
