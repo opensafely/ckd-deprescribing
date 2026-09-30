@@ -110,7 +110,6 @@ dem_inex_output_list <- fn_dem_inex_criteria(
 data_dem_inex_applied <- dem_inex_output_list$data
 flow <- dem_inex_output_list$flow
 
-
 # Apply CKD inclusion criteria -------------------------------------------
 # 4 new variables added to data:
 # 1. inex_num_egfr_1 - numerical value of most recent eGFR
@@ -120,10 +119,14 @@ flow <- dem_inex_output_list$flow
 #    with CKD G4 or G5
 # 4. inex_cat_ckd_stage_by_scr - category of eGFR derived CKD
 #    (G4, G5, G4/G5, or no G4/G5)
-dataset_cleaning_inex_5_ckd_inex_applied <- fn_ckd_inex_criteria(
-  arrow_data = dataset_cleaning_inex_4_demographic_inex_applied,
-  index_date = study_dates$index_date
+ckd_inex_output_list <- fn_ckd_inex_criteria(
+  arrow_data = data_dem_inex_applied,
+  flow = flow,
+  index_date = study_dates$index_date,
+  describe = TRUE
 )
+data_ckd_inex_applied <- ckd_inex_output_list$data
+flow <- ckd_inex_output_list$flow
 
 # Apply KRT exclusion criteria — split by type for flow chart breakdown --------
 # Each step produces one row in data_flow.csv via fn_describe_and_flow().
