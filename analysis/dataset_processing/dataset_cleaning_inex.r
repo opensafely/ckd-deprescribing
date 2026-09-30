@@ -4,8 +4,8 @@
 # 2. Modifies the dummy data if being run locally
 # 3. Type formats the variables
 # 4. Applies QA criteria and inclusion/exclusion criteria and compiles flow table
-# 5. Plots and tabulates medication counts 90 + 180 days before index date
-# 6. Saves cleaned dataset, plots, data-flow table and description files
+# 5. Tabulates medication counts 90 + 180 days before index date
+# 6. Saves cleaned dataset, med-summary, flow table and description files
 ##########################################################################
 
 # Import libraries and functions -----------------------------------------
@@ -57,7 +57,6 @@ source(here::here(
 message("Create output folders")
 dir_create(here::here("output", "data"))
 dir_create(here::here("output", "data_descriptions", "cleaning_inex"))
-dir_create(here::here("output", "figures", "cleaning_inex"))
 
 # Import dates -----------------------------------------------------------
 message("Import dates")
@@ -158,21 +157,33 @@ flow <- sensitivity_krt_output$flow
 # Rename cleaned dataset for clarity -------------------------------------
 dataset_inex_cleaned <- data_transplant_inex_applied
 
-# Examine medication counts in 90 and 180 days prior to index date -------
-message("\nTabulate the medication counts")
-med_count_summary <- dataset_inex_cleaned |>
-  summarise(
-    across(
-      c(inex_med_num_90, inex_med_num_180),
-      list(
-        mean = ~ mean(.x, na.rm = TRUE),
-        median = ~ median(.x, na.rm = TRUE),
-        p90 = ~ quantile(.x, 0.9, na.rm = TRUE),
-        p95 = ~ quantile(.x, 0.95, na.rm = TRUE)
-      )
-    )
-  ) |>
+# Tabulate the rough medication counts to help guide future medication parameters
+med_counts <- dataset_inex_cleaned |>
+  select(inex_med_num_90, inex_med_num_180) |>
   collect()
+
+max_med_count <- max(med_counts, na.rm = TRUE)
+message("Maximum medication count: ", max_med_count) # log only
+candidate_max_meds <- seq(0, max_med_count, by = 5)
+
+# SDC applied to output:
+# - only rows where n_at_least > 7 are displayed so max_med_count is not inferred
+# - row values (and population size) are rounded to nearest 5
+med_count_summary <- expand_grid(
+  time_window = names(med_counts),
+  n_meds = candidate_max_meds
+) |>
+  rowwise() |>
+  mutate(
+    n_at_least = sum(med_counts[[time_window]] >= n_meds, na.rm = TRUE)
+  ) |>
+  ungroup() |>
+  filter(n_at_least > 7) |>
+  mutate(
+    n_at_least = fn_apply_sdc(n_at_least),
+    pct_at_least = round(100 * n_at_least / fn_apply_sdc(nrow(med_counts)), 1)
+  )
+
 
 # Save all  outputs -------------------------------------------------------
 message("\nSave outputs:")
@@ -190,45 +201,6 @@ write_csv(
   )
 )
 
-message("Save graph of medication counts")
-plot_med_count_distribution <-
-  dataset_inex_cleaned |>
-  select(inex_med_num_90, inex_med_num_180) |>
-  collect() |>
-  pivot_longer(
-    # necessary for ggplot to colour by time window
-    cols = everything(),
-    names_to = "time_window",
-    values_to = "n_prescriptions"
-  ) |>
-  mutate(
-    time_window = case_when(
-      time_window == "inex_med_num_90" ~ "90 days",
-      time_window == "inex_med_num_180" ~ "180 days"
-    )
-  ) |>
-  ggplot(aes(x = n_prescriptions, colour = time_window, fill = time_window)) +
-  geom_freqpoly(binwidth = 1, linewidth = 0.8) +
-  labs(
-    title = "Distribution of medication counts before index date",
-    x = "Number of prescriptions",
-    y = "Number of patients",
-    colour = "Time window"
-  )
-
-ggsave(
-  filename = here::here(
-    "output",
-    "figures",
-    "cleaning_inex",
-    "plot_med_count_distribution.png"
-  ),
-  plot = plot_med_count_distribution,
-  width = 8,
-  height = 6,
-  dpi = 300
-)
-
 message("Save cleaned dataset to output/data/")
 dataset_inex_cleaned |>
   arrow::write_feather(
@@ -236,6 +208,7 @@ dataset_inex_cleaned |>
   )
 
 message("Save flow table to to output/data_descriptions/cleaning_inex/")
+flow <- flow |> mutate(N = fn_apply_sdc(N)) # Apply SDC to the N column
 write_csv(
   flow,
   here::here("output", "data_descriptions", "cleaning_inex", "data_flow.csv")
