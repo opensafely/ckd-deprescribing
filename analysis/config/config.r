@@ -51,7 +51,7 @@ write_json(
 # NHSBSA meds-ops polypharmacy = ch 1-4, 6-10 - see documentation above
 exclude_bnf_chapters <- list(
   base = c(
-    "5",
+    "05",
     "11",
     "12",
     "13",
