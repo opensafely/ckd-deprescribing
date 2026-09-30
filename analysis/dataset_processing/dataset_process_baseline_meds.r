@@ -146,8 +146,8 @@ bnf_imputation_summary <- bind_rows(
   dataset_process_baseline_meds_5_exclusions_applied |>
     summarise(
       metric = "prescriptions_with_imputed_bnf_code",
-      n = sum(bnf_imputed),
-      n_total = n(),
+      n = fn_apply_sdc(sum(bnf_imputed)),
+      n_total = fn_apply_sdc(n()),
       pct = round(n / n_total * 100, 2)
     ),
   # Number and percentage of patients with at least one prescription where BNF code imputed
@@ -156,8 +156,8 @@ bnf_imputation_summary <- bind_rows(
     summarise(any_imputed = any(bnf_imputed), .groups = "drop") |>
     summarise(
       metric = "patients_with_any_imputed_prescription",
-      n = sum(any_imputed),
-      n_total = nrow(all_patient_ids),
+      n = fn_apply_sdc(sum(any_imputed)),
+      n_total = fn_apply_sdc(n()),
       pct = round(n / n_total * 100, 2)
     )
 )
