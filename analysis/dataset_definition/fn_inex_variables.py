@@ -228,8 +228,9 @@ def add_krt_inex_variables(
              most_recent_primary_care_krt_code.ctv3_code.is_in(primary_care_ktx_codes)
         ).then("transplant"),
         when(
+            # currently unreachable - all primary care KRT codes are dialysis/transplant
             most_recent_primary_care_krt_code.ctv3_code.is_not_null()
-        ).then("unknown"),
+        ).then("unknown"), 
         otherwise=None,
     )
 

@@ -177,30 +177,46 @@ fn_ckd_inex_criteria <- function(
 # fn_krt_inex_criteria_dialysis()
 #
 # Excludes patients with primary care dialysis KRT codes prior to index
-# date. Split from transplant to give separate rows in data_flow.csv.
+# date
 ##########################################################################
 
-fn_krt_inex_criteria_dialysis <- function(arrow_data) {
+fn_krt_inex_criteria_dialysis <- function(
+  arrow_data,
+  flow,
+  describe = TRUE
+) {
   require(arrow)
   require(dplyr)
 
-  arrow_data_dialysis_out <- arrow_data |>
-    filter(
-      !(inex_krt_bin_has_primary_care_krt_code &
+  message("\nKRT exclusion - dialysis (primary care):")
+  arrow_data <- arrow_data |>
+    mutate(
+      no_dialysis = !(inex_krt_bin_has_primary_care_krt_code &
         inex_krt_cat_primary_care_krt_type == "dialysis")
     )
 
-  n_before <- arrow_data |> summarise(n = n()) |> collect() |> pull(n)
-  n_after <- arrow_data_dialysis_out |>
-    summarise(n = n()) |>
-    collect() |>
-    pull(n)
+  dialysis_output_list <- fn_apply_flow_filter(
+    arrow_data,
+    flow,
+    "no_dialysis",
+    "Primary care KRT code prior to index: Most recent = dialysis"
+  )
 
-  message("\nKRT exclusion - dialysis (primary care):")
-  message("Before: ", n_before)
-  message("Excluded: ", n_before - n_after)
+  dialysis_output_list$data <- dialysis_output_list$data |> select(-no_dialysis)
 
-  return(arrow_data_dialysis_out)
+  if (isTRUE(describe)) {
+    fn_describe_data(
+      data = collect(dialysis_output_list$data),
+      filepath = here::here(
+        "output",
+        "data_descriptions",
+        "cleaning_inex",
+        "krt_dialysis_excluded.txt"
+      )
+    )
+  }
+
+  return(dialysis_output_list)
 }
 
 
@@ -208,28 +224,45 @@ fn_krt_inex_criteria_dialysis <- function(arrow_data) {
 # fn_krt_inex_criteria_transplant()
 #
 # Excludes patients with primary care kidney transplant codes prior to
-# index date. Split from dialysis to give separate rows in data_flow.csv.
+# index date
 ##########################################################################
 
-fn_krt_inex_criteria_transplant <- function(arrow_data) {
+fn_krt_inex_criteria_transplant <- function(
+  arrow_data,
+  flow,
+  describe = TRUE
+) {
   require(arrow)
   require(dplyr)
 
-  arrow_data_transplant_out <- arrow_data |>
-    filter(
-      !(inex_krt_bin_has_primary_care_krt_code &
+  message("\nKRT exclusion - transplant (primary care):")
+  arrow_data <- arrow_data |>
+    mutate(
+      no_transplant = !(inex_krt_bin_has_primary_care_krt_code &
         inex_krt_cat_primary_care_krt_type == "transplant")
     )
 
-  n_before <- arrow_data |> summarise(n = n()) |> collect() |> pull(n)
-  n_after <- arrow_data_transplant_out |>
-    summarise(n = n()) |>
-    collect() |>
-    pull(n)
+  transplant_output_list <- fn_apply_flow_filter(
+    arrow_data,
+    flow,
+    "no_transplant",
+    "Primary care KRT code prior to index: Most recent = transplant"
+  )
 
-  message("\nKRT exclusion - transplant (primary care):")
-  message("Before: ", n_before)
-  message("Excluded: ", n_before - n_after)
+  transplant_output_list$data <- transplant_output_list$data |>
+    select(-no_transplant)
 
-  return(arrow_data_transplant_out)
+  if (isTRUE(describe)) {
+    fn_describe_data(
+      data = collect(transplant_output_list$data),
+      filepath = here::here(
+        "output",
+        "data_descriptions",
+        "cleaning_inex",
+        "krt_transplant_excluded.txt"
+      )
+    )
+  }
+
+  return(transplant_output_list)
 }

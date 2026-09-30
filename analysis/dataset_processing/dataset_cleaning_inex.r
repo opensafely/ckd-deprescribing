@@ -128,40 +128,35 @@ ckd_inex_output_list <- fn_ckd_inex_criteria(
 data_ckd_inex_applied <- ckd_inex_output_list$data
 flow <- ckd_inex_output_list$flow
 
-# Apply KRT exclusion criteria — split by type for flow chart breakdown --------
-# Each step produces one row in data_flow.csv via fn_describe_and_flow().
-# inex_krt_bin_secondary_care_only is already present from Python output.
-dataset_cleaning_inex_6_krt_dialysis_excluded <- fn_krt_inex_criteria_dialysis(
-  arrow_data = dataset_cleaning_inex_5_ckd_inex_applied
+# Apply KRT exclusion criteria -------------------------------------------
+dialysis_inex_output_list <- fn_krt_inex_criteria_dialysis(
+  arrow_data = data_ckd_inex_applied,
+  flow = flow,
+  describe = TRUE
 )
+data_dialysis_inex_applied <- dialysis_inex_output_list$data
+flow <- dialysis_inex_output_list$flow
 
-dataset_cleaning_inex_7_krt_transplant_excluded <- fn_krt_inex_criteria_transplant(
-  arrow_data = dataset_cleaning_inex_6_krt_dialysis_excluded
+transplant_inex_output_list <- fn_krt_inex_criteria_transplant(
+  arrow_data = data_dialysis_inex_applied,
+  flow = flow,
+  describe = TRUE
 )
+data_transplant_inex_applied <- transplant_inex_output_list$data
+flow <- transplant_inex_output_list$flow
 
-n_secondary_care_krt_remain <- dataset_cleaning_inex_7_krt_transplant_excluded |>
-  filter(inex_krt_bin_secondary_care_only == TRUE) |>
-  summarise(n = n()) |>
-  collect() |>
-  pull(n)
-
-message(sprintf(
-  "\nPatients with secondary care KRT codes remaining after primary care excluded: %d",
-  n_secondary_care_krt_remain
-))
-
-# Write all datasets to .txt and create flow dataframe -------------------
-message(
-  "\nWrite/save data_descriptions to output/data_descriptions/cleaning_inex/"
-)
-
-flow <- fn_describe_and_flow(
-  # function applies SDC rules
-  project_stage = "cleaning_inex"
-)
+# SENSITIVITY: population n if KRT defined with 2ndary care too
+sensitivity_krt_output <- data_transplant_inex_applied |>
+  mutate(no_secondary_krt = !inex_krt_bin_secondary_care_only) |>
+  fn_apply_flow_filter(
+    flow,
+    "no_secondary_krt",
+    "SENSITIVITY ONLY: numbers if KRT definition also used secondary care codes"
+  )
+flow <- sensitivity_krt_output$flow
 
 # Rename cleaned dataset for clarity -------------------------------------
-dataset_inex_cleaned <- dataset_cleaning_inex_7_krt_transplant_excluded
+dataset_inex_cleaned <- data_transplant_inex_applied
 
 # Examine medication counts in 90 and 180 days prior to index date -------
 message("\nTabulate the medication counts")
