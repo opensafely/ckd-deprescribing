@@ -40,23 +40,15 @@ creatinine_codes = codelist_from_csv(
 ## primary care KRT codes (all CTV3)
 # dialysis, ktx (transplant), then all krt
 primary_care_dialysis_codes = codelist_from_csv(
-    "codelists/opensafely-dialysis.csv",
-    column="CTV3ID"
+    "codelists/nhsd-primary-care-domain-refsets-dialysis_cod.csv",
+    column="code"
 )
 primary_care_ktx_codes = codelist_from_csv(
-    "codelists/opensafely-kidney-transplant.csv",
-    column="CTV3ID"
+    "codelists/nhsd-primary-care-domain-refsets-renaltransp_cod.csv",
+    column="code"
 )
-primary_care_krt_codes = codelist_from_csv(
-    "codelists/opensafely-renal-replacement-therapy.csv",
-    column="CTV3ID"
-)
-# combine them altogether for full list of primary care CTV3 codes 
-primary_care_krt_codes_all = (
-    primary_care_dialysis_codes 
-    + primary_care_ktx_codes 
-    + primary_care_krt_codes
-)
+primary_care_krt_codes = primary_care_dialysis_codes + primary_care_ktx_codes 
+
 
 ## secondary care KRT codes (ICD10 and OPCS-4)
 # icd10 - dialysis, ktx then all krt
