@@ -12,6 +12,15 @@ import csv
 ##########################################################################
 
 # CKD codes ---------------------------------------------------------------------
+
+# CKD stages 1-3 to be taken from OpenSAFELY all stages codelist
+primary_care_ckd_all_stages_codes = codelist_from_csv(
+    "codelists/opensafely-chronic-kidney-disease-codes-all-stages-with-numeric-column.csv",
+    column="code",
+    category_column="stage"
+)
+
+# CKD stages 4-5
 primary_care_ckd4_codes = codelist_from_csv(
     "codelists/user-mletts92-chronic-kidney-disease-stage-4.csv",
     column="code"
@@ -20,10 +29,16 @@ primary_care_ckd5_codes = codelist_from_csv(
     "codelists/user-mletts92-chronic-kidney-disease-stage-5-not-receiving-kidney-replacement-therapy.csv",
     column="code"
 )
-# ckd4 and ckd5 codelists combined
-primary_care_ckd45_codes = codelist_from_csv(
-    "codelists/user-mletts92-chronic-kidney-disease-stage-4-and-5-but-not-receiving-kidney-replacement-therapy.csv",
-    column="code"
+
+primary_care_ckd45_codes = primary_care_ckd4_codes + primary_care_ckd5_codes
+
+# all CKD stages (1-5) as one {code: stage}
+primary_care_ckd_stage_codes = (
+    {code: "1" for code, stage in primary_care_ckd_all_stages_codes.items() if stage == "1"}
+    | {code: "2" for code, stage in primary_care_ckd_all_stages_codes.items() if stage == "2"}
+    | {code: "3" for code, stage in primary_care_ckd_all_stages_codes.items() if stage == "3"}
+    | {code: "4" for code in primary_care_ckd4_codes}
+    | {code: "5" for code in primary_care_ckd5_codes}
 )
 
 # creatinine values -------------------------------------------------------------
