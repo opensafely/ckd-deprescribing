@@ -120,6 +120,12 @@
       "downloaded_at": "2026-05-29 12:52:22.859362Z",
       "sha": "bc7e48efd370be65686755f0a843058f1ec767e0"
     },
+    "opensafely-chronic-kidney-disease-codes-all-stages-with-numeric-column.csv": {
+      "id": "opensafely/chronic-kidney-disease-codes-all-stages-with-numeric-column/2a95faf7",
+      "url": "https://www.opencodelists.org/codelist/opensafely/chronic-kidney-disease-codes-all-stages-with-numeric-column/2a95faf7/",
+      "downloaded_at": "2026-10-02 14:31:17.874049+00:00Z",
+      "sha": "41e8e072c065e84777800c17c7f4d346bb37f878"
+    },
     "reducehf-myocardial-infarction-icd10.csv": {
       "id": "reducehf/myocardial-infarction-icd10/6b463edb",
       "url": "https://www.opencodelists.org/codelist/reducehf/myocardial-infarction-icd10/6b463edb/",
