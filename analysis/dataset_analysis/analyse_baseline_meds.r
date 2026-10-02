@@ -84,8 +84,8 @@ chronic_flags_oral_base <- fn_flag_chronic_meds(
   config_name = "base"
 )
 message(sprintf(
-  "--- oral | base definition | imputation included: %d rows",
-  nrow(chronic_flags_oral_base)
+  "--- oral | base definition | BNF imputation - %d chronic prescriptions",
+  sum(chronic_flags_oral_base$is_chronic_base, na.rm = TRUE)
 ))
 
 # Sensitivity 1: oral, base, BNF imputation excluded ---------------------
@@ -98,8 +98,8 @@ chronic_flags_oral_base_no_imputed <- fn_flag_chronic_meds(
   config_name = "base"
 )
 message(sprintf(
-  "--- oral | base definition | imputation excluded: %d rows",
-  nrow(chronic_flags_oral_base_no_imputed)
+  "--- oral | base definition | no BNF imputation - %d chronic prescriptions",
+  sum(chronic_flags_oral_base_no_imputed$is_chronic_base, na.rm = TRUE)
 ))
 
 # Sensitivity 2: all routes, base, BNF imputation included ---------------
@@ -111,8 +111,8 @@ chronic_flags_all_route_base <- fn_flag_chronic_meds(
   config_name = "base"
 )
 message(sprintf(
-  "--- all routes | base definition | imputation included: %d rows",
-  nrow(chronic_flags_all_route_base)
+  "--- all routes | base definition | BNF imputation - %d chronic prescriptions",
+  sum(chronic_flags_all_route_base$is_chronic_base, na.rm = TRUE)
 ))
 
 # Sensitivity 3: oral, sens_1, BNF imputation included --------------------
@@ -125,8 +125,8 @@ chronic_flags_oral_sens_1 <- fn_flag_chronic_meds(
   config_name = "sens_1"
 )
 message(sprintf(
-  "--- oral | sens_1 definition | imputation included: %d rows",
-  nrow(chronic_flags_oral_sens_1)
+  "--- oral | sens_1 definition | BNF imputation - %d chronic prescriptions",
+  sum(chronic_flags_oral_sens_1$is_chronic_sens_1, na.rm = TRUE)
 ))
 
 # Sensitivity 4: oral, sens_2, BNF imputation included --------------------
@@ -139,8 +139,8 @@ chronic_flags_oral_sens_2 <- fn_flag_chronic_meds(
   config_name = "sens_2"
 )
 message(sprintf(
-  "--- oral | sens_2 definition | imputation included: %d rows",
-  nrow(chronic_flags_oral_sens_2)
+  "--- oral | sens_2 definition | BNF imputation - %d chronic prescriptions",
+  sum(chronic_flags_oral_sens_2$is_chronic_sens_2, na.rm = TRUE)
 ))
 
 ############################################################################
@@ -173,6 +173,8 @@ chronic_flags_oral_base <- chronic_flags_oral_base |>
 # med_count gives the total number of chronic oral medications per patient.
 # estimated_gap_days/estimated_gap_bucket give a best-guess prescribing
 # interval per patient/substance, for future discontinuation-detection work.
+#
+# PEOPLE WITH ZERO MEDICATIONS ARE NOT IN THIS OUTPUT DATASET
 ##########################################################################
 
 message("Build patient-level oral substance dataset")
@@ -202,8 +204,8 @@ counts_days_before_index <- dataset_baseline_meds_analysed |>
       .default = paste0("76-", max_days)
     )
   ) |>
-  count(days_bin_label, name = "n_substance_patient_pairs") |>
-  mutate(n_substance_patient_pairs = fn_apply_sdc(n_substance_patient_pairs))
+  count(days_bin_label, name = "n_patient_substances") |>
+  mutate(n_patient_substances = fn_apply_sdc(n_patient_substances))
 
 
 ##########################################################################
@@ -315,6 +317,7 @@ bnf_chapters_frequency_table <- all_patient_ids |>
 # Join BNF hierarchy to get subparagraph and paragraph names for grouping
 chronic_oral_substances <- chronic_flags_oral_base |>
   filter(is_chronic_base) |>
+  select(patient_id, bnf_substance_code) |>
   left_join(
     bnf_hierarchy |>
       select(
