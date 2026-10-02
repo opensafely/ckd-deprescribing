@@ -26,7 +26,6 @@ from variable_helper_functions import (
     get_imd,
     count_recent_meds,
     ever_matching_event_clinical_snomed_before,
-    ever_matching_event_clinical_ctv3_before,
 )
 from codelists import *
 from datetime import date
@@ -190,7 +189,7 @@ def add_ckd_inex_variables(
 def add_krt_inex_variables(
     clinical_events,
     apcs,
-    primary_care_krt_codes_all,
+    primary_care_krt_codes,
     primary_care_dialysis_codes,
     primary_care_ktx_codes,
     secondary_care_krt_codes_opcs4,
@@ -202,11 +201,11 @@ def add_krt_inex_variables(
     index_date,
 ):
    
-    ### Primary care codes - all CTV3 ###
+    ### Primary care codes - all SNOMED CT ###
    
-    # CTV3 krt code before index date
-    primary_care_krt_code = ever_matching_event_clinical_ctv3_before(
-        primary_care_krt_codes_all, index_date
+    # SNOMED krt code before index date
+    primary_care_krt_code = ever_matching_event_clinical_snomed_before(
+        primary_care_krt_codes, index_date
     )
 
     # binary flag if a person has a secondary care krt code prior to index date
@@ -219,17 +218,14 @@ def add_krt_inex_variables(
         .last_for_patient()
     )
 
-    # type of most recent krt code (dialysis/transplant/unknown)
+    # type of most recent krt code (dialysis/transplant)
     primary_care_krt_type = case(
         when(
-            most_recent_primary_care_krt_code.ctv3_code.is_in(primary_care_dialysis_codes)
+            most_recent_primary_care_krt_code.snomedct_code.is_in(primary_care_dialysis_codes)
         ).then("dialysis"),
         when(
-             most_recent_primary_care_krt_code.ctv3_code.is_in(primary_care_ktx_codes)
+             most_recent_primary_care_krt_code.snomedct_code.is_in(primary_care_ktx_codes)
         ).then("transplant"),
-        when(
-            most_recent_primary_care_krt_code.ctv3_code.is_not_null()
-        ).then("unknown"),
         otherwise=None,
     )
 
@@ -401,7 +397,7 @@ def add_inex_variables(dataset, index_date):
         **add_krt_inex_variables(
             clinical_events=clinical_events,
             apcs=apcs,
-            primary_care_krt_codes_all=primary_care_krt_codes_all,
+            primary_care_krt_codes=primary_care_krt_codes,
             primary_care_dialysis_codes=primary_care_dialysis_codes,
             primary_care_ktx_codes=primary_care_ktx_codes,
             secondary_care_krt_codes_opcs4=secondary_care_krt_codes_opcs4,

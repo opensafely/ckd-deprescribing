@@ -40,9 +40,9 @@ test_data = {
                 "numeric_value": 160
             },
             { 
-                # primary care ctv3 for krt
+                # primary care snomed for krt (transplant)
                 "date": date(2022, 2, 1),
-                "ctv3_code": "7B001"
+                "snomedct_code": "1095231000000108"
             },
             { 
                 # snomed for ethnicity
@@ -169,9 +169,9 @@ test_data = {
                 # "snomedct_code": "46177005"
             },
             { 
-                # no primary care ctv3 for krt
+                # no primary care snomed for krt
                 # "date": date(2022, 2, 1),
-                # "ctv3_code": "7B001"
+                # "snomedct_code": "1095231000000108"
             },
             { 
                 # no snomed for ethnicity
@@ -277,9 +277,9 @@ test_data = {
                 "snomedct_code": "46177005"
             },
             { 
-                # primary care ctv3 for krt
+                # primary care snomed for krt (dialysis)
                 "date": date(2023, 2, 1), # after index
-                "ctv3_code": "7A602"
+                "snomedct_code": "105502003"
             },
             { 
                 # snomed for ethnicity
@@ -382,14 +382,14 @@ test_data = {
                 "snomedct_code": "431857002",
             },
             { 
-                # primary care ctv3 for krt
+                # primary care snomed for krt
                 "date": date(1900, 1, 1), # date should not matter
-                "ctv3_code": "7L1A1" # peritoneal dialysis
+                "snomedct_code": "105502003" # dialysis
             },
             {
-                # a second ctv3 for krt
+                # a second snomed for krt
                 "date": date(1901, 1, 1),
-                "ctv3_code": "X30Md" # renal transplant code
+                "snomedct_code": "1095231000000108" # renal transplant code
             },
             { 
                 # snomed for ethnicity

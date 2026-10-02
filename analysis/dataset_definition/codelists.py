@@ -37,7 +37,7 @@ creatinine_codes = codelist_from_csv(
 ##########################################################################
 # Same methods as in this paper: https://bmjmedicine.bmj.com/content/3/1/e000807
 
-## primary care KRT codes (all CTV3)
+## primary care KRT codes (all SNOMED CT)
 # dialysis, ktx (transplant), then all krt
 primary_care_dialysis_codes = codelist_from_csv(
     "codelists/nhsd-primary-care-domain-refsets-dialysis_cod.csv",
