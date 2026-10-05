@@ -24,12 +24,12 @@ from ehrql import (
 )
 from variable_helper_functions import (
     get_imd,
-    get_latest_ethnicity,
     count_recent_meds,
     ever_matching_event_clinical_snomed_before,
     ever_matching_event_clinical_ctv3_before,
 )
 from codelists import *
+from datetime import date
 
 #####################################################################
 # INCLUSION/EXCLUSION FUNCTIONS
@@ -64,6 +64,23 @@ def add_demographic_inex_variables(
             )
         ).exists_for_patient(
     )
+
+    known_sex = (
+        (patients.sex == "male") |
+        (patients.sex == "female")
+    )
+
+    known_region = (
+        practice_registrations
+        .for_patient_on(index_date)
+        .practice_nuts1_region_name
+        .is_not_null()
+    )
+
+    known_imd = (
+        get_imd(index_date, groups=5, max_imd=32844)
+        .is_not_null()
+    )
     
     return {
 
@@ -71,7 +88,10 @@ def add_demographic_inex_variables(
         "inex_dem_bin_age_include": (age >= 18) & (age <= 110),
         "inex_dem_bin_12m_registered": registered_12m, # what about if someone has no end_date on a previous registration and they have two 'active registrations'
         "inex_dem_num_age": age,
-        "inex_dem_cat_sex": patients.sex
+        "inex_dem_cat_sex": patients.sex,
+        "inex_dem_bin_sex": known_sex,
+        "inex_dem_bin_region": known_region,
+        "inex_dem_bin_imd": known_imd
 
     }
 
@@ -208,8 +228,9 @@ def add_krt_inex_variables(
              most_recent_primary_care_krt_code.ctv3_code.is_in(primary_care_ktx_codes)
         ).then("transplant"),
         when(
+            # currently unreachable - all primary care KRT codes are dialysis/transplant
             most_recent_primary_care_krt_code.ctv3_code.is_not_null()
-        ).then("unknown"),
+        ).then("unknown"), 
         otherwise=None,
     )
 
@@ -327,38 +348,36 @@ def add_medication_inex_variables(
 # QA VARIABLES -------------------------------------------------------
 # generates booleans for each of the quality assurance criteria
 
-def add_qa_inex_variables(
-    index_date
-):
+def add_qa_inex_variables():
     
+    today = date.today()
+
+    dob_known = patients.date_of_birth.is_not_null()
+
+    dob_before_dod_patients = (
+        patients.date_of_death.is_null() |
+        patients.date_of_birth.is_on_or_before(patients.date_of_death)
+    )
+
+    dob_before_dod_ons = (
+        ons_deaths.date.is_null() |
+        patients.date_of_birth.is_on_or_before(ons_deaths.date)
+    )
+
+    dob_before_dod = dob_before_dod_patients & dob_before_dod_ons
+
+    dob_not_future = patients.date_of_birth.is_on_or_before(today)
+
+    dod_not_future = (
+        (patients.date_of_death.is_null() | patients.date_of_death.is_on_or_before(today)) &
+        (ons_deaths.date.is_null() | ons_deaths.date.is_on_or_before(today))
+    )
+
     return {
-
-        # known sex that is male or female
-        "inex_qa_bin_sex": (
-            (patients.sex == "male") |
-            (patients.sex == "female")
-        ),
-
-        # known region
-        "inex_qa_bin_region": (
-            practice_registrations
-            .for_patient_on(index_date)
-            .practice_nuts1_region_name
-            .is_not_null()
-        ),
-
-        # known ethnicity
-        "inex_qa_bin_ethnicity": (
-            get_latest_ethnicity(index_date, ethnicity_codes, grouping=6)
-            .is_not_null()
-        ),
-
-        # known IMD
-        "inex_qa_bin_imd": (
-            get_imd(index_date, groups=5, max_imd=32844)
-            .is_not_null()
-        )
-
+        "inex_qa_bin_dob_known": dob_known,
+        "inex_qa_bin_dob_before_dod": dob_before_dod,
+        "inex_qa_bin_dob_not_future": dob_not_future,
+        "inex_qa_bin_dod_not_future": dod_not_future,
     }
 
 
@@ -394,9 +413,7 @@ def add_inex_variables(dataset, index_date):
             secondary_care_ktx_codes_icd10=secondary_care_ktx_codes_icd10,
             index_date=index_date,
         ),
-        **add_qa_inex_variables(
-            index_date
-        ),
+        **add_qa_inex_variables(),
         **add_medication_inex_variables(
             index_date
         )

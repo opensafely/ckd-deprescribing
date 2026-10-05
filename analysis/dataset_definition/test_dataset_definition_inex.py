@@ -109,7 +109,10 @@ test_data = {
             "inex_dem_bin_age_include": True,                         
             "inex_dem_bin_12m_registered": True,                    
             "inex_dem_num_age": 72,
-            "inex_dem_cat_sex": "female",                               
+            "inex_dem_cat_sex": "female",    
+            "inex_dem_bin_sex": True,                                 
+            "inex_dem_bin_region": True,                                                   
+            "inex_dem_bin_imd": True,                           
             "inex_ckd_bin_has_two_scr": True,                    
             "inex_ckd_num_scr_value_1": 150,                        
             "inex_ckd_date_scr_date_1": date(2022, 1, 1),                       
@@ -123,12 +126,12 @@ test_data = {
             "inex_krt_bin_has_secondary_care_krt_code": True,
             "inex_krt_cat_secondary_care_krt_type": "transplant",
             "inex_krt_bin_secondary_care_only": False,
-            "inex_qa_bin_sex": True,                                 
-            "inex_qa_bin_region": True,                             
-            "inex_qa_bin_ethnicity": True,                           
-            "inex_qa_bin_imd": True,
             "inex_med_num_90": 1,
-            "inex_med_num_180": 2   
+            "inex_med_num_180": 2,
+            "inex_qa_bin_dob_known": True,
+            "inex_qa_bin_dob_before_dod": True,
+            "inex_qa_bin_dob_not_future": True,
+            "inex_qa_bin_dod_not_future": True   
         },
     },
 
@@ -137,8 +140,8 @@ test_data = {
 
         
     2: {    # < 90 days between creatinine measurements, test alive
-            # test age constraints, test sex qa, test ethnicity function
-            # test qa region, no primary or secondary care krt codes,
+            # test age constraints, test known sex
+            # test no region, no primary or secondary care krt codes,
             # test 12m registered
             
         "patients": { # one row per patient
@@ -220,7 +223,10 @@ test_data = {
             "inex_dem_bin_age_include": False,                         
             "inex_dem_bin_12m_registered": False,                    
             "inex_dem_num_age": 112,
-            "inex_dem_cat_sex": "intersex",                               
+            "inex_dem_cat_sex": "intersex",    
+            "inex_dem_bin_sex": False,                                 
+            "inex_dem_bin_region": False,                                                  
+            "inex_dem_bin_imd": True,                              
             "inex_ckd_bin_has_two_scr": False,                    
             "inex_ckd_num_scr_value_1": 150,                        
             "inex_ckd_date_scr_date_1": date(2022, 1, 1),                       
@@ -234,10 +240,10 @@ test_data = {
             "inex_krt_bin_has_secondary_care_krt_code": False,
             "inex_krt_cat_secondary_care_krt_type": None,
             "inex_krt_bin_secondary_care_only": False,
-            "inex_qa_bin_sex": False,                                 
-            "inex_qa_bin_region": False,                             
-            "inex_qa_bin_ethnicity": True,                           
-            "inex_qa_bin_imd": True   
+            "inex_qa_bin_dob_known": True,
+            "inex_qa_bin_dob_before_dod": True,
+            "inex_qa_bin_dob_not_future": True,
+            "inex_qa_bin_dod_not_future": True  
         },
     },
 
@@ -325,7 +331,10 @@ test_data = {
             "inex_dem_bin_age_include": True,                         
             "inex_dem_bin_12m_registered": False,                    
             "inex_dem_num_age": 72,
-            "inex_dem_cat_sex": "female",                               
+            "inex_dem_cat_sex": "female", 
+            "inex_dem_bin_sex": True,                                 
+            "inex_dem_bin_region": False,                                                 
+            "inex_dem_bin_imd": False,                                 
             "inex_ckd_bin_has_two_scr": False,                    
             "inex_ckd_num_scr_value_1": 160, # both on the same date, appears to take the latter measurement                        
             "inex_ckd_date_scr_date_1": date(2021, 1, 1),                       
@@ -339,10 +348,10 @@ test_data = {
             "inex_krt_bin_has_secondary_care_krt_code": True,
             "inex_krt_cat_secondary_care_krt_type": "unknown",
             "inex_krt_bin_secondary_care_only": True,
-            "inex_qa_bin_sex": True,                                 
-            "inex_qa_bin_region": False,                             
-            "inex_qa_bin_ethnicity": False,                           
-            "inex_qa_bin_imd": False   
+            "inex_qa_bin_dob_known": True,
+            "inex_qa_bin_dob_before_dod": True,
+            "inex_qa_bin_dob_not_future": True,
+            "inex_qa_bin_dod_not_future": True  
         },
     },
 
@@ -435,7 +444,10 @@ test_data = {
             "inex_dem_bin_age_include": True,                         
             "inex_dem_bin_12m_registered": False,                    
             "inex_dem_num_age": 72,
-            "inex_dem_cat_sex": "unknown",                               
+            "inex_dem_cat_sex": "unknown",
+            "inex_dem_bin_sex": False,                                 
+            "inex_dem_bin_region": True,                             
+            "inex_dem_bin_imd": False,                                
             "inex_ckd_bin_has_two_scr": False,                    
             "inex_ckd_num_scr_value_1": None,                        
             "inex_ckd_date_scr_date_1": None,                       
@@ -449,10 +461,79 @@ test_data = {
             "inex_krt_bin_has_secondary_care_krt_code": True,
             "inex_krt_cat_secondary_care_krt_type": "dialysis",
             "inex_krt_bin_secondary_care_only": False,
-            "inex_qa_bin_sex": False,                                 
-            "inex_qa_bin_region": True,                             
-            "inex_qa_bin_ethnicity": False,                           
-            "inex_qa_bin_imd": False   
+            "inex_qa_bin_dob_known": True,
+            "inex_qa_bin_dob_before_dod": False,
+            "inex_qa_bin_dob_not_future": True,
+            "inex_qa_bin_dod_not_future": True,  
+        },
+    },
+
+    5: {    # fails QA criteria: DOB in the future, DOB after DOD (both sources),
+            # DOD in the future (both sources)
+
+        "patients": { # one row per patient
+            "date_of_birth": date(2100, 1, 1), # implausible - future DOB
+            "sex": "female",
+            "date_of_death": date(2050, 1, 1) # future DOD, also before the implausible DOB above
+            },
+
+        "clinical_events": [], # many rows per patient
+
+        "practice_registrations": [ # many rows per patient
+            {
+                "start_date": date(2015, 1, 1), # never NULL
+                "end_date": date(2025, 1, 1),
+                "practice_nuts1_region_name": "North East"
+            }
+        ],
+
+        "ons_deaths": { # one row per patient
+            "date": date(2060, 1, 1) # also future, also before the implausible DOB
+        },
+
+        "apcs": [], # many rows per patient
+
+        "medications": [],
+
+        "addresses": [
+            { # many rows per patient, each row one registration period per patient
+                "address_id": "12345",
+                "start_date": date(2010, 1, 1),
+                "end_date": date(2025, 1, 1),
+                "has_postcode": True,
+                "imd_rounded": 8000
+            }
+        ],
+
+        "ethnicity_from_sus": {},
+
+        "expected_in_population": True,
+        "expected_columns": {
+            "inex_dem_bin_alive": True, # "alive" only checks dod is after index_date
+            "inex_dem_bin_age_include": False, 
+            "inex_dem_bin_12m_registered": True,
+            "inex_dem_num_age": -78,
+            "inex_dem_cat_sex": "female",
+            "inex_dem_bin_sex": True,
+            "inex_dem_bin_region": True,
+            "inex_dem_bin_imd": True,
+            "inex_ckd_bin_has_two_scr": False,
+            "inex_ckd_num_scr_value_1": None,
+            "inex_ckd_date_scr_date_1": None,
+            "inex_ckd_num_scr_value_2": None,
+            "inex_ckd_date_scr_date_2": None,
+            "inex_ckd_bin_has_ckd45_code": False,
+            "inex_ckd_date_most_recent_ckd45_code": None,
+            "inex_ckd_cat_ckd_code_stage": None,
+            "inex_krt_bin_has_primary_care_krt_code": False,
+            "inex_krt_cat_primary_care_krt_type": None,
+            "inex_krt_bin_has_secondary_care_krt_code": False,
+            "inex_krt_cat_secondary_care_krt_type": None,
+            "inex_krt_bin_secondary_care_only": False,
+            "inex_qa_bin_dob_known": True,
+            "inex_qa_bin_dob_before_dod": False, 
+            "inex_qa_bin_dob_not_future": False,
+            "inex_qa_bin_dod_not_future": False, 
         },
     },
 }

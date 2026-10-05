@@ -43,7 +43,10 @@ fn_modify_dummy_data <- function(
           size = n(),
           replace = TRUE,
           prob = c(0.49, 0.49, 0.01, 0.01)
-        ))
+        )),
+        inex_dem_bin_sex = inex_dem_cat_sex %in% c("male", "female"),
+        inex_dem_bin_region = as.logical(rbinom(n(), 1, p = 0.99)),
+        inex_dem_bin_imd = as.logical(rbinom(n(), 1, p = 0.99))
       ) |>
 
       ## CKD variables ##
@@ -215,13 +218,13 @@ fn_modify_dummy_data <- function(
           !inex_krt_bin_has_primary_care_krt_code
       ) |>
 
-      ## Reapply the QA criteria from inex_variables.py ##
+      ## Reapply QA criteria from fn_inex_variables.py ##
 
       mutate(
-        inex_qa_bin_sex = inex_dem_cat_sex %in% c("male", "female"),
-        inex_qa_bin_region = as.logical(rbinom(n(), 1, p = 0.99)),
-        inex_qa_bin_ethnicity = as.logical(rbinom(n(), 1, p = 0.99)),
-        inex_qa_bin_imd = as.logical(rbinom(n(), 1, p = 0.99))
+        inex_qa_bin_dob_known = as.logical(rbinom(n(), 1, p = 0.99)),
+        inex_qa_bin_dob_before_dod = as.logical(rbinom(n(), 1, p = 0.99)),
+        inex_qa_bin_dob_not_future = as.logical(rbinom(n(), 1, p = 0.99)),
+        inex_qa_bin_dod_not_future = as.logical(rbinom(n(), 1, p = 0.99))
       )
   } else if (project_stage == "process_baseline_meds") {
     # intentionally leave blank - no modifications to dummy data

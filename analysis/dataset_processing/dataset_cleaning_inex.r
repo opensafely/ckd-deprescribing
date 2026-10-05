@@ -3,9 +3,9 @@
 # 1. Loads output/dataset_inex.arrow created by generate_dataset_inex
 # 2. Modifies the dummy data if being run locally
 # 3. Type formats the variables
-# 4. Applies QA criteria and inclusion/exclusion criteria
-# 5. Plots and tabulates medication counts 90 + 180 days before index date
-# 6. Saves cleaned dataset, plots, data-flow table and description files
+# 4. Applies QA criteria and inclusion/exclusion criteria and compiles flow table
+# 5. Tabulates medication counts 90 + 180 days before index date
+# 6. Saves cleaned dataset, med-summary, flow table and description files
 ##########################################################################
 
 # Import libraries and functions -----------------------------------------
@@ -46,12 +46,17 @@ source(here::here(
   "inex_criteria",
   "fn_ckd_inex_criteria.r"
 ))
+source(here::here(
+  "analysis",
+  "r_functions",
+  "inex_criteria",
+  "fn_apply_flow_filter.r"
+))
 
 # Create output folders --------------------------------------------------
 message("Create output folders")
 dir_create(here::here("output", "data"))
 dir_create(here::here("output", "data_descriptions", "cleaning_inex"))
-dir_create(here::here("output", "figures", "cleaning_inex"))
 
 # Import dates -----------------------------------------------------------
 message("Import dates")
@@ -61,28 +66,48 @@ study_dates <- lapply(study_dates, function(x) as.Date(x))
 # Load dataset, keeping in arrow format for speed ------------------------
 message("Load the dataset for lazy processing")
 input_filename <- "dataset_inex.arrow"
-dataset_cleaning_inex_1_input <- arrow::open_dataset(
+data_input <- arrow::open_dataset(
   here::here("output", input_filename),
   format = "ipc"
 )
 
+# Initialise the flow data frame -----------------------------------------
+flow <- data.frame(
+  Description = "Input",
+  N = data_input |> summarise(n = n()) |> collect() |> pull(n),
+  stringsAsFactors = FALSE
+)
+
 # Preprocess data: transform variables and modify dummy data -------------
-dataset_cleaning_inex_2_preprocessed <- fn_preprocess(
-  arrow_data = dataset_cleaning_inex_1_input,
+data_preprocessed <- fn_preprocess(
+  arrow_data = data_input,
   project_stage = "cleaning_inex",
   index_date = study_dates$index_date,
   one_row_per_patient = TRUE
 )
+flow <- fn_add_flow_row(
+  data_preprocessed,
+  flow,
+  "Preprocessed: Removed rows with missing patient_id"
+)
 
 # Apply qa criteria ------------------------------------------------------
-dataset_cleaning_inex_3_qa_applied <- fn_qa(
-  arrow_data = dataset_cleaning_inex_2_preprocessed
+qa_output_list <- fn_qa(
+  arrow_data = data_preprocessed,
+  flow = flow,
+  describe = TRUE
 )
+data_qa_applied <- qa_output_list$data
+flow <- qa_output_list$flow
 
 # Apply demographic inclusion and exclusion criteria ---------------------
-dataset_cleaning_inex_4_demographic_inex_applied <- fn_dem_inex_criteria(
-  arrow_data = dataset_cleaning_inex_3_qa_applied
+dem_inex_output_list <- fn_dem_inex_criteria(
+  arrow_data = data_qa_applied,
+  flow = flow,
+  describe = TRUE
 )
+data_dem_inex_applied <- dem_inex_output_list$data
+flow <- dem_inex_output_list$flow
 
 # Apply CKD inclusion criteria -------------------------------------------
 # 4 new variables added to data:
@@ -93,61 +118,72 @@ dataset_cleaning_inex_4_demographic_inex_applied <- fn_dem_inex_criteria(
 #    with CKD G4 or G5
 # 4. inex_cat_ckd_stage_by_scr - category of eGFR derived CKD
 #    (G4, G5, G4/G5, or no G4/G5)
-dataset_cleaning_inex_5_ckd_inex_applied <- fn_ckd_inex_criteria(
-  arrow_data = dataset_cleaning_inex_4_demographic_inex_applied,
-  index_date = study_dates$index_date
+ckd_inex_output_list <- fn_ckd_inex_criteria(
+  arrow_data = data_dem_inex_applied,
+  flow = flow,
+  index_date = study_dates$index_date,
+  describe = TRUE
 )
+data_ckd_inex_applied <- ckd_inex_output_list$data
+flow <- ckd_inex_output_list$flow
 
-# Apply KRT exclusion criteria — split by type for flow chart breakdown --------
-# Each step produces one row in data_flow.csv via fn_describe_and_flow().
-# inex_krt_bin_secondary_care_only is already present from Python output.
-dataset_cleaning_inex_6_krt_dialysis_excluded <- fn_krt_inex_criteria_dialysis(
-  arrow_data = dataset_cleaning_inex_5_ckd_inex_applied
+# Apply KRT exclusion criteria -------------------------------------------
+dialysis_inex_output_list <- fn_krt_inex_criteria_dialysis(
+  arrow_data = data_ckd_inex_applied,
+  flow = flow,
+  describe = TRUE
 )
+data_dialysis_inex_applied <- dialysis_inex_output_list$data
+flow <- dialysis_inex_output_list$flow
 
-dataset_cleaning_inex_7_krt_transplant_excluded <- fn_krt_inex_criteria_transplant(
-  arrow_data = dataset_cleaning_inex_6_krt_dialysis_excluded
+transplant_inex_output_list <- fn_krt_inex_criteria_transplant(
+  arrow_data = data_dialysis_inex_applied,
+  flow = flow,
+  describe = TRUE
 )
+data_transplant_inex_applied <- transplant_inex_output_list$data
+flow <- transplant_inex_output_list$flow
 
-n_secondary_care_krt_remain <- dataset_cleaning_inex_7_krt_transplant_excluded |>
-  filter(inex_krt_bin_secondary_care_only == TRUE) |>
-  summarise(n = n()) |>
-  collect() |>
-  pull(n)
-
-message(sprintf(
-  "\nPatients with secondary care KRT codes remaining after primary care excluded: %d",
-  n_secondary_care_krt_remain
-))
-
-# Write all datasets to .txt and create flow dataframe -------------------
-message(
-  "\nWrite/save data_descriptions to output/data_descriptions/cleaning_inex/"
-)
-
-flow <- fn_describe_and_flow(
-  # function applies SDC rules
-  project_stage = "cleaning_inex"
-)
+# SENSITIVITY: population n if KRT defined with 2ndary care too
+sensitivity_krt_output <- data_transplant_inex_applied |>
+  mutate(no_secondary_krt = !inex_krt_bin_secondary_care_only) |>
+  fn_apply_flow_filter(
+    flow,
+    "no_secondary_krt",
+    "SENSITIVITY ONLY: numbers if KRT definition also used secondary care codes"
+  )
+flow <- sensitivity_krt_output$flow
 
 # Rename cleaned dataset for clarity -------------------------------------
-dataset_inex_cleaned <- dataset_cleaning_inex_7_krt_transplant_excluded
+dataset_inex_cleaned <- data_transplant_inex_applied
 
-# Examine medication counts in 90 and 180 days prior to index date -------
-message("\nTabulate the medication counts")
-med_count_summary <- dataset_inex_cleaned |>
-  summarise(
-    across(
-      c(inex_med_num_90, inex_med_num_180),
-      list(
-        mean = ~ mean(.x, na.rm = TRUE),
-        median = ~ median(.x, na.rm = TRUE),
-        p90 = ~ quantile(.x, 0.9, na.rm = TRUE),
-        p95 = ~ quantile(.x, 0.95, na.rm = TRUE)
-      )
-    )
-  ) |>
+# Tabulate the rough medication counts to help guide future medication parameters
+med_counts <- dataset_inex_cleaned |>
+  select(inex_med_num_90, inex_med_num_180) |>
   collect()
+
+max_med_count <- max(med_counts, na.rm = TRUE)
+message("Maximum medication count: ", max_med_count) # log only
+candidate_max_meds <- seq(0, max_med_count, by = 5)
+
+# SDC applied to output:
+# - only rows where n_at_least > 7 are displayed so max_med_count is not inferred
+# - row values (and population size) are rounded to nearest 5
+med_count_summary <- expand_grid(
+  time_window = names(med_counts),
+  n_meds = candidate_max_meds
+) |>
+  rowwise() |>
+  mutate(
+    n_at_least = sum(med_counts[[time_window]] >= n_meds, na.rm = TRUE)
+  ) |>
+  ungroup() |>
+  filter(n_at_least > 7) |>
+  mutate(
+    n_at_least = fn_apply_sdc(n_at_least),
+    pct_at_least = round(100 * n_at_least / fn_apply_sdc(nrow(med_counts)), 1)
+  )
+
 
 # Save all  outputs -------------------------------------------------------
 message("\nSave outputs:")
@@ -165,45 +201,6 @@ write_csv(
   )
 )
 
-message("Save graph of medication counts")
-plot_med_count_distribution <-
-  dataset_inex_cleaned |>
-  select(inex_med_num_90, inex_med_num_180) |>
-  collect() |>
-  pivot_longer(
-    # necessary for ggplot to colour by time window
-    cols = everything(),
-    names_to = "time_window",
-    values_to = "n_prescriptions"
-  ) |>
-  mutate(
-    time_window = case_when(
-      time_window == "inex_med_num_90" ~ "90 days",
-      time_window == "inex_med_num_180" ~ "180 days"
-    )
-  ) |>
-  ggplot(aes(x = n_prescriptions, colour = time_window, fill = time_window)) +
-  geom_freqpoly(binwidth = 1, linewidth = 0.8) +
-  labs(
-    title = "Distribution of medication counts before index date",
-    x = "Number of prescriptions",
-    y = "Number of patients",
-    colour = "Time window"
-  )
-
-ggsave(
-  filename = here::here(
-    "output",
-    "figures",
-    "cleaning_inex",
-    "plot_med_count_distribution.png"
-  ),
-  plot = plot_med_count_distribution,
-  width = 8,
-  height = 6,
-  dpi = 300
-)
-
 message("Save cleaned dataset to output/data/")
 dataset_inex_cleaned |>
   arrow::write_feather(
@@ -211,6 +208,7 @@ dataset_inex_cleaned |>
   )
 
 message("Save flow table to to output/data_descriptions/cleaning_inex/")
+flow <- flow |> mutate(N = fn_apply_sdc(N)) # Apply SDC to the N column
 write_csv(
   flow,
   here::here("output", "data_descriptions", "cleaning_inex", "data_flow.csv")
