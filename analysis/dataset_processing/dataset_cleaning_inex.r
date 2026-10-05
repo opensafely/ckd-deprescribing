@@ -3,9 +3,10 @@
 # 1. Loads output/dataset_inex.arrow created by generate_dataset_inex
 # 2. Modifies the dummy data if being run locally
 # 3. Type formats the variables
-# 4. Applies QA criteria and inclusion/exclusion criteria and compiles flow table
-# 5. Tabulates medication counts 90 + 180 days before index date
-# 6. Saves cleaned dataset, med-summary, flow table and description files
+# 4. Applies QA criteria and inclusion/exclusion criteria
+# 5. Compiles flow table a sensitivity table of varying CKD definitions
+# 6. Tabulates medication counts 90 + 180 days before index date
+# 7. Saves cleaned dataset, med-summary, tables and description files
 ##########################################################################
 
 # Import libraries and functions -----------------------------------------
@@ -110,14 +111,6 @@ data_dem_inex_applied <- dem_inex_output_list$data
 flow <- dem_inex_output_list$flow
 
 # Apply CKD inclusion criteria -------------------------------------------
-# 4 new variables added to data:
-# 1. inex_num_egfr_1 - numerical value of most recent eGFR
-# 2. inex_num_egfr_2 - numerical value of most recent eGFR 90+ days prior
-#    to inex_num_egfr_1
-# 3. inex_bin_has_ckd45_by_scr - boolean TRUE if eGFRs consistent
-#    with CKD G4 or G5
-# 4. inex_cat_ckd_stage_by_scr - category of eGFR derived CKD
-#    (G4, G5, G4/G5, or no G4/G5)
 ckd_inex_output_list <- fn_ckd_inex_criteria(
   arrow_data = data_dem_inex_applied,
   flow = flow,
@@ -153,6 +146,11 @@ sensitivity_krt_output <- data_transplant_inex_applied |>
     "SENSITIVITY ONLY: numbers if KRT definition also used secondary care codes"
   )
 flow <- sensitivity_krt_output$flow
+
+# SENSITIVITY: counts if definition of CKD allowed to vary
+ckd_def_sensitivity <- fn_ckd_def_sensitivity_checks(
+  arrow_data_pre_filter = ckd_inex_output_list$data_pre_filter
+)
 
 # Rename cleaned dataset for clarity -------------------------------------
 dataset_inex_cleaned <- data_transplant_inex_applied
@@ -212,4 +210,18 @@ flow <- flow |> mutate(N = fn_apply_sdc(N)) # Apply SDC to the N column
 write_csv(
   flow,
   here::here("output", "data_descriptions", "cleaning_inex", "data_flow.csv")
+)
+
+message(
+  "Save CKD def sensitivity counts to output/data_descriptions/cleaning_inex/"
+)
+ckd_def_sensitivity <- ckd_def_sensitivity |> mutate(N = fn_apply_sdc(N))
+write_csv(
+  ckd_def_sensitivity,
+  here::here(
+    "output",
+    "data_descriptions",
+    "cleaning_inex",
+    "ckd_sensitivity_counts.csv"
+  )
 )

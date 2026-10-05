@@ -1,10 +1,11 @@
 ##########################################################################
-# This script defines four functions used to apply inclusion and
+# This script defines five functions used to apply inclusion and
 # exclusion criteria related to CKD and KRT
 #   fn_egfr_ckdepi2009() - calculates eGFR from serum creatinine
 #   fn_ckd_inex_criteria() - applies CKD stage 4/5 inclusion criteria
 #   fn_krt_inex_criteria_dialysis() - applies dialysis exclusion criteria
 #   fn_krt_inex_criteria_transplant() - applies transplant exclusion criteria
+#   fn_ckd_def_sensitivity_checks() - study population when ckd def varies
 ##########################################################################
 
 ##########################################################################
@@ -58,7 +59,7 @@ fn_egfr_ckdepi2009 <- function(
 #    CKD codes (see protocol)
 # 3. Groups included individuals into either CKD 4 or CKD 5
 # 4. Saves output list (main $data and $flow, but also $data_pre_filter to
-#    sensitivity test the CKD inclusion logic
+#    sensitivity test the CKD inclusion logic)
 ##########################################################################
 
 fn_ckd_inex_criteria <- function(
@@ -267,4 +268,137 @@ fn_krt_inex_criteria_transplant <- function(
   }
 
   return(transplant_output_list)
+}
+
+##########################################################################
+# fn_ckd_def_sensitivity_checks()
+#
+# Varies the definition of CKD used and outputs the effect that it would
+# have had on the final study population (i.e. after KRT exclusion too)
+##########################################################################
+
+fn_ckd_def_sensitivity_checks <- function(
+  arrow_data_pre_filter
+) {
+  require(arrow)
+  require(dplyr)
+  require(tidyr)
+
+  message("SENSITIVITY: CKD definition sensitivity checks")
+
+  ckd_def_labels <- c(
+    included_via_route_a = "Included via Route A (2x eGFR <30, >=90 days apart)",
+    included_via_route_b = "Included via Route B (most recent CKD code stage 4/5)",
+    route_b_via_discordant_scr_pair = "Route B: discordant eGFR pair (one <30, one >=30)",
+    route_b_via_only_one_scr = "Route B: one creatinine (no second >=90 days earlier)",
+    route_b_via_zero_scr = "Route B: no creatinine",
+    route_a_but_no_ckd_code = "Route A: no CKD code recorded",
+    route_a_but_ckd_code1 = "Route A: most recent CKD code stage 1",
+    route_a_but_ckd_code2 = "Route A: most recent CKD code stage 2",
+    route_a_but_ckd_code3 = "Route A: most recent CKD code stage 3",
+    route_a_but_ckd_code4 = "Route A: most recent CKD code stage 4",
+    route_a_but_ckd_code5 = "Route A: most recent CKD code stage 5",
+    if_route_a_req_scr_gap_less_than_2_years = "Number lost if Route A required eGFR pair to be <=2 years apart",
+    if_route_b_ckd45_code_ever = "Number added if Route B accepted any previous CKD 4/5 code"
+  )
+
+  ckd_def_sensitivity <- arrow_data_pre_filter |>
+    # Restrict to patients passing KRT exclusions (final analysis population)
+    filter(
+      !(inex_krt_bin_has_primary_care_krt_code &
+        inex_krt_cat_primary_care_krt_type %in% c("dialysis", "transplant"))
+    ) |>
+    summarise(
+      # How many of final study pop arrived via route a?
+      included_via_route_a = sum(
+        inex_cat_ckd_route_a == "Include",
+        na.rm = TRUE
+      ),
+      # How many of final study pop arrived via route b?
+      included_via_route_b = sum(
+        inex_cat_ckd_route_b == "Include",
+        na.rm = TRUE
+      ),
+
+      # Of those arriving via route b:
+      #    - how many had 2 discordant creatinines?
+      route_b_via_discordant_scr_pair = sum(
+        (inex_cat_ckd_route_b == "Include") & !is.na(inex_num_egfr_2),
+        na.rm = TRUE
+      ),
+      #    - how many had only 1 creatinine?
+      route_b_via_only_one_scr = sum(
+        (inex_cat_ckd_route_b == "Include") &
+          is.na(inex_num_egfr_2) &
+          !is.na(inex_num_egfr_1),
+        na.rm = TRUE
+      ),
+      #    - how many had zero creatinines?
+      route_b_via_zero_scr = sum(
+        (inex_cat_ckd_route_b == "Include") & is.na(inex_num_egfr_1),
+        na.rm = TRUE
+      ),
+
+      # Of those arriving via route a:
+      #    - how many had no prior CKD code?
+      route_a_but_no_ckd_code = sum(
+        (inex_cat_ckd_route_a == "Include") &
+          is.na(inex_ckd_cat_most_recent_ckd_code_stage),
+        na.rm = TRUE
+      ),
+      #    - how many with most recent CKD code that was stage 1?
+      route_a_but_ckd_code1 = sum(
+        (inex_cat_ckd_route_a == "Include") &
+          (inex_ckd_cat_most_recent_ckd_code_stage == "1"),
+        na.rm = TRUE
+      ),
+      #    - how many with most recent CKD code that was stage 2?
+      route_a_but_ckd_code2 = sum(
+        (inex_cat_ckd_route_a == "Include") &
+          (inex_ckd_cat_most_recent_ckd_code_stage == "2"),
+        na.rm = TRUE
+      ),
+      #    - how many with most recent CKD code that was stage 3?
+      route_a_but_ckd_code3 = sum(
+        (inex_cat_ckd_route_a == "Include") &
+          (inex_ckd_cat_most_recent_ckd_code_stage == "3"),
+        na.rm = TRUE
+      ),
+      #    - how many with most recent CKD code that was stage 4?
+      route_a_but_ckd_code4 = sum(
+        (inex_cat_ckd_route_a == "Include") &
+          (inex_ckd_cat_most_recent_ckd_code_stage == "4"),
+        na.rm = TRUE
+      ),
+      #    - how many with most recent CKD code that was stage 5?
+      route_a_but_ckd_code5 = sum(
+        (inex_cat_ckd_route_a == "Include") &
+          (inex_ckd_cat_most_recent_ckd_code_stage == "5"),
+        na.rm = TRUE
+      ),
+
+      # How many would have been lost if there was a requirement
+      # for the two SCR values to be within 2 years of each other?
+      if_route_a_req_scr_gap_less_than_2_years = sum(
+        (inex_cat_ckd_route_a == "Include") &
+          (as.integer(inex_ckd_date_scr_date_1) -
+            as.integer(inex_ckd_date_scr_date_2) >
+            730) &
+          !(inex_ckd_cat_most_recent_ckd_code_stage %in% c("4", "5")),
+        na.rm = TRUE
+      ),
+
+      #  # How many would be added if route b had simply been ANY
+      # prior CKD 4/5 code (regardless of a more recent CKD 1,2,3 code)?
+      if_route_b_ckd45_code_ever = sum(
+        (inex_cat_ckd_route_b == "Exclude") &
+          inex_ckd_bin_has_ckd45_code,
+        na.rm = TRUE
+      )
+    ) |>
+    collect() |>
+    pivot_longer(everything(), names_to = "Description", values_to = "N") |>
+    mutate(Description = ckd_def_labels[Description])
+
+  return(ckd_def_sensitivity)
 }
