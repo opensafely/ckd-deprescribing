@@ -51,18 +51,14 @@ fn_egfr_ckdepi2009 <- function(
 ##########################################################################
 # fn_ckd_inex_criteria()
 #
-# Applies CKD stage 4/5 inclusion criteria and adds eGFR-derived
-# staging variables. Steps:
+# Applies CKD stage 4/5 inclusion criteria and adds CKD stage variable
 #
-# 1. For patients with 2+ serum creatinine measurements, calculate eGFR
-#    at each measurement date and classify into G4, G5, or G4/G5.
-#    Age at the time of each measurement is used (not age at index date).
-# 2. Join CKD stages back to the full dataset; patients without
-#    2 creatinine measurements default to FALSE / "not G4/G5".
-# 3. Include patients with either a CKD 4/5 code OR eGFR-derived CKD 4/5.
-# 4. Recalculate eGFR for all included patients post-filter (captures
-#    those included via CKD code who may only have one SCr value).
-# 5. Add the post-filter count to the flow table.
+# 1. Calculates eGFR based on creatinine values
+# 2. Applies inclusion and exclusion criteria based on eGFR rules and
+#    CKD codes (see protocol)
+# 3. Groups included individuals into either CKD 4 or CKD 5
+# 4. Saves output list (main $data and $flow, but also $data_pre_filter to
+#    sensitivity test the CKD inclusion logic
 ##########################################################################
 
 fn_ckd_inex_criteria <- function(
@@ -74,65 +70,10 @@ fn_ckd_inex_criteria <- function(
   require(arrow)
   require(dplyr)
 
-  # 1. Calculate eGFR and classify CKD stage for patients with 2+ SCr values
-  ckd_flags <- arrow_data |>
-    filter(inex_ckd_bin_has_two_scr) |>
-    mutate(
-      inex_num_egfr_1 = fn_egfr_ckdepi2009(
-        creat_umol = inex_ckd_num_scr_value_1,
-        age = inex_dem_num_age +
-          (as.integer(inex_ckd_date_scr_date_1) - as.integer(index_date)) /
-            365.25,
-        sex = inex_dem_cat_sex
-      ),
-      inex_num_egfr_2 = fn_egfr_ckdepi2009(
-        creat_umol = inex_ckd_num_scr_value_2,
-        age = inex_dem_num_age +
-          (as.integer(inex_ckd_date_scr_date_2) - as.integer(index_date)) /
-            365.25,
-        sex = inex_dem_cat_sex
-      ),
-      inex_cat_ckd_stage_by_scr = case_when(
-        (inex_num_egfr_1 < 15) & (inex_num_egfr_2 < 15) ~ "G5",
-        (inex_num_egfr_1 >= 15) &
-          (inex_num_egfr_1 < 30) &
-          (inex_num_egfr_2 >= 15) &
-          (inex_num_egfr_2 < 30) ~ "G4",
-        (inex_num_egfr_1 >= 15) &
-          (inex_num_egfr_1 < 30) &
-          (inex_num_egfr_2 < 15) ~ "G4/G5",
-        (inex_num_egfr_1 < 15) &
-          (inex_num_egfr_2 >= 15) &
-          (inex_num_egfr_2 < 30) ~ "G4/G5",
-        TRUE ~ "not G4/G5"
-      ),
-      inex_bin_has_ckd45_by_scr = inex_cat_ckd_stage_by_scr != "not G4/G5"
-    ) |>
-    select(patient_id, inex_bin_has_ckd45_by_scr, inex_cat_ckd_stage_by_scr)
-
-  # 2. Join CKD flags back to the full dataset, filling NAs for those
-  #    without 2 SCr measurements
+  # Firstly define people for inclusion (inex_bin_ckd_include = TRUE)
   arrow_data <- arrow_data |>
-    left_join(ckd_flags, by = "patient_id") |>
     mutate(
-      inex_bin_has_ckd45_by_scr = ifelse(
-        is.na(inex_bin_has_ckd45_by_scr),
-        FALSE,
-        inex_bin_has_ckd45_by_scr
-      ),
-      inex_cat_ckd_stage_by_scr = ifelse(
-        is.na(inex_cat_ckd_stage_by_scr),
-        "not G4/G5",
-        inex_cat_ckd_stage_by_scr
-      )
-    )
-
-  # 3. Include patients with a CKD 4/5 code OR eGFR-derived CKD 4/5
-  arrow_data_ckd_inex_applied <- arrow_data |>
-    filter(inex_ckd_bin_has_ckd45_code | inex_bin_has_ckd45_by_scr) |>
-
-    # 4. Recalculate eGFR post-filter for all included patients
-    mutate(
+      # 1. Calculate eGFRs for each creatinine
       inex_num_egfr_1 = fn_egfr_ckdepi2009(
         creat_umol = inex_ckd_num_scr_value_1,
         age = inex_dem_num_age +
@@ -146,20 +87,71 @@ fn_ckd_inex_criteria <- function(
           (as.integer(inex_ckd_date_scr_date_2) - as.integer(index_date)) /
             365.25,
         sex = inex_dem_cat_sex
+      ),
+      # 2. Include by route A - 2x eGFR ≥90 days apart both <30ml/min
+      # Exclude people with 2x eGFR ≥30 - do not have CKD 4 or 5
+      inex_cat_ckd_route_a = case_when(
+        (inex_num_egfr_1 < 30) & (inex_num_egfr_2 < 30) ~ "Include",
+        (inex_num_egfr_1 >= 30) & (inex_num_egfr_2 >= 30) ~ "Exclude",
+        TRUE ~ "Maybe" # discordant pair, or less than 2x SCr values
+      ),
+      # 3. Move on to route B for route A - maybes
+      # Include if most recent CKD code was stage 4 or 5
+      inex_cat_ckd_route_b = case_when(
+        inex_cat_ckd_route_a != "Maybe" ~ NA_character_,
+        (inex_ckd_cat_most_recent_ckd_code_stage %in% c("4", "5")) ~ "Include",
+        TRUE ~ "Exclude"
+      ),
+      # 4. Combine
+      inex_bin_ckd_include = case_when(
+        inex_cat_ckd_route_a == "Include" ~ TRUE,
+        inex_cat_ckd_route_b == "Include" ~ TRUE,
+        TRUE ~ FALSE
       )
     )
 
-  # 5. Add flow row
+  # Then categorise included people into either CKD 4 or CKD 5
+  arrow_data <- arrow_data |>
+    mutate(
+      # 1. CKD 4 or 5 based on most recent eGFR and most recent code
+      ckd_stage_egfr = case_when(
+        inex_num_egfr_1 < 15 ~ "5",
+        inex_num_egfr_1 < 30 ~ "4",
+        TRUE ~ NA_character_
+      ),
+      ckd_stage_code = case_when(
+        inex_ckd_cat_most_recent_ckd_code_stage %in% c("4", "5") ~
+          inex_ckd_cat_most_recent_ckd_code_stage,
+        TRUE ~ NA_character_
+      ),
+      # 2. Categorise
+      inex_cat_ckd_stage = case_when(
+        !inex_bin_ckd_include ~ NA_character_,
+        is.na(ckd_stage_code) ~ ckd_stage_egfr,
+        is.na(ckd_stage_egfr) ~ ckd_stage_code,
+        # in the case of relevant eGFR AND codes - most recent wins
+        inex_ckd_date_scr_date_1 >=
+          inex_ckd_date_most_recent_ckd_code ~ ckd_stage_egfr,
+        TRUE ~ ckd_stage_code
+      )
+    ) |>
+    select(-ckd_stage_egfr, -ckd_stage_code)
+
+  # Apply CKD inclusion and add flow row
   message("\nCKD 4/5 inclusion criteria:")
-  flow <- fn_add_flow_row(
-    arrow_data_ckd_inex_applied,
+  ckd_output_list <- fn_apply_flow_filter(
+    arrow_data,
     flow,
-    "Kidney function: Has G4/G5 CKD by code or 2x eGFRs"
+    "inex_bin_ckd_include",
+    "Kidney function: CKD G4/G5 by eGFR pair (Route A) or most recent CKD code (Route B)"
   )
+
+  # All patients pre-filter, kept for sensitivity counts
+  ckd_output_list$data_pre_filter <- arrow_data
 
   if (isTRUE(describe)) {
     fn_describe_data(
-      data = collect(arrow_data_ckd_inex_applied),
+      data = collect(ckd_output_list$data),
       filepath = here::here(
         "output",
         "data_descriptions",
@@ -169,9 +161,8 @@ fn_ckd_inex_criteria <- function(
     )
   }
 
-  return(list(data = arrow_data_ckd_inex_applied, flow = flow))
+  return(ckd_output_list)
 }
-
 
 ##########################################################################
 # fn_krt_inex_criteria_dialysis()
