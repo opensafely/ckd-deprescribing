@@ -30,7 +30,7 @@ primary_care_ckd5_codes = codelist_from_csv(
     column="code"
 )
 
-# all CKD stages (1-5) as one {code: stage}
+# all CKD stages (1-5) as one {code: stage} dict
 primary_care_ckd_stage_codes = (
     {code: "1" for code, stage in primary_care_ckd_all_stages_codes.items() if stage == "1"}
     | {code: "2" for code, stage in primary_care_ckd_all_stages_codes.items() if stage == "2"}

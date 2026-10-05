@@ -119,10 +119,10 @@ def add_ckd_inex_variables(
         ),
     )
 
-    # Most recent creatinine per patient
+    # Most recent creatinine per patient - if same date - takes highest value
     most_recent_creatinine = (
         creatinine_values
-        .sort_by(clinical_events.date)
+        .sort_by(clinical_events.date, clinical_events.numeric_value)
         .last_for_patient()
     )
 
@@ -133,7 +133,7 @@ def add_ckd_inex_variables(
     second_recent_90plus = (
         creatinine_values
         .where(clinical_events.date <= cutoff)
-        .sort_by(clinical_events.date)
+        .sort_by(clinical_events.date, clinical_events.numeric_value)
         .last_for_patient()
     )
 
@@ -150,8 +150,8 @@ def add_ckd_inex_variables(
         primary_care_ckd_stage_codes, index_date
     )
 
-    # Add stage number to code
-    ckd_code_stage = clinical_events.snomedct_code.map_values(primary_care_ckd_stage_codes)
+    # Add stage number to event-level series
+    ckd_code_stage = coded_ckd.snomedct_code.to_category(primary_care_ckd_stage_codes)
 
     # Flag if a person has ever had a CKD 4/5 code before index date
     # used for sensitivity analysis for if had CKD 4/5 followed by subsequent CKD 1,2 or 3
