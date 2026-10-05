@@ -148,7 +148,7 @@ sensitivity_krt_output <- data_transplant_inex_applied |>
 flow <- sensitivity_krt_output$flow
 
 # SENSITIVITY: counts if definition of CKD allowed to vary
-ckd_def_sensitivity <- fn_ckd_def_sensitivity_checks(
+ckd_sensitivity_counts <- fn_ckd_def_sensitivity_checks(
   arrow_data_pre_filter = ckd_inex_output_list$data_pre_filter
 )
 
@@ -215,9 +215,9 @@ write_csv(
 message(
   "Save CKD def sensitivity counts to output/data_descriptions/cleaning_inex/"
 )
-ckd_def_sensitivity <- ckd_def_sensitivity |> mutate(N = fn_apply_sdc(N))
+ckd_sensitivity_counts <- ckd_sensitivity_counts |> mutate(N = fn_apply_sdc(N))
 write_csv(
-  ckd_def_sensitivity,
+  ckd_sensitivity_counts,
   here::here(
     "output",
     "data_descriptions",

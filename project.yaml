@@ -31,6 +31,7 @@ actions:
       moderately_sensitive:
         cleaning_inex_data_flow: output/data_descriptions/cleaning_inex/data_flow.csv
         cleaning_inex_med_count_summary: output/data_descriptions/cleaning_inex/med_count_summary.csv
+        cleaning_inex_ckd_definition_counts: output/data_descriptions_cleaning_inex/ckd_sensitivity_counts.csv
 
   
   generate_dataset_baseline_covariates_general:

@@ -302,7 +302,7 @@ fn_ckd_def_sensitivity_checks <- function(
     if_route_b_ckd45_code_ever = "Number added if Route B accepted any previous CKD 4/5 code"
   )
 
-  ckd_def_sensitivity <- arrow_data_pre_filter |>
+  ckd_sensitivity_counts <- arrow_data_pre_filter |>
     # Restrict to patients passing KRT exclusions (final analysis population)
     filter(
       !(inex_krt_bin_has_primary_care_krt_code &
@@ -400,5 +400,5 @@ fn_ckd_def_sensitivity_checks <- function(
     pivot_longer(everything(), names_to = "Description", values_to = "N") |>
     mutate(Description = ckd_def_labels[Description])
 
-  return(ckd_def_sensitivity)
+  return(ckd_sensitivity_counts)
 }
