@@ -139,11 +139,22 @@ fn_ckd_inex_criteria <- function(
 
   # Apply CKD inclusion and add flow row
   message("\nCKD 4/5 inclusion criteria:")
+  route_counts <- arrow_data |>
+    summarise(
+      n_route_a = sum(inex_cat_ckd_route_a == "Include", na.rm = TRUE),
+      n_route_b = sum(inex_cat_ckd_route_b == "Include", na.rm = TRUE)
+    ) |>
+    collect()
+
   ckd_output_list <- fn_apply_flow_filter(
     arrow_data,
     flow,
     "inex_bin_ckd_include",
-    "Kidney function: CKD G4/G5 by eGFR pair (Route A) or most recent CKD code (Route B)"
+    sprintf(
+      "CKD G4/G5: By most recent eGFR pair (n = %d) or most recent CKD code (n = %d)",
+      fn_apply_sdc(route_counts$n_route_a),
+      fn_apply_sdc(route_counts$n_route_b)
+    )
   )
 
   # All patients pre-filter, kept for sensitivity counts
