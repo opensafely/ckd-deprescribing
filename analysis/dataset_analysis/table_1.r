@@ -38,7 +38,7 @@ wanted_cols <- c(
   "inex_dem_num_age",
   "inex_dem_cat_sex",
   "inex_num_egfr_1",
-  "inex_ckd_cat_ckd_code_stage"
+  "inex_cat_ckd_stage"
   # add more as desired
 )
 
@@ -56,15 +56,7 @@ message("Process the dataset")
 # Create a CKD stage column
 dataset <- dataset |>
   mutate(
-    ckd_stage = as.character(
-      case_when(
-        inex_num_egfr_1 >= 15 & inex_num_egfr_1 < 30 ~ "G4",
-        inex_num_egfr_1 > 0 & inex_num_egfr_1 < 15 ~ "G5",
-        inex_ckd_cat_ckd_code_stage == "four" ~ "G4",
-        inex_ckd_cat_ckd_code_stage == "five" ~ "G5",
-        .default = NULL
-      )
-    )
+    ckd_stage = paste0("G", inex_cat_ckd_stage)
   )
 
 # Define the variables of interest for the table
