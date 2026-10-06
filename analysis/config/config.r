@@ -46,10 +46,24 @@ write_json(
 #   21: appliances
 #   22: incontinence appliances
 #   23: stoma appliances
-# Rik vd Veen used ch 1-13 to determine 'total chronic prescription load'
-# NHS BSA use ch 1-4 and 6-10 when they are looking at chronic oral prescribing
+#
+# https://www.nhsbsa.nhs.uk/access-our-data-products/epact2/dashboards-and-specifications/medicines-optimisation-polypharmacy
+# NHSBSA meds-ops polypharmacy = ch 1-4, 6-10 - see documentation above
 exclude_bnf_chapters <- list(
-  base = c("14", "15", "18", "19", "20", "21", "22", "23")
+  base = c(
+    "05",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "18",
+    "19",
+    "20",
+    "21",
+    "22",
+    "23"
+  )
 )
 
 # How to define whether a medicine is chronically prescribed -------------

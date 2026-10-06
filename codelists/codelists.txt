@@ -9,6 +9,8 @@ user/mletts92/coronary-artery-interventions/7c89d0e4
 user/mletts92/stroke-secondary-care-codes/0754d0bd
 user/mletts92/definite-diabetes-drugs-dmd/3c26771d
 
+nhsd-primary-care-domain-refsets/dialysis_cod/20260630
+nhsd-primary-care-domain-refsets/renaltransp_cod/20260630
 nhsd-primary-care-domain-refsets/cre_cod/20250912
 nhsd-primary-care-domain-refsets/sysbp_cod/20250912
 nhsd-primary-care-domain-refsets/mi_cod/20250912
@@ -16,9 +18,6 @@ nhsd-primary-care-domain-refsets/strk_cod/20250912
 nhsd-primary-care-domain-refsets/dmtype1_cod/20250912/
 nhsd-primary-care-domain-refsets/dmnontype1_cod/20250912
 
-opensafely/kidney-transplant/21865860 
-opensafely/dialysis/3ce108ac
-opensafely/renal-replacement-therapy/5b5ed963
 opensafely/ethnicity-snomed-0removed/22911876
 opensafely/glycated-haemoglobin-hba1c-tests-numerical-value/5134e926
 

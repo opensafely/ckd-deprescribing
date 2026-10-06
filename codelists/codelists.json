@@ -54,6 +54,18 @@
       "downloaded_at": "2026-05-29 13:22:19.855768Z",
       "sha": "9a0095e6e3484c801a015dcdeb6ff2f08d467e71"
     },
+    "nhsd-primary-care-domain-refsets-dialysis_cod.csv": {
+      "id": "nhsd-primary-care-domain-refsets/dialysis_cod/20260630",
+      "url": "https://www.opencodelists.org/codelist/nhsd-primary-care-domain-refsets/dialysis_cod/20260630/",
+      "downloaded_at": "2026-10-02 13:07:39.317344+00:00Z",
+      "sha": "d3ba4283cb58b4d004fb8a73338f5a9561fd28ac"
+    },
+    "nhsd-primary-care-domain-refsets-renaltransp_cod.csv": {
+      "id": "nhsd-primary-care-domain-refsets/renaltransp_cod/20260630",
+      "url": "https://www.opencodelists.org/codelist/nhsd-primary-care-domain-refsets/renaltransp_cod/20260630/",
+      "downloaded_at": "2026-10-02 13:07:39.684508+00:00Z",
+      "sha": "b6a8d4f2e7a030a5f17fbbcca8183738243e8909"
+    },
     "nhsd-primary-care-domain-refsets-cre_cod.csv": {
       "id": "nhsd-primary-care-domain-refsets/cre_cod/20250912",
       "url": "https://www.opencodelists.org/codelist/nhsd-primary-care-domain-refsets/cre_cod/20250912/",
@@ -89,24 +101,6 @@
       "url": "https://www.opencodelists.org/codelist/nhsd-primary-care-domain-refsets/dmnontype1_cod/20250912/",
       "downloaded_at": "2026-05-29 12:43:10.829560Z",
       "sha": "3c541a505f781a55a144a47a42b8a1e1416b3ba1"
-    },
-    "opensafely-kidney-transplant.csv": {
-      "id": "opensafely/kidney-transplant/21865860",
-      "url": "https://www.opencodelists.org/codelist/opensafely/kidney-transplant/21865860/",
-      "downloaded_at": "2026-02-20 15:27:39.431588Z",
-      "sha": "db6b47d17273b563cb428e4a97a7ba8b6d62afa9"
-    },
-    "opensafely-dialysis.csv": {
-      "id": "opensafely/dialysis/3ce108ac",
-      "url": "https://www.opencodelists.org/codelist/opensafely/dialysis/3ce108ac/",
-      "downloaded_at": "2026-02-20 15:27:39.503472Z",
-      "sha": "ace47eee209d55a7506e60e7e664f8e75ad9848c"
-    },
-    "opensafely-renal-replacement-therapy.csv": {
-      "id": "opensafely/renal-replacement-therapy/5b5ed963",
-      "url": "https://www.opencodelists.org/codelist/opensafely/renal-replacement-therapy/5b5ed963/",
-      "downloaded_at": "2026-02-20 15:27:39.603587Z",
-      "sha": "08e003f1222fe26781288b2eeff22db99780f202"
     },
     "opensafely-ethnicity-snomed-0removed.csv": {
       "id": "opensafely/ethnicity-snomed-0removed/22911876",
