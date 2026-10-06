@@ -278,7 +278,8 @@ fn_krt_inex_criteria_transplant <- function(
 ##########################################################################
 
 fn_ckd_def_sensitivity_checks <- function(
-  arrow_data_pre_filter
+  arrow_data_pre_filter,
+  index_date
 ) {
   require(arrow)
   require(dplyr)
@@ -299,7 +300,15 @@ fn_ckd_def_sensitivity_checks <- function(
     route_a_but_ckd_code4 = "Route A: most recent CKD code stage 4",
     route_a_but_ckd_code5 = "Route A: most recent CKD code stage 5",
     if_route_a_req_scr_gap_less_than_2_years = "Number lost if Route A required eGFR pair to be <=2 years apart",
-    if_route_b_ckd45_code_ever = "Number added if Route B accepted any previous CKD 4/5 code"
+    if_route_b_ckd45_code_ever = "Number added if Route B accepted any previous CKD 4/5 code",
+    route_a_evidence_within_1y = "Route A: most recent creatinine within 1 year of index",
+    route_a_evidence_1_to_2y = "Route A: most recent creatinine 1 to 2 years before index",
+    route_a_evidence_2_to_5y = "Route A: most recent creatinine 2 to 5 years before index",
+    route_a_evidence_over_5y = "Route A: most recent creatinine >5 years before index",
+    route_b_evidence_within_1y = "Route B: most recent CKD code within 1 year of index",
+    route_b_evidence_1_to_2y = "Route B: most recent CKD code 1 to 2 years before index",
+    route_b_evidence_2_to_5y = "Route B: most recent CKD code 2 to 5 years before index",
+    route_b_evidence_over_5y = "Route B: most recent CKD code >5 years before index"
   )
 
   ckd_sensitivity_counts <- arrow_data_pre_filter |>
@@ -307,6 +316,15 @@ fn_ckd_def_sensitivity_checks <- function(
     filter(
       !(inex_krt_bin_has_primary_care_krt_code &
         inex_krt_cat_primary_care_krt_type %in% c("dialysis", "transplant"))
+    ) |>
+    mutate(
+      days_since_evidence = case_when(
+        inex_cat_ckd_route_a == "Include" ~
+          as.integer(index_date) - as.integer(inex_ckd_date_scr_date_1),
+        inex_cat_ckd_route_b == "Include" ~
+          as.integer(index_date) -
+          as.integer(inex_ckd_date_most_recent_ckd_code)
+      )
     ) |>
     summarise(
       # How many of final study pop arrived via route a?
@@ -320,20 +338,20 @@ fn_ckd_def_sensitivity_checks <- function(
         na.rm = TRUE
       ),
 
-      # Of those arriving via route b:
-      #    - how many had 2 discordant creatinines?
+      # How did people included via route b get there?
+      #    - 2 discordant creatinines
       route_b_via_discordant_scr_pair = sum(
         (inex_cat_ckd_route_b == "Include") & !is.na(inex_num_egfr_2),
         na.rm = TRUE
       ),
-      #    - how many had only 1 creatinine?
+      #    - only 1 creatinine?
       route_b_via_only_one_scr = sum(
         (inex_cat_ckd_route_b == "Include") &
           is.na(inex_num_egfr_2) &
           !is.na(inex_num_egfr_1),
         na.rm = TRUE
       ),
-      #    - how many had zero creatinines?
+      #    - zero creatinines?
       route_b_via_zero_scr = sum(
         (inex_cat_ckd_route_b == "Include") & is.na(inex_num_egfr_1),
         na.rm = TRUE
@@ -346,31 +364,31 @@ fn_ckd_def_sensitivity_checks <- function(
           is.na(inex_ckd_cat_most_recent_ckd_code_stage),
         na.rm = TRUE
       ),
-      #    - how many with most recent CKD code that was stage 1?
+      #    - how many had a most recent CKD code that was stage 1?
       route_a_but_ckd_code1 = sum(
         (inex_cat_ckd_route_a == "Include") &
           (inex_ckd_cat_most_recent_ckd_code_stage == "1"),
         na.rm = TRUE
       ),
-      #    - how many with most recent CKD code that was stage 2?
+      #    - how many had a most recent CKD code that was stage 2?
       route_a_but_ckd_code2 = sum(
         (inex_cat_ckd_route_a == "Include") &
           (inex_ckd_cat_most_recent_ckd_code_stage == "2"),
         na.rm = TRUE
       ),
-      #    - how many with most recent CKD code that was stage 3?
+      #    - how many had a most recent CKD code that was stage 3?
       route_a_but_ckd_code3 = sum(
         (inex_cat_ckd_route_a == "Include") &
           (inex_ckd_cat_most_recent_ckd_code_stage == "3"),
         na.rm = TRUE
       ),
-      #    - how many with most recent CKD code that was stage 4?
+      #    - how many had a most recent CKD code that was stage 4?
       route_a_but_ckd_code4 = sum(
         (inex_cat_ckd_route_a == "Include") &
           (inex_ckd_cat_most_recent_ckd_code_stage == "4"),
         na.rm = TRUE
       ),
-      #    - how many with most recent CKD code that was stage 5?
+      #    - how many had a most recent CKD code that was stage 5?
       route_a_but_ckd_code5 = sum(
         (inex_cat_ckd_route_a == "Include") &
           (inex_ckd_cat_most_recent_ckd_code_stage == "5"),
@@ -388,11 +406,55 @@ fn_ckd_def_sensitivity_checks <- function(
         na.rm = TRUE
       ),
 
-      #  # How many would be added if route b had simply been ANY
+      # How many would be added if route b had simply been ANY
       # prior CKD 4/5 code (regardless of a more recent CKD 1,2,3 code)?
       if_route_b_ckd45_code_ever = sum(
         (inex_cat_ckd_route_b == "Exclude") &
           inex_ckd_bin_has_ckd45_code,
+        na.rm = TRUE
+      ),
+
+      # How old was the qualifying evidence?
+      # route a = most recent creatinine
+      # route b = most recent CKD code
+      route_a_evidence_within_1y = sum(
+        (inex_cat_ckd_route_a == "Include") & (days_since_evidence <= 365),
+        na.rm = TRUE
+      ),
+      route_a_evidence_1_to_2y = sum(
+        (inex_cat_ckd_route_a == "Include") &
+          (days_since_evidence > 365) &
+          (days_since_evidence <= 730),
+        na.rm = TRUE
+      ),
+      route_a_evidence_2_to_5y = sum(
+        (inex_cat_ckd_route_a == "Include") &
+          (days_since_evidence > 730) &
+          (days_since_evidence <= 1826),
+        na.rm = TRUE
+      ),
+      route_a_evidence_over_5y = sum(
+        (inex_cat_ckd_route_a == "Include") & (days_since_evidence > 1826),
+        na.rm = TRUE
+      ),
+      route_b_evidence_within_1y = sum(
+        (inex_cat_ckd_route_b == "Include") & (days_since_evidence <= 365),
+        na.rm = TRUE
+      ),
+      route_b_evidence_1_to_2y = sum(
+        (inex_cat_ckd_route_b == "Include") &
+          (days_since_evidence > 365) &
+          (days_since_evidence <= 730),
+        na.rm = TRUE
+      ),
+      route_b_evidence_2_to_5y = sum(
+        (inex_cat_ckd_route_b == "Include") &
+          (days_since_evidence > 730) &
+          (days_since_evidence <= 1826),
+        na.rm = TRUE
+      ),
+      route_b_evidence_over_5y = sum(
+        (inex_cat_ckd_route_b == "Include") & (days_since_evidence > 1826),
         na.rm = TRUE
       )
     ) |>

@@ -149,7 +149,8 @@ flow <- sensitivity_krt_output$flow
 
 # SENSITIVITY: counts if definition of CKD allowed to vary
 ckd_sensitivity_counts <- fn_ckd_def_sensitivity_checks(
-  arrow_data_pre_filter = ckd_inex_output_list$data_pre_filter
+  arrow_data_pre_filter = ckd_inex_output_list$data_pre_filter,
+  index_date = study_dates$index_date
 )
 
 # Rename cleaned dataset for clarity -------------------------------------
