@@ -214,7 +214,7 @@ def add_krt_inex_variables(
         primary_care_krt_codes, index_date
     )
 
-    # binary flag if a person has a secondary care krt code prior to index date
+    # binary flag if a person has a primary care krt code prior to index date
     has_primary_care_krt_code = primary_care_krt_code.exists_for_patient()
 
     # most recent primary care krt event

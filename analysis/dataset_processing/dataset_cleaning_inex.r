@@ -96,7 +96,7 @@ flow <- fn_add_flow_row(
 qa_output_list <- fn_qa(
   arrow_data = data_preprocessed,
   flow = flow,
-  describe = TRUE
+  describe = FALSE # too memory intensive in real data
 )
 data_qa_applied <- qa_output_list$data
 flow <- qa_output_list$flow
@@ -202,10 +202,10 @@ write_csv(
 message("Save cleaned dataset to output/data/")
 dataset_inex_cleaned |>
   arrow::write_feather(
-    here::here("output", "data", "dataset_inex_cleaned.arrow"),
+    here::here("output", "data", "dataset_inex_cleaned.arrow")
   )
 
-message("Save flow table to to output/data_descriptions/cleaning_inex/")
+message("Save flow table to output/data_descriptions/cleaning_inex/")
 flow <- flow |> mutate(N = fn_apply_sdc(N)) # Apply SDC to the N column
 write_csv(
   flow,
