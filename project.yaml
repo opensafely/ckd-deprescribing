@@ -94,7 +94,6 @@ actions:
         process_baseline_meds_dmd_not_in_lookup: output/data_descriptions/process_baseline_meds/dmd_not_in_lookup.csv
         process_baseline_meds_dmd_unmapped_to_bnf: output/data_descriptions/process_baseline_meds/dmd_unmapped_to_bnf.csv
         process_baseline_meds_route_classification_patient_summary: output/data_descriptions/process_baseline_meds/route_classification_patient_summary.csv
-        process_baseline_meds_bnf_imputation_summary: output/data_descriptions/process_baseline_meds/bnf_imputation_summary.csv
 
 
   analyse_baseline_meds:
