@@ -12,12 +12,6 @@
       "downloaded_at": "2026-08-19 12:14:23.315023+00:00Z",
       "sha": "c5c1e6b9d7285d0aa1948e4625a09bad8bc858cc"
     },
-    "user-mletts92-chronic-kidney-disease-stage-4-and-5-but-not-receiving-kidney-replacement-therapy.csv": {
-      "id": "user/mletts92/chronic-kidney-disease-stage-4-and-5-but-not-receiving-kidney-replacement-therapy/49c071e2",
-      "url": "https://www.opencodelists.org/codelist/user/mletts92/chronic-kidney-disease-stage-4-and-5-but-not-receiving-kidney-replacement-therapy/49c071e2/",
-      "downloaded_at": "2026-02-20 15:27:39.336912Z",
-      "sha": "a7280ca2929f4f62e37c37546223cfef13b924b3"
-    },
     "user-mletts92-chronic-kidney-disease-stage-4.csv": {
       "id": "user/mletts92/chronic-kidney-disease-stage-4/3e8d63c4",
       "url": "https://www.opencodelists.org/codelist/user/mletts92/chronic-kidney-disease-stage-4/3e8d63c4/",
@@ -113,6 +107,12 @@
       "url": "https://www.opencodelists.org/codelist/opensafely/glycated-haemoglobin-hba1c-tests-numerical-value/5134e926/",
       "downloaded_at": "2026-05-29 12:52:22.859362Z",
       "sha": "bc7e48efd370be65686755f0a843058f1ec767e0"
+    },
+    "opensafely-chronic-kidney-disease-codes-all-stages-with-numeric-column.csv": {
+      "id": "opensafely/chronic-kidney-disease-codes-all-stages-with-numeric-column/2a95faf7",
+      "url": "https://www.opencodelists.org/codelist/opensafely/chronic-kidney-disease-codes-all-stages-with-numeric-column/2a95faf7/",
+      "downloaded_at": "2026-10-02 14:31:17.874049+00:00Z",
+      "sha": "41e8e072c065e84777800c17c7f4d346bb37f878"
     },
     "reducehf-myocardial-infarction-icd10.csv": {
       "id": "reducehf/myocardial-infarction-icd10/6b463edb",

@@ -100,26 +100,28 @@ def add_demographic_inex_variables(
 
 def add_ckd_inex_variables(
     clinical_events, 
-    creatinine_codes, 
-    primary_care_ckd45_codes,
-    primary_care_ckd4_codes, 
-    primary_care_ckd5_codes, 
+    creatinine_codes,
+    primary_care_ckd_stage_codes,
     index_date
 ):
 
     ### creatinine variables ###
 
-    # All non-null creatinine values before index date
+    # All plausible (20-3000 umol/L) creatinine values before index date
     creatinine_values = ever_matching_event_clinical_snomed_before(
         creatinine_codes,
         index_date,
-        where=clinical_events.numeric_value.is_not_null(),
+        where=(
+            clinical_events.numeric_value.is_not_null()
+            & (clinical_events.numeric_value >= 20)
+            & (clinical_events.numeric_value <= 3000)
+        ),
     )
 
-    # Most recent creatinine per patient
+    # Most recent creatinine per patient - if same date - takes highest value
     most_recent_creatinine = (
         creatinine_values
-        .sort_by(clinical_events.date)
+        .sort_by(clinical_events.date, clinical_events.numeric_value)
         .last_for_patient()
     )
 
@@ -130,7 +132,7 @@ def add_ckd_inex_variables(
     second_recent_90plus = (
         creatinine_values
         .where(clinical_events.date <= cutoff)
-        .sort_by(clinical_events.date)
+        .sort_by(clinical_events.date, clinical_events.numeric_value)
         .last_for_patient()
     )
 
@@ -142,27 +144,27 @@ def add_ckd_inex_variables(
 
     ### CKD codes ###
 
-    # CKD stage 4/5 codes before index date
-    coded_ckd45 = ever_matching_event_clinical_snomed_before(
-        primary_care_ckd45_codes, index_date
+    # Any CKD code (stage 1-5) before index date
+    coded_ckd = ever_matching_event_clinical_snomed_before(
+        primary_care_ckd_stage_codes, index_date
     )
 
-    # binary flag if a person has a CKD 4/5 code
-    has_coded_ckd45 = coded_ckd45.exists_for_patient()
+    # Add stage number to event-level series
+    ckd_code_stage = coded_ckd.snomedct_code.to_category(primary_care_ckd_stage_codes)
 
-    # Most recent CKD 4/5 code
-    most_recent_coded_ckd45 = (
-        coded_ckd45
-        .sort_by(clinical_events.date)
+    # Flag if a person has ever had a CKD 4/5 code before index date
+    # used for sensitivity analysis for if had CKD 4/5 followed by subsequent CKD 1,2 or 3
+    has_coded_ckd45 = (
+        coded_ckd
+        .where(ckd_code_stage.is_in(["4", "5"]))
+        .exists_for_patient()
+    )
+
+    # Most recent CKD code - if two codes share a date, the more severe stage prevails
+    most_recent_coded_ckd = (
+        coded_ckd
+        .sort_by(clinical_events.date, ckd_code_stage)
         .last_for_patient()
-    )
-
-    # and then whether this is a ckd stage 4 code, or a ckd stage 5 code
-    ckd_code_stage = case(
-        when(most_recent_coded_ckd45.snomedct_code.is_in(primary_care_ckd5_codes)).then("five"),
-        when(most_recent_coded_ckd45.snomedct_code.is_in(primary_care_ckd4_codes)).then("four"),
-        # do I need a third line here for "unknown?"
-        otherwise=None
     )
 
     return {
@@ -176,8 +178,12 @@ def add_ckd_inex_variables(
 
         # CKD stage 4/5 code variables
         "inex_ckd_bin_has_ckd45_code": has_coded_ckd45,
-        "inex_ckd_date_most_recent_ckd45_code": most_recent_coded_ckd45.date,
-        "inex_ckd_cat_ckd_code_stage": ckd_code_stage,
+
+        # Most recent staged CKD code variables
+        "inex_ckd_date_most_recent_ckd_code": most_recent_coded_ckd.date,
+        "inex_ckd_cat_most_recent_ckd_code_stage": (
+            most_recent_coded_ckd.snomedct_code.to_category(primary_care_ckd_stage_codes)
+        ),
 
     }
 
@@ -208,7 +214,7 @@ def add_krt_inex_variables(
         primary_care_krt_codes, index_date
     )
 
-    # binary flag if a person has a secondary care krt code prior to index date
+    # binary flag if a person has a primary care krt code prior to index date
     has_primary_care_krt_code = primary_care_krt_code.exists_for_patient()
 
     # most recent primary care krt event
@@ -389,9 +395,7 @@ def add_inex_variables(dataset, index_date):
         **add_ckd_inex_variables(
             clinical_events=clinical_events,
             creatinine_codes=creatinine_codes,
-            primary_care_ckd45_codes=primary_care_ckd45_codes,
-            primary_care_ckd4_codes=primary_care_ckd4_codes,
-            primary_care_ckd5_codes=primary_care_ckd5_codes,
+            primary_care_ckd_stage_codes=primary_care_ckd_stage_codes,
             index_date=index_date,
         ),
         **add_krt_inex_variables(

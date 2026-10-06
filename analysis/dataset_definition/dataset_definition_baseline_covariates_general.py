@@ -28,7 +28,7 @@ dataset_inex_cleaned = table_from_file(
         "inex_dem_cat_sex": str,
         "inex_num_egfr_1": float,
         "inex_ckd_date_scr_date_1": datetime.date,
-        "inex_ckd_cat_ckd_code_stage": str
+        "inex_cat_ckd_stage": str
     }
 )
 

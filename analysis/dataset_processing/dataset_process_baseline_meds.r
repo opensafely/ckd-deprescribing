@@ -213,7 +213,16 @@ fn_describe_data(
 
 # Flow table
 message("--- Flow table to output/data_descriptions/process_baseline_meds/")
-flow <- flow |> mutate(across(c(N_patients, N_prescriptions), fn_apply_sdc))
+flow <- flow |>
+  mutate(
+    # suppress prescription counts where the underlying patient count is <7
+    N_prescriptions = replace(
+      N_prescriptions,
+      N_patients > 0 & N_patients <= 7,
+      NA
+    ),
+    across(c(N_patients, N_prescriptions), fn_apply_sdc)
+  )
 write_csv(
   flow,
   here::here(

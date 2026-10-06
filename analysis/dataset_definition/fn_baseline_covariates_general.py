@@ -67,8 +67,8 @@ with open("output/study_dates.json") as f:
 # eGFR
 ##############################################################################
 # Defined in dataset_inex_cleaned - pulled through with table_from_file most
-# recent eGFR calculated from SCr - float, with corresponding date most recent
-# coded ckd stage, string
+# recent eGFR calculated from SCr - float, with corresponding date and the
+#  ckd stage as a string
 
 
 ##############################################################################
@@ -280,7 +280,7 @@ def add_baseline_covariates_general(dataset, dataset_inex_cleaned):
         "basecov_gen_cat_sex": dataset_inex_cleaned.inex_dem_cat_sex,
         "basecov_gen_num_egfr_1": dataset_inex_cleaned.inex_num_egfr_1,
         "basecov_gen_date_egfr_1": dataset_inex_cleaned.inex_ckd_date_scr_date_1,
-        "basecov_gen_cat_coded_ckd_stage": dataset_inex_cleaned.inex_ckd_cat_ckd_code_stage,
+        "basecov_gen_cat_ckd_stage": dataset_inex_cleaned.inex_cat_ckd_stage,
 
         # demographics
         "basecov_gen_cat_ethnicity": get_latest_ethnicity(index_date, ethnicity_codes, grouping=6),
