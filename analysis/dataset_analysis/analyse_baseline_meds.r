@@ -285,8 +285,11 @@ message("Build chronic medication count summary statistics")
 chronic_meds_summary_table <- counts_long |>
   group_by(analysis) |>
   summarise(
+    n_patients = fn_apply_sdc(n()),
     mean = round(mean(n_chronic), 2),
+    p25 = quantile(n_chronic, 0.25),
     median = median(n_chronic),
+    p75 = quantile(n_chronic, 0.75),
     p90 = quantile(n_chronic, 0.90),
     p95 = quantile(n_chronic, 0.95),
     .groups = "drop"
