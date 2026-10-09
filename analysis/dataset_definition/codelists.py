@@ -317,3 +317,51 @@ with open("analysis/config/medication_of_interest.csv") as f:
             row["codelist_path"],
             column="code"
         )
+
+###########################
+# Codelists for Cambridge multimorbidity score
+
+def create_codelist_dict(dic: dict) -> dict:
+# Helper that converts: 
+# a dictionary (dic) from: key = name, value = codelist csv path
+# into a dictionary where: key = name, value = codelist
+
+    for name in dic:
+        dic[name] = codelist_from_csv(dic[name], column = "code")
+    return dic
+
+# Dictionary of codelists for Cambridge MultiMorbidityScore
+multimorbidity_filepaths_dict = {
+    "MS_AlcoholProblem_snomed": "codelists/bristol-multimorbidity_alcoholproblems.csv",
+    "MS_AnxietyDepression_snomed": "codelists/bristol-multimorbidity_anxietydepression.csv",
+    "MS_AnxietyDepression_dmd": "codelists/bristol-multimorbidity_prescription_anxiolytics_anti_depressants_bnf-dmd.csv",
+    "MS_Asthma_snomed": "codelists/nhsd-primary-care-domain-refsets-ast_cod.csv",
+    "MS_Asthma_dmd": "codelists/opensafely-asthma-inhaler-salbutamol-medication.csv",
+    "MS_AF_snomed": "codelists/bristol-multimorbidity_atrial-fibrillation.csv",
+    "MS_Cancer_snomed": "codelists/bristol-multimorbidity_cancer.csv",
+    # "MS_CKD_snomed": "codelists/bristol-multimorbidity_chronic-kidney-disease.csv",
+    "MS_Constipation_dmd": "codelists/bristol-multimorbidity_prescription_constipation_bnf_dmd_converted.csv",
+    "MS_CTD_snomed": "codelists/bristol-multimorbidity_connective-tissue-disorder.csv",
+    "MS_COPD_snomed": "codelists/bristol-multimorbidity_copd.csv",
+    "MS_CHD_snomed": "codelists/bristol-multimorbidity_coronary-heart-disease.csv",
+    "MS_Dementia_snomed": "codelists/bristol-multimorbidity_dementia.csv",
+    "MS_Diabetes_snomed": "codelists/bristol-multimorbidity_diabetes.csv",
+    "MS_Epilepsy_snomed": "codelists/bristol-multimorbidity_epilepsy.csv",
+    "MS_Epilepsy_dmd": "codelists/bristol-multimorbidity_prescription_epilepsy_bnf_dmd_converted.csv",
+    "MS_HL_snomed": "codelists/bristol-multimorbidity_hearing-loss.csv",
+    "MS_HF_snomed": "codelists/bristol-multimorbidity_heart-failure.csv",
+    "MS_Hypertension_snomed": "codelists/nhsd-primary-care-domain-refsets-hyp_cod.csv",
+    "MS_IBS_snomed": "codelists/bristol-multimorbidity_irritable-bowel-syndrome.csv",
+    "MS_IBS_dmd": "codelists/bristol-multimorbidity_prescription_anti_spasmodic_bnf-dmd.csv",
+    "MS_PC_Analgesics_dmd": "codelists/bristol-multimorbidity_prescription_analgesics_opiods_exc_migraine_bnf_dmd_converted.csv",
+    "MS_PC_Antiepileptic_dmd": "codelists/bristol-multimorbidity_prescription_antiepileptics_for_pain_bnf_dmd_converted.csv",
+    "MS_Psychosis_snomed": "codelists/bristol-multimorbidity_psychosisbipolar-disorder.csv",
+    "MS_Psychosis_dmd": "codelists/bristol-multimorbidity_prescription_schizophrenia_bipolar_disorder_bnf-dmd.csv",
+    "MS_StrokeTIA_snomed": "codelists/bristol-multimorbidity_stroketransient-ischemic-attack.csv",
+}
+# Convert to codelist dictionary
+multimorbidity_codelists_dict = {
+    name: codelist_from_csv(path, column="code") 
+    for name, path 
+    in multimorbidity_filepaths_dict.items()
+}
