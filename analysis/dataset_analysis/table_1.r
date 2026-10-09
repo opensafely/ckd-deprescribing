@@ -33,21 +33,20 @@ dir_create(here::here("output", "tables"))
 # Load the population dataset --------------------------------------------
 message("Load the desired columns of the dataset")
 
-wanted_cols <- c(
-  "patient_id",
-  "inex_dem_num_age",
-  "inex_dem_cat_sex",
-  "inex_num_egfr_1",
-  "inex_cat_ckd_stage"
-  # add more as desired
-)
+# wanted_cols <- c(
+#   "patient_id",
+#   "inex_dem_num_age",
+#   "inex_dem_cat_sex",
+#   "inex_num_egfr_1",
+#   "inex_cat_ckd_stage"
+#   # add more as desired
+# )
 
-input_filename <- "dataset_inex_cleaned.arrow"
+input_filename <- "dataset_baseline_covariates_general.arrow"
 dataset <- arrow::open_dataset(
-  here::here("output", "data", input_filename),
+  here::here("output", input_filename),
   format = "ipc"
 ) |>
-  select(all_of(wanted_cols)) |>
   collect()
 
 # Process the dataset -------------------------------------
@@ -56,7 +55,7 @@ message("Process the dataset")
 # Create a CKD stage column
 dataset <- dataset |>
   mutate(
-    ckd_stage = paste0("G", inex_cat_ckd_stage)
+    ckd_stage = paste0("G", basecov_gen_cat_ckd_stage)
   )
 
 # Define the variables of interest for the table
@@ -65,11 +64,18 @@ message("Define the variables of interest")
 strata_var <- "ckd_stage"
 
 continuous_vars <- c(
-  "inex_dem_num_age"
+  "basecov_gen_num_age",
+  "basecov_gen_num_egfr_1"
   # add more
 )
 categorical_vars <- c(
-  "inex_dem_cat_sex"
+  "basecov_gen_cat_sex",
+  "basecov_gen_cat_ethnicity",
+  "basecov_gen_cat_imd",
+  "basecov_gen_cat_region",
+  "basecov_gen_bin_care_home",
+  "basecov_gen_bin_dm",
+  "basecov_gen_bin_cvd_history"
   # add more
 )
 
@@ -183,7 +189,8 @@ continuous_vars_long <- tibble()
 
 # decide number of decimal places to round to for every continuous variable
 round_value_lookup <- c(
-  inex_dem_num_age = 0
+  basecov_gen_num_age = 0,
+  basecov_gen_num_egfr_1 = 1
   # add more as becomes necessary - every continuous var needs to be here
 )
 
