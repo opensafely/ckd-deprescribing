@@ -263,3 +263,8 @@ def first_matching_med_dmd_between(codelist, start_date, end_date, where=True):
         .sort_by(medications.date)
         .first_for_patient()
     )
+
+# To filter codes with category columns
+def filter_codes_by_category(codelist, include):
+    return {k:v for k,v in codelist.items() if v in include}
+    

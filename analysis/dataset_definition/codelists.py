@@ -197,30 +197,36 @@ dm_drug_codes_dmd = codelist_from_csv(
     column="code"
 )
 
-# # Clinical values (most-recent numeric before index) ---------------------
+# Clinical values (most-recent numeric before index) ---------------------
+# BMI
+bmi_value_codes_snomed = codelist_from_csv(
+    "codelists/nhsd-primary-care-domain-refsets-bmival_cod.csv",
+    column="code"
+)
+
 # # Total cholesterol
 # cholesterol_codes_snomed = codelist_from_csv(
 #     #"codelists/user-mletts92-total-cholesterol.csv",
 #     column="code"
 # )
-# # Urinary albumin:creatinine ratio (uACR)
-# uacr_codes_snomed = codelist_from_csv(
-#     #"codelists/user-mletts92-urinary-albumin-creatinine-ratio.csv",
-#     column="code"
-# )
-# # Urinary protein:creatinine ratio (uPCR)
-# upcr_codes_snomed = codelist_from_csv(
-#     #"codelists/user-mletts92-urinary-protein-creatinine-ratio.csv",
-#     column="code"
-# )
+# Urinary albumin:creatinine ratio (uACR)
+uacr_codes_snomed = codelist_from_csv(
+    "codelists/bristol-urine-albumin-creatinine-ratio.csv",
+    column="code"
+)
+# Urinary protein:creatinine ratio (uPCR)
+upcr_codes_snomed = codelist_from_csv(
+    "codelists/bristol-urine-protein-creatinine-ratio.csv",
+    column="code"
+)
 
 
 # # Smoking status --------------------------------------------------------
-# smoking_codes_snomed = codelist_from_csv(
-#     #"codelists/user-mletts92-smoking-status.csv",
-#     column="code",
-#     #category_column="category"
-# )
+smoking_clear = codelist_from_csv(
+    "codelists/opensafely-smoking-clear.csv",
+    column="CTV3Code",
+    category_column="Category"
+)
 
 # # Comorbidities ---------------------------------------------------------
 # liver_disease_codes_snomed = codelist_from_csv(
