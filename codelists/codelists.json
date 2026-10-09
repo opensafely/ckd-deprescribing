@@ -12,6 +12,18 @@
       "downloaded_at": "2026-08-19 12:14:23.315023+00:00Z",
       "sha": "c5c1e6b9d7285d0aa1948e4625a09bad8bc858cc"
     },
+    "bristol-urine-albumin-creatinine-ratio.csv": {
+      "id": "bristol/urine-albumin-creatinine-ratio/3036a9d4",
+      "url": "https://www.opencodelists.org/codelist/bristol/urine-albumin-creatinine-ratio/3036a9d4/",
+      "downloaded_at": "2026-10-09 11:38:35.632439+00:00Z",
+      "sha": "5bd5fff8fa520054630e6a89ba2031e490cf8de1"
+    },
+    "bristol-urine-protein-creatinine-ratio.csv": {
+      "id": "bristol/urine-protein-creatinine-ratio/7e17c369",
+      "url": "https://www.opencodelists.org/codelist/bristol/urine-protein-creatinine-ratio/7e17c369/",
+      "downloaded_at": "2026-10-09 11:38:36.102967+00:00Z",
+      "sha": "fab5b27624d8ff18e9a0f8258d1787c8f0ec13d4"
+    },
     "user-mletts92-chronic-kidney-disease-stage-4.csv": {
       "id": "user/mletts92/chronic-kidney-disease-stage-4/3e8d63c4",
       "url": "https://www.opencodelists.org/codelist/user/mletts92/chronic-kidney-disease-stage-4/3e8d63c4/",
@@ -96,6 +108,12 @@
       "downloaded_at": "2026-05-29 12:43:10.829560Z",
       "sha": "3c541a505f781a55a144a47a42b8a1e1416b3ba1"
     },
+    "nhsd-primary-care-domain-refsets-bmival_cod.csv": {
+      "id": "nhsd-primary-care-domain-refsets/bmival_cod/20260630",
+      "url": "https://www.opencodelists.org/codelist/nhsd-primary-care-domain-refsets/bmival_cod/20260630/",
+      "downloaded_at": "2026-10-09 13:50:40.131868+00:00Z",
+      "sha": "2fc9695c0029388d5d4741e821688e0c4a1b19ee"
+    },
     "opensafely-ethnicity-snomed-0removed.csv": {
       "id": "opensafely/ethnicity-snomed-0removed/22911876",
       "url": "https://www.opencodelists.org/codelist/opensafely/ethnicity-snomed-0removed/22911876/",
@@ -113,6 +131,12 @@
       "url": "https://www.opencodelists.org/codelist/opensafely/chronic-kidney-disease-codes-all-stages-with-numeric-column/2a95faf7/",
       "downloaded_at": "2026-10-02 14:31:17.874049+00:00Z",
       "sha": "41e8e072c065e84777800c17c7f4d346bb37f878"
+    },
+    "opensafely-smoking-clear.csv": {
+      "id": "opensafely/smoking-clear/10307fc4",
+      "url": "https://www.opencodelists.org/codelist/opensafely/smoking-clear/10307fc4/",
+      "downloaded_at": "2026-10-09 10:09:57.690151+00:00Z",
+      "sha": "0b5f3afe1db96dcce5141220e893a42ba2e5a8f7"
     },
     "reducehf-myocardial-infarction-icd10.csv": {
       "id": "reducehf/myocardial-infarction-icd10/6b463edb",

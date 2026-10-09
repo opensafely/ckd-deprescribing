@@ -1,5 +1,7 @@
 bristol/statins-dmd/428242f0/
 bristol/proton-pump-inhibitors-dmd/0c233572/
+bristol/urine-albumin-creatinine-ratio/3036a9d4/
+bristol/urine-protein-creatinine-ratio/7e17c369/
 
 user/mletts92/chronic-kidney-disease-stage-4/3e8d63c4
 user/mletts92/chronic-kidney-disease-stage-5-not-receiving-kidney-replacement-therapy/579cd6f9
@@ -16,10 +18,12 @@ nhsd-primary-care-domain-refsets/mi_cod/20250912
 nhsd-primary-care-domain-refsets/strk_cod/20250912
 nhsd-primary-care-domain-refsets/dmtype1_cod/20250912/
 nhsd-primary-care-domain-refsets/dmnontype1_cod/20250912
+nhsd-primary-care-domain-refsets/bmival_cod/20260630/
 
 opensafely/ethnicity-snomed-0removed/22911876
 opensafely/glycated-haemoglobin-hba1c-tests-numerical-value/5134e926
 opensafely/chronic-kidney-disease-codes-all-stages-with-numeric-column/2a95faf7
+opensafely/smoking-clear/10307fc4
 
 reducehf/myocardial-infarction-icd10/6b463edb
 reducehf/heart-failure-primary-outcome-icd/7b34dfb4
