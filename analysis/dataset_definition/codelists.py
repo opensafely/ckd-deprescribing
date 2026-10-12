@@ -328,10 +328,10 @@ multimorbidity_filepaths_dict = {
     # code in last 12 months OR ≥4 anxiolytic/hypnotic prescriptions in last 12 months OR ≥4 anti-depressant prescriptions (excluding low dose tricyclics) in last 12 months
     "MS_AnxietyDepression_dmd": "codelists/user-ZoeMZou-multimorbidity_prescription_anxiolytics_anti_depressants.csv", # as above
     "MS_Asthma_snomed": "codelists/nhsd-primary-care-domain-refsets-ast_cod.csv", # ever recorded AND 1+ prescription in last 12 months
-    "MS_Asthma_dmd": "codelists/nhs-drug-refsets-asttrt_cod.csv", # ever recorded AND 1+ prescription in last 12 months (deviates from CMS repo's salbutamol-only list)
+    "MS_Asthma_dmd": "codelists/nhs-drug-refsets-asttrt_cod.csv", # ever recorded AND 1+ prescription in last 12 months
     "MS_AF_snomed": "codelists/bristol-multimorbidity_atrial-fibrillation.csv", # ever recorded
     "MS_Cancer_snomed": "codelists/bristol-multimorbidity_cancer.csv", # FIRST recorded in last 5 years
-    # "MS_CKD_snomed": "codelists/bristol-multimorbidity_chronic-kidney-disease.csv", # everyone in my study will score for this - no codelist imported
+    "MS_CKD_snomed": "codelists/bristol-multimorbidity_chronic-kidney-disease.csv", # everyone in my study will score for this
     "MS_Constipation_dmd": "codelists/user-ZoeMZou-multimorbidity_prescription_chronic_constipation.csv", # 4+ prescriptions in the last 12 months
     "MS_CTD_snomed": "codelists/bristol-multimorbidity_connective-tissue-disorder.csv", # ever recorded
     "MS_COPD_snomed": "codelists/bristol-multimorbidity_copd.csv", # ever recorded
