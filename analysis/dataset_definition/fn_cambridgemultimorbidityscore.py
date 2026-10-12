@@ -1,5 +1,8 @@
 ### FROM ROB/ZOE
 
+from codelists import *
+from ehrql.tables.tpp import patients, clinical_events, medications
+
 def check_date_validity(
     date_to_check,
     death_date,
@@ -142,4 +145,45 @@ def get_cms_on_date(index_date, death_date, return_components=False):
     return cms
 
 
+Minimal extension to has_condition_before
 
+def has_condition_before(
+    index_date,
+    death_date,
+    snomed=None,
+    dmd1=None,
+    dmd2=None,
+    where=True,
+    snomed_window_days=None,   # NEW: e.g. 365 for anxiety/depression codes
+    dmd_window_days=None,      # NEW: e.g. 365 for prescription-defined conditions
+    dmd_min_count=1,           # NEW: e.g. 4 for constipation, pain, IBS, anx/dep
+    combine="any",             # NEW: "all" for asthma and epilepsy (code AND Rx)
+):
+    conditions = []
+
+    if snomed is not None:
+        filtered = ever_matching_event_clinical_snomed_before(snomed, index_date, where=where)
+        if snomed_window_days is not None:
+            filtered = filtered.where(filtered.date.is_on_or_after(index_date - days(snomed_window_days)))
+        conditions.append(
+            filtered.where(
+                check_date_validity(filtered.date, death_date=death_date).is_not_null()
+            ).exists_for_patient()
+        )
+
+    for dmd in [dmd1, dmd2]:
+        if dmd is not None:
+            filtered = ever_matching_med_dmd_before(dmd, index_date, where=where)
+            if dmd_window_days is not None:
+                filtered = filtered.where(filtered.date.is_on_or_after(index_date - days(dmd_window_days)))
+            conditions.append(
+                filtered.where(
+                    check_date_validity(filtered.date, death_date=death_date).is_not_null()
+                ).count_for_patient() >= dmd_min_count
+            )
+
+    if not conditions:
+        raise ValueError("Must provide at least one SNOMED or DMD codelist.")
+
+    return all_of(conditions) if combine == "all" else any_of(conditions)
+all_of is the reduce(operator.and_, ...) counterpart of their existing any_of.
