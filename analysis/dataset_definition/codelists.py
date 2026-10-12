@@ -319,45 +319,37 @@ with open("analysis/config/medication_of_interest.csv") as f:
         )
 
 ###########################
-# Codelists for Cambridge multimorbidity score
-
-def create_codelist_dict(dic: dict) -> dict:
-# Helper that converts: 
-# a dictionary (dic) from: key = name, value = codelist csv path
-# into a dictionary where: key = name, value = codelist
-
-    for name in dic:
-        dic[name] = codelist_from_csv(dic[name], column = "code")
-    return dic
+# Cambridge multimorbidity score
 
 # Dictionary of codelists for Cambridge MultiMorbidityScore
 multimorbidity_filepaths_dict = {
-    "MS_AlcoholProblem_snomed": "codelists/bristol-multimorbidity_alcoholproblems.csv",
-    "MS_AnxietyDepression_snomed": "codelists/bristol-multimorbidity_anxietydepression.csv",
-    "MS_AnxietyDepression_dmd": "codelists/bristol-multimorbidity_prescription_anxiolytics_anti_depressants_bnf-dmd.csv",
-    "MS_Asthma_snomed": "codelists/nhsd-primary-care-domain-refsets-ast_cod.csv",
-    "MS_Asthma_dmd": "codelists/opensafely-asthma-inhaler-salbutamol-medication.csv",
-    "MS_AF_snomed": "codelists/bristol-multimorbidity_atrial-fibrillation.csv",
-    "MS_Cancer_snomed": "codelists/bristol-multimorbidity_cancer.csv",
-    # "MS_CKD_snomed": "codelists/bristol-multimorbidity_chronic-kidney-disease.csv",
-    "MS_Constipation_dmd": "codelists/bristol-multimorbidity_prescription_constipation_bnf_dmd_converted.csv",
-    "MS_CTD_snomed": "codelists/bristol-multimorbidity_connective-tissue-disorder.csv",
-    "MS_COPD_snomed": "codelists/bristol-multimorbidity_copd.csv",
-    "MS_CHD_snomed": "codelists/bristol-multimorbidity_coronary-heart-disease.csv",
-    "MS_Dementia_snomed": "codelists/bristol-multimorbidity_dementia.csv",
-    "MS_Diabetes_snomed": "codelists/bristol-multimorbidity_diabetes.csv",
-    "MS_Epilepsy_snomed": "codelists/bristol-multimorbidity_epilepsy.csv",
-    "MS_Epilepsy_dmd": "codelists/bristol-multimorbidity_prescription_epilepsy_bnf_dmd_converted.csv",
-    "MS_HL_snomed": "codelists/bristol-multimorbidity_hearing-loss.csv",
-    "MS_HF_snomed": "codelists/bristol-multimorbidity_heart-failure.csv",
-    "MS_Hypertension_snomed": "codelists/nhsd-primary-care-domain-refsets-hyp_cod.csv",
-    "MS_IBS_snomed": "codelists/bristol-multimorbidity_irritable-bowel-syndrome.csv",
-    "MS_IBS_dmd": "codelists/bristol-multimorbidity_prescription_anti_spasmodic_bnf-dmd.csv",
-    "MS_PC_Analgesics_dmd": "codelists/bristol-multimorbidity_prescription_analgesics_opiods_exc_migraine_bnf_dmd_converted.csv",
-    "MS_PC_Antiepileptic_dmd": "codelists/bristol-multimorbidity_prescription_antiepileptics_for_pain_bnf_dmd_converted.csv",
-    "MS_Psychosis_snomed": "codelists/bristol-multimorbidity_psychosisbipolar-disorder.csv",
-    "MS_Psychosis_dmd": "codelists/bristol-multimorbidity_prescription_schizophrenia_bipolar_disorder_bnf-dmd.csv",
-    "MS_StrokeTIA_snomed": "codelists/bristol-multimorbidity_stroketransient-ischemic-attack.csv",
+    "MS_AlcoholProblem_snomed": "codelists/bristol-multimorbidity_alcoholproblems.csv", # ever recorded
+    "MS_AnxietyDepression_snomed": "codelists/bristol-multimorbidity_anxietydepression.csv", 
+    # code in last 12 months OR ≥4 anxiolytic/hypnotic prescriptions in last 12 months OR ≥4 anti-depressant prescriptions (excluding low dose tricyclics) in last 12 months
+    "MS_AnxietyDepression_dmd": "codelists/user-ZoeMZou-multimorbidity_prescription_anxiolytics_anti_depressants.csv", # as above
+    "MS_Asthma_snomed": "codelists/nhsd-primary-care-domain-refsets-ast_cod.csv", # ever recorded AND 1+ prescription in last 12 months
+    "MS_Asthma_dmd": "codelists/nhs-drug-refsets-asttrt_cod.csv", # ever recorded AND 1+ prescription in last 12 months (deviates from CMS repo's salbutamol-only list)
+    "MS_AF_snomed": "codelists/bristol-multimorbidity_atrial-fibrillation.csv", # ever recorded
+    "MS_Cancer_snomed": "codelists/bristol-multimorbidity_cancer.csv", # FIRST recorded in last 5 years
+    # "MS_CKD_snomed": "codelists/bristol-multimorbidity_chronic-kidney-disease.csv", # everyone in my study will score for this - no codelist imported
+    "MS_Constipation_dmd": "codelists/user-ZoeMZou-multimorbidity_prescription_chronic_constipation.csv", # 4+ prescriptions in the last 12 months
+    "MS_CTD_snomed": "codelists/bristol-multimorbidity_connective-tissue-disorder.csv", # ever recorded
+    "MS_COPD_snomed": "codelists/bristol-multimorbidity_copd.csv", # ever recorded
+    "MS_CHD_snomed": "codelists/bristol-multimorbidity_coronary-heart-disease.csv", # ever recorded
+    "MS_Dementia_snomed": "codelists/bristol-multimorbidity_dementia.csv", # ever recorded
+    "MS_Diabetes_snomed": "codelists/bristol-multimorbidity_diabetes.csv", # ever recorded
+    "MS_Epilepsy_snomed": "codelists/bristol-multimorbidity_epilepsy.csv", # ever recorded AND 1+ prescription in last 12 months
+    "MS_Epilepsy_dmd": "codelists/user-ZoeMZou-multimorbidity_prescription_epilepsy.csv", # ever recorded AND 1+ prescription in last 12 months
+    "MS_HL_snomed": "codelists/bristol-multimorbidity_hearing-loss.csv", # ever recorded
+    "MS_HF_snomed": "codelists/bristol-multimorbidity_heart-failure.csv", # ever recorded
+    "MS_Hypertension_snomed": "codelists/nhsd-primary-care-domain-refsets-hyp_cod.csv", # ever recorded
+    "MS_IBS_snomed": "codelists/bristol-multimorbidity_irritable-bowel-syndrome.csv", # ever recorded OR 4+ antispasmodic prescriptions in last 12 months
+    "MS_IBS_dmd": "codelists/user-ZoeMZou-multimorbidity_prescription_anti_spasmodic.csv", # ever recorded OR 4+ antispasmodic prescriptions in last 12 months
+    "MS_PC_Analgesics_dmd": "codelists/user-ZoeMZou-multimorbidity_prescription_analgesics_opiods_not_migraine.csv",  # pain (OR below) = 4+ prescriptions in last 12 months
+    "MS_PC_Antiepileptic_dmd": "codelists/user-ZoeMZou-multimorbidity_prescription_anti_epileptic_for_pain_only.csv", # pain (OR above) = 4+ prescriptions in last 12 months, only if no epilepsy code
+    "MS_Psychosis_snomed": "codelists/bristol-multimorbidity_psychosisbipolar-disorder.csv", # ever recorded OR lithium ever prescribed
+    "MS_Psychosis_dmd": "codelists/user-ZoeMZou-multimorbidity_prescription_schizophrenia_bipolar_disorder.csv", # ever recorded OR lithium ever prescribed
+    "MS_StrokeTIA_snomed": "codelists/bristol-multimorbidity_stroketransient-ischemic-attack.csv", # ever recorded
 }
 # Convert to codelist dictionary
 multimorbidity_codelists_dict = {
