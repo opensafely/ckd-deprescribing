@@ -1,10 +1,22 @@
-### FROM ROB/ZOE
+##########################################################################
+# Cambridge Multimorbidity Score (CMMS)
+#
+# Modified SNOMED CT version of the CMMS from Tsang et al. BJGP 2023
+# (doi:10.3399/BJGP.2022.0235): 21-condition model with weights for
+# 1-year mortality
+#
+# Acknowledgment to Dr Wen Shi from University of Cambridge and members of
+# the Bristol EHR group (Rob Porteous and Dr Zoe Zou) whose ehrQL
+# implementations this script reuses/adapts. Check this repo:
+# https://github.com/opensafely/NeurodegenerativeDiseaseBurden/blob/main/
+# analysis/dataset_definition/variable_helper_functions.py
+##########################################################################
 
-from codelists import multimorbidity_codelists_dict
-from ehrql.tables.tpp import patients, clinical_events, medications
+from ehrql.tables.tpp import patients, clinical_events
 from functools import reduce
 from ehrql import case, when, days
 import operator
+from codelists import cms_codelists_dict
 from variable_helper_functions import (
     ever_matching_event_clinical_snomed_before, 
     ever_matching_med_dmd_before
@@ -54,7 +66,15 @@ def check_date_validity(
         otherwise=None
     )
 
-def has_condition_before(
+# Does the patient meet the Multimorbidity Score criteria on the index date?
+#   snomed condition met if EVER has a valid code on or before index date
+#       - optional snomed_window_days e.g. code within last year (window = 365)
+#       - optional snomed_first_within_days e.g FIRST code within the window
+#   dmd1/dmd2 condition met if >= dmd_min_count prescription records EVER
+#       - optional last dmd_window_days e.g codes within last year (window = 365)
+#   combine: "any" (OR) or "all" (AND) across the criteria
+
+def meets_cms_criteria(
     index_date,
     death_date,
     snomed=None,
@@ -62,6 +82,7 @@ def has_condition_before(
     dmd2=None,
     where=True,
     snomed_window_days=None,
+    snomed_first_within_days=None,
     dmd_window_days=None,    
     dmd_min_count=1,          
     combine="any"
@@ -70,22 +91,36 @@ def has_condition_before(
 
     if snomed is not None:
         filtered = ever_matching_event_clinical_snomed_before(
-            snomed, 
-            index_date, 
+            snomed,
+            index_date,
             where=where
         )
 
         if snomed_window_days is not None:
             filtered = filtered.where(filtered.date.is_after(index_date - days(snomed_window_days)))
 
-        conditions.append(
-            filtered.where(
-                check_date_validity(
-                    filtered.date, 
-                    death_date = death_date
-                    ).is_not_null()
-                ).exists_for_patient()
+        valid = filtered.where(
+            check_date_validity(
+                filtered.date,
+                death_date=death_date
+                ).is_not_null()
             )
+
+        if snomed_first_within_days is not None:
+            # only met if the FIRST valid code is within the window
+            first_date = (
+                valid.sort_by(valid.date)
+                .first_for_patient()
+                .date
+            )
+            conditions.append(
+                first_date.is_not_null()
+                & first_date.is_after(index_date - days(snomed_first_within_days))
+            )
+
+        else:
+            conditions.append(valid.exists_for_patient())
+        
 
     for dmd in [dmd1, dmd2]:
         if dmd is not None:
@@ -114,45 +149,61 @@ def has_condition_before(
 
     return all_of(conditions) if combine == "all" else any_of(conditions)
 
-## This code is adapted from Zoe Zou at https://github.com/opensafely/cambridge-multimorbidity-score/tree/Codelists-for-CMS
-## It calculates the cambridge mulimorbidity score for a patient based on their clinical events and medications, using the specified index date.
+## Calculate the total CMS
 ## It can return either the total score or the individual components of the score.
 def get_cms_on_date(index_date, death_date, return_components=False):
 
-    mm = multimorbidity_codelists_dict
+    cl = cms_codelists_dict
 
     # List of all the CMS conditions in the format:
-    #  name, weight, rules (dict listing has_condition_before arguments that differ from the defaults) 
+    #  name, weight, rules (dict listing meets_cms_critera() arguments that differ from the defaults) 
     cms_conditions = [
-        ("alcohol", 0.65, dict(snomed=mm["MS_AlcoholProblem_snomed"])),
-        ("anxiety", 0.50, dict(snomed=mm["MS_AnxietyDepression_snomed"], dmd1=mm["MS_AnxietyDepression_dmd"], snomed_window_days=365, dmd_window_days=365, dmd_min_count=4)),
-        ("asthma", 0.19, dict(snomed=mm["MS_Asthma_snomed"], dmd1=mm["MS_Asthma_dmd"], dmd_window_days=365, combine="all")),
-        ("af", 1.34, dict(snomed=mm["MS_AF_snomed"])),
-        ("cancer", 1.53, dict(snomed=mm["MS_Cancer_snomed"])), # need to think about how to define first cancer code < 5 years ago
-        # (ckd, 0.53 not unpacking here - all pts have CKD - added as a constant below)
-        ("constipation", 1.12, dict(dmd1=mm["MS_Constipation_dmd"], dmd_window_days=365, dmd_min_count=4)),
-        ("copd", 1.46, dict(snomed=mm["MS_COPD_snomed"])),
-        ("ctd", 0.43, dict(snomed=mm["MS_CTD_snomed"])),
-        ("chd", 0.49, dict(snomed=mm["MS_CHD_snomed"])),
-        ("dementia", 2.50, dict(snomed=mm["MS_Dementia_snomed"])),
-        ("diabetes", 0.75, dict(snomed=mm["MS_Diabetes_snomed"])),
-        ("epilepsy", 0.92, dict(snomed=mm["MS_Epilepsy_snomed"], dmd1=mm["MS_Epilepsy_dmd"], dmd_window_days=365, combine="all")),
-        ("hearing_loss", 0.09, dict(snomed=mm["MS_HL_snomed"])),
-        ("hf", 1.18, dict(snomed=mm["MS_HF_snomed"])),
-        ("hypertension", 0.08, dict(snomed=mm["MS_Hypertension_snomed"])),
-        ("ibs", 0.21, dict(snomed=mm["MS_IBS_snomed"], dmd1=mm["MS_IBS_dmd"], dmd_window_days=365, dmd_min_count=4)),
-        ("psychosis", 0.64, dict(snomed=mm["MS_Psychosis_snomed"], dmd1=mm["MS_Psychosis_dmd"])),
-        ("stroke", 0.80, dict(snomed=mm["MS_StrokeTIA_snomed"])),
-        ("pain", 0.92, dict(dmd1=mm["MS_PC_Analgesics_dmd"], dmd2=mm["MS_PC_Antiepileptic_dmd"], dmd_window_days=365, dmd_min_count=4)), # antiepileptic dmd codes should only count if no epilepsy code
+
+        # any diagnosis ever before
+        ("alcohol", 0.792243, dict(snomed=cl["alcohol_snomed"])),
+        ("af", 0.334891, dict(snomed=cl["af_snomed"])),
+        ("copd", 0.702181, dict(snomed=cl["copd_snomed"])),
+        ("dementia", 0.938001, dict(snomed=cl["dementia_snomed"])),
+        ("diabetes", 0.29467, dict(snomed=cl["diabetes_snomed"])),
+        ("hf", 0.505245, dict(snomed=cl["hf_snomed"])),
+        ("cld", 0.68621, dict(snomed=cl["cld_snomed"])),
+        ("prostate", -0.18781, dict(snomed=cl["prostate_snomed"])),
+        ("learning", 0.637273, dict(snomed=cl["learning_disability_snomed"])),
+        ("sclerosis", 0.761606, dict(snomed=cl["ms_snomed"])),
+        ("parkinsonism", 0.546194, dict(snomed=cl["parkinsonism_snomed"])),
+        ("perivascular_leg", 0.334558, dict(snomed=cl["pvd_snomed"])),
+        ("psychosub_misuse", 0.449321, dict(snomed=cl["substance_misuse_snomed"])),
+
+        # cancer = first diagnosis within last 5 years
+        ("cancer", 1.202615, dict(snomed=cl["cancer_snomed"], snomed_first_within_days=1825)),
+
+        # ckd (0.213652): added as a constant below - all pts have CKD 4-5
+
+        # Epilepsy = diagnosis ever AND 1+ prescription in the last 12 months
+        ("epilepsy", 0.477465, dict(snomed=cl["epilepsy_snomed"], dmd1=cl["epilepsy_dmd"], dmd_window_days=365, combine="all")),
+
+        # IBS = diagnosis ever OR 4+ prescriptions in the last 12 months
+        ("bowel", -0.20368, dict(snomed=cl["ibs_snomed"], dmd1=cl["ibs_dmd"], dmd_window_days=365, dmd_min_count=4)),
+
+        # Psychosis/Bipolar = diagnosis ever OR ever prescribed lithium
+        ("psychosis", 0.482469, dict(snomed=cl["psychosis_snomed"], dmd1=cl["psychosis_dmd"])),
+
+        # Constipation = no diagnostic code, 4+ prescriptions within the last 12 months
+        ("constipation", 0.383006, dict(dmd1=cl["constipation_dmd"], dmd_window_days=365, dmd_min_count=4)),
+
+        # Anxiety/Depression = diagnosis within the last 12 months OR 4+ prescriptions in last 12 months
+        ("anxiety", 0.324207, dict(snomed=cl["anxiety_snomed"], dmd1=cl["anxiety_dmd"], snomed_window_days=365, dmd_window_days=365, dmd_min_count=4)),
+
+        # pain = more complex - see below
     ]
 
     # Initiate CMS: patient-level series -> int -> float. 
-    # Everyone gets 0.53 for having CKD
-    cms = clinical_events.exists_for_patient().as_int().as_float() * 0 + 0.53
+    # Everyone gets 0.213652 for having CKD
+    cms = clinical_events.exists_for_patient().as_int().as_float() * 0 + 0.213652
     components = {}
 
     for name, weight, rules in cms_conditions:
-        binary = has_condition_before(
+        binary = meets_cms_criteria(
             index_date=index_date,
             death_date=death_date,
             **rules # unpacks dicts into named arguments
@@ -163,7 +214,36 @@ def get_cms_on_date(index_date, death_date, return_components=False):
         if return_components:
             components[name] = binary
 
+    # Pain - weighting = 0.445521. Rule = EITHER of the following:
+    #   4+ prescriptions from pain_analgesics_dmd in last 12 months OR
+    #   4+ prescriptions from pain_antiepileptics_dmd in last 12 months if no diagnosis of epilepsy ever
+
+    pain_med1 = meets_cms_criteria(
+        index_date=index_date,
+        death_date=death_date,
+        dmd1=cl["pain_analgesics_dmd"],
+        dmd_window_days=365,
+        dmd_min_count=4
+    )
+    pain_med2 = meets_cms_criteria(
+        index_date=index_date,
+        death_date=death_date,
+        dmd1=cl["pain_antiepileptics_dmd"],
+        dmd_window_days=365,
+        dmd_min_count=4
+    )
+    epilepsy_diag = meets_cms_criteria(
+        index_date=index_date,
+        death_date=death_date,
+        snomed=cl["epilepsy_snomed"]
+    )
+    pain = (pain_med1 | (pain_med2 & ~epilepsy_diag)).as_int()
+
+    cms += pain.as_float() * 0.445521
+
+
     if return_components:
+        components["pain"] = pain
         components["cms"] = cms
         return components
 

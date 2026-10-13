@@ -321,7 +321,7 @@ n_creatinine_tests = (
     .where(clinical_events.date.is_on_or_between(index_date - days(365), index_date))
     .where(clinical_events.numeric_value.is_not_null())
     .date
-    .count_distinct_for_patient
+    .count_distinct_for_patient()
 )
 
 #########################################################################
