@@ -11,7 +11,8 @@
 from ehrql import (
     when,
     case,
-    days
+    days,
+    minimum_of
 )
 
 from ehrql.tables.tpp import (
@@ -19,10 +20,13 @@ from ehrql.tables.tpp import (
     addresses,
     apcs,
     medications,
-    practice_registrations
+    practice_registrations,
+    patients,
+    ons_deaths
 )
 
 from codelists import *
+from fn_cambridgemultimorbidityscore import get_cms_on_date
 
 from variable_helper_functions import (
     get_latest_ethnicity,
@@ -143,6 +147,11 @@ bmi_grouping = case(
 ##############################################################################
 # COMORBIDITIES
 ##############################################################################
+# Multimorbidity
+death_date = minimum_of(patients.date_of_death, ons_deaths.date)
+cms_parts = get_cms_on_date(index_date, death_date, return_components=True)
+cms_score = cms_parts.pop("cms") # remove and return the score from the dict
+
 # History of CV disease: previous MI, coronary revascularisation, heart 
 # failure, stroke ----------------------------------------------------- 
 
@@ -367,6 +376,7 @@ def add_baseline_covariates_general(dataset, dataset_inex_cleaned):
         # "basecov_gen_bin_cancer": cancer,
         # "basecov_gen_bin_dementia": dementia,
         # "basecov_gen_bin_copd": copd,
+        "basecov_gen_num_cms": cms_score,
 
         # recent events / healthcare interaction
         # "basecov_gen_bin_falls": prior_falls,
@@ -375,6 +385,11 @@ def add_baseline_covariates_general(dataset, dataset_inex_cleaned):
         # "basecov_gen_date_care_facility_move": care_facility_move_date,
         "basecov_gen_num_n_scr_tests": n_creatinine_tests
     }
+
+    columns.update({
+        f"basecov_gen_bin_cms_{name}": value
+        for name, value in cms_parts.items()
+        })
 
     for name, expr in columns.items():
         dataset.add_column(name, expr)
