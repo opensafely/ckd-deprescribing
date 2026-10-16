@@ -46,28 +46,28 @@ actions:
         dataset_baseline_covariates_general: output/dataset_baseline_covariates_general.arrow
 
 
-  generate_dataset_baseline_covariates_med_specific_ppi:
+  generate_dataset_baseline_covariates_med_specific_ppis:
     run: >
       ehrql:v1 generate-dataset analysis/dataset_definition/dataset_definition_baseline_covariates_med_specific.py
       --dummy-tables dummy_tables/
-      --output output/dataset_baseline_covariates_med_specific_ppi.arrow
-      -- --medicine ppi
+      --output output/dataset_baseline_covariates_med_specific_ppis.arrow
+      -- --medicine ppis
     needs: [study_dates, dataset_cleaning_inex]
     outputs:
       highly_sensitive:
-        dataset_baseline_covariates_med_specific_ppi: output/dataset_baseline_covariates_med_specific_ppi.arrow
+        dataset_baseline_covariates_med_specific_ppis: output/dataset_baseline_covariates_med_specific_ppis.arrow
 
 
-  generate_dataset_baseline_covariates_med_specific_statin:
+  generate_dataset_baseline_covariates_med_specific_statins:
     run: >
       ehrql:v1 generate-dataset analysis/dataset_definition/dataset_definition_baseline_covariates_med_specific.py
       --dummy-tables dummy_tables/
-      --output output/dataset_baseline_covariates_med_specific_statin.arrow
-      -- --medicine statin
+      --output output/dataset_baseline_covariates_med_specific_statins.arrow
+      -- --medicine statins
     needs: [study_dates, dataset_cleaning_inex]
     outputs:
       highly_sensitive:
-        dataset_baseline_covariates_med_specific_statin: output/dataset_baseline_covariates_med_specific_statin.arrow
+        dataset_baseline_covariates_med_specific_statins: output/dataset_baseline_covariates_med_specific_statins.arrow
 
   
   # Process baseline covariates - pass med_specific_{medicine} arg to combine general covariates with that medicine_specific covariates
@@ -79,20 +79,20 @@ actions:
         dataset_baseline_covariates_general_processed: output/data/dataset_baseline_covariates_general_processed.arrow
 
 
-  dataset_process_baseline_covariates_med_specific_statin:
-    run: r:v3 analysis/dataset_processing/dataset_process_baseline_covariates.r med_specific_statin
-    needs: [study_dates, generate_dataset_baseline_covariates_general, generate_dataset_baseline_covariates_med_specific_statin]
+  dataset_process_baseline_covariates_med_specific_statins:
+    run: r:v3 analysis/dataset_processing/dataset_process_baseline_covariates.r med_specific_statins
+    needs: [study_dates, generate_dataset_baseline_covariates_general, generate_dataset_baseline_covariates_med_specific_statins]
     outputs: 
       highly_sensitive:
-        dataset_baseline_covariates_med_specific_statin_processed: output/data/dataset_baseline_covariates_med_specific_statin_processed.arrow
+        dataset_baseline_covariates_med_specific_statins_processed: output/data/dataset_baseline_covariates_med_specific_statins_processed.arrow
 
 
-  dataset_process_baseline_covariates_med_specific_ppi:
-    run: r:v3 analysis/dataset_processing/dataset_process_baseline_covariates.r med_specific_ppi
-    needs: [study_dates, generate_dataset_baseline_covariates_general, generate_dataset_baseline_covariates_med_specific_ppi]
+  dataset_process_baseline_covariates_med_specific_ppis:
+    run: r:v3 analysis/dataset_processing/dataset_process_baseline_covariates.r med_specific_ppis
+    needs: [study_dates, generate_dataset_baseline_covariates_general, generate_dataset_baseline_covariates_med_specific_ppis]
     outputs: 
       highly_sensitive:
-        dataset_baseline_covariates_med_specific_ppi_processed: output/data/dataset_baseline_covariates_med_specific_ppi_processed.arrow
+        dataset_baseline_covariates_med_specific_ppis_processed: output/data/dataset_baseline_covariates_med_specific_ppis_processed.arrow
 
 
   generate_dataset_baseline_meds:
