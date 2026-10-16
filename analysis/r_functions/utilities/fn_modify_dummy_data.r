@@ -222,6 +222,8 @@ fn_modify_dummy_data <- function(
     # intentionally leave blank - no modifications to dummy data
   } else if (project_stage == "process_moi_at_baseline") {
     # intentionally leave blank - no modifications to dummy data
+  } else if (project_stage == "process_baseline_covariates") {
+    # intentionally leave blank - no modifications to dummy data
   } else {
     stop(paste0(
       "Unknown project_stage: ",

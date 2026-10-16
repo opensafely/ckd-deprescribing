@@ -5,13 +5,12 @@
 # and sets the reference levels when converting them to factors.
 ##############################################################################
 
-##############################################################################
-# Missing values
-# Many of these are defensive checks - the ehrQL should manage most of these
-#situations by itself, but not harmful to keep them
-##############################################################################
-
 fn_ref <- function(input, suffix = "", describe = TRUE) {
+  ##############################################################################
+  # Missing values
+  # Many of these are defensive checks - the ehrQL should manage most of these
+  # situations by itself, but not harmful to keep them
+  ##############################################################################
   # Handle missing values in basecov_gen_cat_sex ---------------------------------------
   print("Handle missing values in basecov_gen_cat_sex")
 
@@ -19,9 +18,9 @@ fn_ref <- function(input, suffix = "", describe = TRUE) {
     input$basecov_gen_cat_sex <- if_else(
       input$basecov_gen_cat_sex %in% c("male", "female"),
       input$basecov_gen_cat_sex,
-      "missing"
+      "Missing"
     )
-    if ("missing" %in% unique(input$basecov_gen_cat_sex)) {
+    if ("Missing" %in% unique(input$basecov_gen_cat_sex)) {
       stop("basecov_gen_cat_sex contains missing values.")
     }
   }
@@ -44,7 +43,7 @@ fn_ref <- function(input, suffix = "", describe = TRUE) {
       input$basecov_gen_cat_imd %in%
         imd_levels,
       input$basecov_gen_cat_imd,
-      "missing"
+      "Missing"
     )
   }
 
@@ -140,7 +139,6 @@ fn_ref <- function(input, suffix = "", describe = TRUE) {
   ##############################################################################
   # Set reference levels for factors
   ##############################################################################
-  # Set reference levels for factors -------------------------------------------
   print("Set reference levels for factors")
 
   input <- input |>
@@ -164,7 +162,7 @@ fn_ref <- function(input, suffix = "", describe = TRUE) {
     print('Set reference level for variable: basecov_gen_cat_imd')
     input$basecov_gen_cat_imd <- factor(
       input$basecov_gen_cat_imd,
-      levels = c(imd_levels, "missing")
+      levels = c(imd_levels, "Missing")
     )
   }
 
@@ -176,11 +174,16 @@ fn_ref <- function(input, suffix = "", describe = TRUE) {
         input$basecov_gen_cat_ethnicity,
         ref = "White British"
       )
-    } else {
-      input$basecov_gen_cat_ethnicity <- relevel(
+      input$basecov_gen_cat_ethnicity <- fct_relevel(
         input$basecov_gen_cat_ethnicity,
-        ref = "White"
-      )
+        "Missing",
+        after = Inf
+      ) # move Missing to the end
+    } else {
+      input$basecov_gen_cat_ethnicity <- factor(
+        input$basecov_gen_cat_ethnicity,
+        levels = c("White", "Mixed", "Asian", "Black", "Other", "Missing")
+      ) # the standard ONS ordering
     }
   }
 
