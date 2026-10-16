@@ -140,8 +140,8 @@ bmi_grouping = case(
     when((bmi_value < 18.5) & (bmi_value >= 10)).then("Underweight (<18.5)"),
     when((bmi_value >= 18.5) & (bmi_value < 25)).then("Healthy weight (18.5-24.9)"),
     when((bmi_value >= 25.0) & (bmi_value < 30)).then("Overweight (25-29.9)"),
-    when((bmi_value >= 30.0) & (bmi_value <= 100)).then("Obese (≥30)"),
-    otherwise = "missing" 
+    when((bmi_value >= 30.0) & (bmi_value <= 100)).then("Obese (>=30)"),
+    otherwise = "Missing" 
 )
 
 ##############################################################################
@@ -210,12 +210,13 @@ diabetes = case(
     otherwise=False,
 )
 
-# ##############################################################################
-# # Urinary protein/albumin excretion
-# ##############################################################################
-# # Most recent uACR and uPCR values before index. The uPCR->uACR conversion
-# # (divide by 2.655 for men and 1.7566 for women, applied to mg/g or mg/mmol)
-# #  is sex-dependent and is left to the R processing stage.
+##############################################################################
+# Urinary protein/albumin excretion
+##############################################################################
+# Most recent uACR and uPCR values before index. The uPCR->uACR conversion
+# (divide by 2.655 for men and 1.7566 for women, applied to mg/g or mg/mmol)
+# - numbers obtained from CKDPC risk calculator paper - appendix S1
+# https://www.kidney-international.org/article/S0085-2538(18)30097-8/fulltext
 
 most_recent_uacr = last_matching_event_clinical_snomed_before(
     uacr_codes_snomed, 
@@ -235,6 +236,45 @@ most_recent_upcr = last_matching_event_clinical_snomed_before(
         & (clinical_events.numeric_value >= 0)
         & (clinical_events.numeric_value <= 2500)
     )
+)
+
+conversion_factor = case(
+    when(patients.sex == "male").then(2.655),
+    when(patients.sex == "female").then(1.7566)
+)
+
+# Define whichever proteinuria measurement is more recent
+uacr_source = case(
+    when(
+        most_recent_uacr.exists_for_patient()
+        & (
+            ~most_recent_upcr.exists_for_patient()
+            | most_recent_uacr.date.is_on_or_after(most_recent_upcr.date)
+        )
+    ).then("uACR"),
+    when(most_recent_upcr.exists_for_patient()).then("uPCR"),
+    otherwise="Missing"
+)
+
+# And then convert uPCR values to uACR if required
+uacr_value = case(
+    when(uacr_source == "uACR").then(most_recent_uacr.numeric_value),
+    when(uacr_source == "uPCR").then(most_recent_upcr.numeric_value / conversion_factor)
+)
+
+uacr_date = case(
+    when(uacr_source == "uACR").then(most_recent_uacr.date),
+    when(uacr_source == "uPCR").then(most_recent_upcr.date)
+)
+
+# Then map to KDIGO albuminuria categories
+# Officially A1 is <3, but coded as <=3 here because in clinical_events table
+# patient values of <3 will display as 3 - relational operator is not exposed
+uacr_category = case(
+    when(uacr_value <= 3).then("A1"),
+    when((uacr_value > 3) & (uacr_value < 30)).then("A2"),
+    when(uacr_value >= 30).then("A3"),
+    otherwise="Missing",
 )
 
 ##############################################################################
@@ -358,10 +398,10 @@ def add_baseline_covariates_general(dataset, dataset_inex_cleaned):
         "basecov_gen_date_sbp": most_recent_sbp.date,
         # "basecov_gen_num_cholesterol": most_recent_cholesterol.numeric_value,
         # "basecov_gen_date_cholesterol": most_recent_cholesterol.date,
-        "basecov_gen_num_uacr": most_recent_uacr.numeric_value,
-        "basecov_gen_date_uacr": most_recent_uacr.date,
-        "basecov_gen_num_upcr": most_recent_upcr.numeric_value,
-        "basecov_gen_date_upcr": most_recent_upcr.date,
+        "basecov_gen_num_uacr": uacr_value,
+        "basecov_gen_date_uacr": uacr_date,
+        "basecov_gen_cat_uacr_category": uacr_category,
+        "basecov_gen_cat_uacr_source": uacr_source,
         "basecov_gen_num_bmi_value": bmi_value,
         "basecov_gen_cat_bmi_category": bmi_grouping,
         "basecov_gen_date_bmi": bmi_measurement.date,
