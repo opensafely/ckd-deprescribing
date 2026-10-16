@@ -121,8 +121,13 @@ care_home = case(
 ##############################################################################
 # BP
 most_recent_sbp = last_matching_event_clinical_snomed_before(
-    sbp_codes, index_date, where=clinical_events.numeric_value.is_not_null()
+    sbp_codes, 
+    index_date, 
+    where = (
+        (clinical_events.numeric_value >= 40)
+        & (clinical_events.numeric_value <= 300)
     )
+)
 
 # BMI
 bmi_measurement = last_matching_event_clinical_snomed_before(
@@ -137,10 +142,10 @@ bmi_measurement = last_matching_event_clinical_snomed_before(
 bmi_value = bmi_measurement.numeric_value
 
 bmi_grouping = case(
-    when((bmi_value < 18.5) & (bmi_value >= 10)).then("Underweight (<18.5)"),
+    when(bmi_value < 18.5).then("Underweight (<18.5)"),
     when((bmi_value >= 18.5) & (bmi_value < 25)).then("Healthy weight (18.5-24.9)"),
     when((bmi_value >= 25.0) & (bmi_value < 30)).then("Overweight (25-29.9)"),
-    when((bmi_value >= 30.0) & (bmi_value <= 100)).then("Obese (>=30)"),
+    when(bmi_value >= 30.0).then("Obese (>=30)"),
     otherwise = "Missing" 
 )
 
@@ -198,7 +203,12 @@ t1dm_diagnosis = ever_matching_event_clinical_snomed_before(dm1_codes_snomed, in
 other_dm_diagnosis = ever_matching_event_clinical_snomed_before(dm_not1_codes_snomed, index_date).exists_for_patient()
 
 recent_hba1c = last_matching_event_clinical_snomed_before(
-    hba1c_codes_snomed, index_date, where=clinical_events.numeric_value.is_not_null()
+    hba1c_codes_snomed, 
+    index_date, 
+    where = (
+        (clinical_events.numeric_value >= 15)
+        & (clinical_events.numeric_value <= 200)
+    )
 ).numeric_value
 
 diabetes_drugs = matching_med_dmd_between(dm_drug_codes_dmd, index_date - days(365), index_date).exists_for_patient()
@@ -222,8 +232,7 @@ most_recent_uacr = last_matching_event_clinical_snomed_before(
     uacr_codes_snomed, 
     index_date, 
     where = (
-        clinical_events.numeric_value.is_not_null()
-        & (clinical_events.numeric_value >= 0)
+        (clinical_events.numeric_value >= 0)
         & (clinical_events.numeric_value <= 2500)
     )
 )
@@ -232,8 +241,7 @@ most_recent_upcr = last_matching_event_clinical_snomed_before(
     upcr_codes_snomed, 
     index_date, 
     where = (
-        clinical_events.numeric_value.is_not_null()
-        & (clinical_events.numeric_value >= 0)
+        (clinical_events.numeric_value >= 0)
         & (clinical_events.numeric_value <= 2500)
     )
 )

@@ -223,6 +223,24 @@ fn_ref <- function(input, suffix = "", describe = TRUE) {
     )
   }
 
+  # Set reference level for variable: basecov_gen_cat_uacr_category -----------
+  if ("basecov_gen_cat_uacr_category" %in% names(input)) {
+    print("Set reference level for variable: basecov_gen_cat_uacr_category")
+    input$basecov_gen_cat_uacr_category <- factor(
+      input$basecov_gen_cat_uacr_category,
+      levels = c("A1", "A2", "A3", "Missing")
+    )
+  }
+
+  # Set reference level for variable: basecov_gen_cat_uacr_source -------------
+  if ("basecov_gen_cat_uacr_source" %in% names(input)) {
+    print("Set reference level for variable: basecov_gen_cat_uacr_source")
+    input$basecov_gen_cat_uacr_source <- factor(
+      input$basecov_gen_cat_uacr_source,
+      levels = c("uACR", "uPCR", "Missing")
+    )
+  }
+
   # Describe data ----------------------------------------------------------------------
   if (isTRUE(describe)) {
     fn_describe_data(
