@@ -12,13 +12,13 @@ from dataset_definition_baseline_covariates_general import dataset
 # NB: population is defined by dataset_inex_cleaned.exists_for_patient(), so
 # every patient ID below must also exist in the local
 # output/data/dataset_inex_cleaned.arrow. The 5 pulled-through columns
-# (age, sex, egfr_1, date_egfr_1, coded_ckd_stage) come from that arrow file,
+# (age, sex, egfr_1, date_egfr_1, ckd_stage) come from that arrow file,
 # NOT from the backend tables here, so only Block A asserts them (values must
 # match the arrow for that ID). All other patients assert new variables only.
 
 test_data = {
 
-    1: { # simply verifies table_from_file() works from dataset_inex_cleaned
+    8: { # simply verifies table_from_file() works from dataset_inex_cleaned
         "patients": {
             "date_of_birth": date(1950, 1, 1),
         },
@@ -31,11 +31,11 @@ test_data = {
 
         "expected_in_population": True,
         "expected_columns": {
-            "basecov_gen_num_age": 102,
+            "basecov_gen_num_age": 65,
             "basecov_gen_cat_sex": "female", 
-            "basecov_gen_num_egfr_1": 11.178187869809673,
-            "basecov_gen_date_egfr_1": date(2021, 5, 7), 
-            "basecov_gen_cat_coded_ckd_stage": None, 
+            "basecov_gen_num_egfr_1": 15.787086382900743,
+            "basecov_gen_date_egfr_1": date(2020, 6, 21), 
+            "basecov_gen_cat_ckd_stage": "4", 
         },
     },
 
@@ -209,7 +209,7 @@ test_data = {
     },
 
 
-    9: {
+    10: {
         # tests:
         #   - no snomed or sus ethnicity code - so should null
         #   - two active addresses - how handled? 

@@ -28,16 +28,26 @@ test_data = {
                 "numeric_value": 150
             },
             { 
+                # snomed for creatinine - afte index should not be picked up
+                "date": date(2023, 1, 1),
+                "snomedct_code": "1000731000000107",
+                "numeric_value": 300
+            },
+            { 
                 # snomed for creatinine
                 "date": date(2021, 1, 1),
                 "snomedct_code": "1000731000000107",
                 "numeric_value": 160
             },
             { 
-                # snomed for ckd
+                # snomed for ckd 5
                 "date": date(2020, 1, 1),
                 "snomedct_code": "46177005",
-                "numeric_value": 160
+            },
+            { 
+                # snomed for ckd 3
+                "date": date(2020, 1, 1), # same date - higher stage should prevail
+                "snomedct_code": "700378005",
             },
             { 
                 # primary care snomed for krt (transplant)
@@ -119,8 +129,8 @@ test_data = {
             "inex_ckd_num_scr_value_2": 160,                       
             "inex_ckd_date_scr_date_2": date(2021, 1, 1),                        
             "inex_ckd_bin_has_ckd45_code": True,                    
-            "inex_ckd_date_most_recent_ckd45_code": date(2020, 1, 1),            
-            "inex_ckd_cat_ckd_code_stage": "five",                    
+            "inex_ckd_date_most_recent_ckd_code": date(2020, 1, 1),            
+            "inex_ckd_cat_most_recent_ckd_code_stage": "5",                    
             "inex_krt_bin_has_primary_care_krt_code": True,
             "inex_krt_cat_primary_care_krt_type": "transplant",
             "inex_krt_bin_has_secondary_care_krt_code": True,
@@ -158,15 +168,27 @@ test_data = {
                 "numeric_value": 150
             },
             { 
+                # snomed for creatinine - outside of valid range - so discounted
+                "date": date(2021, 6, 1),
+                "snomedct_code": "1000731000000107",
+                "numeric_value": 10
+            },
+            { 
+                # snomed for creatinine - outside of valid range - so discounted
+                "date": date(2021, 6, 1),
+                "snomedct_code": "1000731000000107",
+                "numeric_value": 5000
+            },
+            { 
                 # snomed for creatinine - not > 90 days prior
                 "date": date(2021, 12, 1),
                 "snomedct_code": "1000731000000107",
                 "numeric_value": 160
             },
             { 
-                # no snomed code for ckd
-                # "date": date(2020, 1, 1),
-                # "snomedct_code": "46177005"
+                # snomed code for ckd 1
+                "date": date(2020, 1, 1),
+                "snomedct_code": "431855005"
             },
             { 
                 # no primary care snomed for krt
@@ -233,8 +255,8 @@ test_data = {
             "inex_ckd_num_scr_value_2": None,                       
             "inex_ckd_date_scr_date_2": None,                        
             "inex_ckd_bin_has_ckd45_code": False,                    
-            "inex_ckd_date_most_recent_ckd45_code": None,            
-            "inex_ckd_cat_ckd_code_stage": None,                    
+            "inex_ckd_date_most_recent_ckd_code": date(2020, 1, 1),            
+            "inex_ckd_cat_most_recent_ckd_code_stage": "1",                    
             "inex_krt_bin_has_primary_care_krt_code": False,
             "inex_krt_cat_primary_care_krt_type": None,
             "inex_krt_bin_has_secondary_care_krt_code": False,
@@ -263,18 +285,38 @@ test_data = {
                 # snomed for creatinine
                 "date": date(2021, 1, 1),
                 "snomedct_code": "1000731000000107",
-                "numeric_value": 150
+                "numeric_value": 160
             },
             { 
                 # snomed for creatinine
                 "date": date(2021, 1, 1),
                 "snomedct_code": "1000731000000107",
-                "numeric_value": 160
+                "numeric_value": 150
             },
             { 
-                # snomed for ckd
+                # snomed for ckd 
                 "date": date(2023, 1, 1), # after index
                 "snomedct_code": "46177005"
+            },
+            { 
+                # snomed for ckd 5
+                "date": date(1200, 1, 1), # 800 years ago!
+                "snomedct_code": "46177005"
+            },
+            { 
+                # snomed for ckd 3
+                "date": date(2022, 1, 1), # more recent 
+                "snomedct_code": "700378005"
+            },
+            { 
+                # snomed for ckd 5
+                "date": date(1200, 1, 1), # 800 years ago!
+                "snomedct_code": "46177005"
+            },
+            { 
+                # snomed for ckd 3
+                "date": date(2022, 1, 1), # more recent 
+                "snomedct_code": "700378005"
             },
             { 
                 # primary care snomed for krt (dialysis)
@@ -336,13 +378,13 @@ test_data = {
             "inex_dem_bin_region": False,                                                 
             "inex_dem_bin_imd": False,                                 
             "inex_ckd_bin_has_two_scr": False,                    
-            "inex_ckd_num_scr_value_1": 160, # both on the same date, appears to take the latter measurement                        
+            "inex_ckd_num_scr_value_1": 160, # both on the same date, takes highest                       
             "inex_ckd_date_scr_date_1": date(2021, 1, 1),                       
             "inex_ckd_num_scr_value_2": None,                       
             "inex_ckd_date_scr_date_2": None,                        
-            "inex_ckd_bin_has_ckd45_code": False,                    
-            "inex_ckd_date_most_recent_ckd45_code": None,            
-            "inex_ckd_cat_ckd_code_stage": None,                    
+            "inex_ckd_bin_has_ckd45_code": True,                    
+            "inex_ckd_date_most_recent_ckd_code": date(2022, 1, 1),            
+            "inex_ckd_cat_most_recent_ckd_code_stage": "3",                    
             "inex_krt_bin_has_primary_care_krt_code": False,
             "inex_krt_cat_primary_care_krt_type": None,
             "inex_krt_bin_has_secondary_care_krt_code": True,
@@ -377,10 +419,30 @@ test_data = {
                 "snomedct_code": "276401000000108", # colorectal cancer
             },
             { 
-                # snomed for ckd
-                "date": date(1900, 1, 1), # date should not matter
+                # snomed for ckd 4
+                "date": date(1900, 1, 1), # old CKD 4
                 "snomedct_code": "431857002",
             },
+            { 
+                # snomed for ckd 2
+                "date": date(2022, 1, 1), # more recent CKD 2
+                "snomedct_code": "431856006"
+            },
+            { 
+                # snomed for ckd 1
+                "date": date(2023, 1, 1), # CKD 1 after index
+                "snomedct_code": "431855005"
+            },            
+            { 
+                # snomed for ckd 2
+                "date": date(2022, 1, 1), # more recent CKD 2
+                "snomedct_code": "431856006"
+            },
+            { 
+                # snomed for ckd 1
+                "date": date(2023, 1, 1), # CKD 1 after index
+                "snomedct_code": "431855005"
+            },            
             { 
                 # primary care snomed for krt
                 "date": date(1900, 1, 1), # date should not matter
@@ -454,8 +516,8 @@ test_data = {
             "inex_ckd_num_scr_value_2": None,                       
             "inex_ckd_date_scr_date_2": None,                        
             "inex_ckd_bin_has_ckd45_code": True,                    
-            "inex_ckd_date_most_recent_ckd45_code": date(1900, 1, 1),            
-            "inex_ckd_cat_ckd_code_stage": "four",                    
+            "inex_ckd_date_most_recent_ckd_code": date(2022, 1, 1),            
+            "inex_ckd_cat_most_recent_ckd_code_stage": "2",                    
             "inex_krt_bin_has_primary_care_krt_code": True,
             "inex_krt_cat_primary_care_krt_type": "transplant",
             "inex_krt_bin_has_secondary_care_krt_code": True,
@@ -523,8 +585,8 @@ test_data = {
             "inex_ckd_num_scr_value_2": None,
             "inex_ckd_date_scr_date_2": None,
             "inex_ckd_bin_has_ckd45_code": False,
-            "inex_ckd_date_most_recent_ckd45_code": None,
-            "inex_ckd_cat_ckd_code_stage": None,
+            "inex_ckd_date_most_recent_ckd_code": None,            
+            "inex_ckd_cat_most_recent_ckd_code_stage": None,                    
             "inex_krt_bin_has_primary_care_krt_code": False,
             "inex_krt_cat_primary_care_krt_type": None,
             "inex_krt_bin_has_secondary_care_krt_code": False,

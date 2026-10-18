@@ -129,43 +129,35 @@ fn_modify_dummy_data <- function(
           )
         ))
       ) |>
+
       mutate(
-        # CKD code date - only for those with a code, 0.5% missing
-        inex_ckd_date_most_recent_ckd45_code = if_else(
-          inex_ckd_bin_has_ckd45_code & runif(nrow(dummy_data)) > 0.005,
+        # Most recent CKD code stage - depends on whether ever had a 4/5 code
+        # with 4/5 code: mostly 4/5, ~15% a less severe CKD code
+        # without: stage 1-3 or no CKD code
+        inex_ckd_cat_most_recent_ckd_code_stage = as.factor(case_when(
+          inex_ckd_bin_has_ckd45_code ~ sample(
+            c("1", "2", "3", "4", "5"),
+            n(),
+            replace = TRUE,
+            prob = c(0.02, 0.02, 0.11, 0.45, 0.40)
+          ),
+          TRUE ~ sample(
+            c("1", "2", "3", NA),
+            n(),
+            replace = TRUE,
+            prob = c(0.05, 0.05, 0.15, 0.75)
+          )
+        )),
+        inex_ckd_date_most_recent_ckd_code = if_else(
+          !is.na(inex_ckd_cat_most_recent_ckd_code_stage),
           as.Date("2017-01-01") +
             days(sample(
               0:as.integer(as.Date(index_date) - as.Date("2017-01-01")),
-              nrow(dummy_data),
+              n(),
               replace = TRUE
             )),
           NA_Date_
-        ),
-        # CKD stage - only for those with a code,
-        # based on creatinine with some noise, no missingness
-        inex_ckd_cat_ckd_code_stage = as.factor(case_when(
-          !inex_ckd_bin_has_ckd45_code ~ NA_character_,
-          inex_ckd_num_scr_value_1 + rnorm(nrow(dummy_data), 0, 30) >
-            350 ~ sample(
-            c("five", "four"),
-            nrow(dummy_data),
-            replace = TRUE,
-            prob = c(0.85, 0.15)
-          ),
-          inex_ckd_num_scr_value_1 + rnorm(nrow(dummy_data), 0, 30) >
-            250 ~ sample(
-            c("four", "five"),
-            nrow(dummy_data),
-            replace = TRUE,
-            prob = c(0.70, 0.30)
-          ),
-          TRUE ~ sample(
-            c("four", "five"),
-            nrow(dummy_data),
-            replace = TRUE,
-            prob = c(0.2, 0.1)
-          )
-        ))
+        )
       ) |>
 
       ## KRT variables ##
@@ -176,19 +168,19 @@ fn_modify_dummy_data <- function(
           nrow(dummy_data),
           1,
           prob = case_when(
-            inex_ckd_cat_ckd_code_stage == "five" ~ 0.20,
-            inex_ckd_cat_ckd_code_stage == "four" ~ 0.10,
-            is.na(inex_ckd_cat_ckd_code_stage) ~ 0.03
+            inex_ckd_cat_most_recent_ckd_code_stage == "5" ~ 0.20,
+            inex_ckd_cat_most_recent_ckd_code_stage == "4" ~ 0.10,
+            TRUE ~ 0.03
           )
         )),
         # Type - only for those with a KRT code
         inex_krt_cat_primary_care_krt_type = as.factor(case_when(
           !inex_krt_bin_has_primary_care_krt_code ~ NA_character_,
           TRUE ~ sample(
-            x = c("dialysis", "transplant", "unknown"),
+            x = c("dialysis", "transplant"),
             size = nrow(dummy_data),
             replace = TRUE,
-            prob = c(0.5, 0.45, 0.05)
+            prob = c(0.5, 0.5)
           )
         ))
       ) |>
@@ -200,9 +192,9 @@ fn_modify_dummy_data <- function(
           1,
           prob = case_when(
             inex_krt_bin_has_primary_care_krt_code ~ 0.80,
-            inex_ckd_cat_ckd_code_stage == "five" ~ 0.05,
-            inex_ckd_cat_ckd_code_stage == "four" ~ 0.01,
-            is.na(inex_ckd_cat_ckd_code_stage) ~ 0.005
+            inex_ckd_cat_most_recent_ckd_code_stage == "5" ~ 0.05,
+            inex_ckd_cat_most_recent_ckd_code_stage == "4" ~ 0.01,
+            TRUE ~ 0.005
           )
         )),
         inex_krt_cat_secondary_care_krt_type = as.factor(case_when(

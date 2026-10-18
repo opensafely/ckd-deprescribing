@@ -57,6 +57,8 @@ dataset_analyse_baseline_meds_1_input <- arrow::open_dataset(
 # Build patient denominator ----------------------------------------------
 all_patient_ids <- dataset_analyse_baseline_meds_1_input |>
   distinct(patient_id)
+# SDC-rounded denominator
+n_cohort_sdc <- fn_apply_sdc(nrow(all_patient_ids))
 
 # Load BNF hierarchy -----------------------------------------------------
 bnf_hierarchy <- readRDS(here::here(
@@ -204,8 +206,14 @@ counts_days_before_index <- dataset_baseline_meds_analysed |>
       .default = paste0("76-", max_days)
     )
   ) |>
-  count(days_bin_label, name = "n_patient_substances") |>
-  mutate(n_patient_substances = fn_apply_sdc(n_patient_substances))
+  group_by(days_bin_label) |>
+  summarise(
+    n_patient_substances = n(),
+    n_patients = n_distinct(patient_id), # >=1 chronic med in this bin
+    # one patient can appear in several bins so this does not sum to N
+    .groups = "drop"
+  ) |>
+  mutate(across(c(n_patient_substances, n_patients), fn_apply_sdc))
 
 
 ##########################################################################
@@ -277,8 +285,11 @@ message("Build chronic medication count summary statistics")
 chronic_meds_summary_table <- counts_long |>
   group_by(analysis) |>
   summarise(
+    n_patients = fn_apply_sdc(n()),
     mean = round(mean(n_chronic), 2),
+    p25 = quantile(n_chronic, 0.25),
     median = median(n_chronic),
+    p75 = quantile(n_chronic, 0.75),
     p90 = quantile(n_chronic, 0.90),
     p95 = quantile(n_chronic, 0.95),
     .groups = "drop"
@@ -337,7 +348,7 @@ meds_prevalence_substance <- chronic_oral_substances |>
   summarise(n_patients = n(), .groups = "drop") |>
   mutate(
     n_patients = fn_apply_sdc(n_patients),
-    pct_patients = round(100 * n_patients / nrow(all_patient_ids), 2)
+    pct_patients = round(100 * n_patients / n_cohort_sdc, 1)
   ) |>
   arrange(desc(n_patients))
 
@@ -349,7 +360,7 @@ meds_prevalence_subparagraph <- chronic_oral_substances |>
   summarise(n_patients = n(), .groups = "drop") |>
   mutate(
     n_patients = fn_apply_sdc(n_patients),
-    pct_patients = round(100 * n_patients / nrow(all_patient_ids), 2)
+    pct_patients = round(100 * n_patients / n_cohort_sdc, 1)
   ) |>
   arrange(desc(n_patients))
 
@@ -360,7 +371,7 @@ meds_prevalence_paragraph <- chronic_oral_substances |>
   summarise(n_patients = n(), .groups = "drop") |>
   mutate(
     n_patients = fn_apply_sdc(n_patients),
-    pct_patients = round(100 * n_patients / nrow(all_patient_ids), 2)
+    pct_patients = round(100 * n_patients / n_cohort_sdc, 1)
   ) |>
   arrange(desc(n_patients))
 

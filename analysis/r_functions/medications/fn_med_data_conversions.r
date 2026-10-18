@@ -14,8 +14,8 @@ source(here::here(
 #######################################################################################
 # fn_write_unmapped_codes() - diagnostics
 #######################################################################################
-# Counts unmapped codes, applies SDC suppression via fn_apply_sdc(),
-# and writes the result to a CSV in output/data_descriptions/
+# Counts numbers of patients with unmapped codes, applies SDC suppression via
+# fn_apply_sdc(), and writes the result to a CSV in output/data_descriptions/
 #
 # Arguments:
 #   data : data frame containing the codes to count (e.g. filtered patient_bnf)
@@ -31,10 +31,11 @@ fn_write_unmapped_codes <- function(
   file_suffix
 ) {
   result <- data |>
-    count(.data[[code_col]], name = "n_occurrences") |>
-    arrange(desc(n_occurrences)) |>
-    mutate(n_occurrences = fn_apply_sdc(n_occurrences)) |>
-    select(all_of(c(code_col, "n_occurrences")))
+    group_by(.data[[code_col]]) |>
+    summarise(n_patients = n_distinct(patient_id), .groups = "drop") |>
+    arrange(desc(n_patients)) |>
+    mutate(n_patients = fn_apply_sdc(n_patients)) |>
+    select(all_of(c(code_col, "n_patients")))
 
   write_csv(
     result,
@@ -185,8 +186,21 @@ fn_dmd_to_bnf <- function(
   # Patient-level route diagnostic (only if route classification was run on lookup)
   if ("route_cat" %in% names(patient_bnf)) {
     route_summary <- patient_bnf |>
-      count(route_cat) |>
-      mutate(n = fn_apply_sdc(n))
+      group_by(route_cat) |>
+      summarise(
+        n_patients = n_distinct(patient_id),
+        n_prescriptions = n(),
+        .groups = "drop"
+      ) |>
+      mutate(
+        # suppress prescription counts where the underlying patient count is small
+        n_prescriptions = replace(
+          n_prescriptions,
+          n_patients > 0 & n_patients <= 7,
+          NA
+        ),
+        across(c(n_patients, n_prescriptions), fn_apply_sdc)
+      )
 
     message(
       "--- Patient route classification summary written to *-route_classification_patient_summary.csv"
