@@ -83,19 +83,28 @@ data_preprocessed <- fn_preprocess(
 # Full list of patient IDs for denominator in later summaries
 all_patient_ids <- tibble(patient_id = data_preprocessed$patient_id)
 
-# Check whether/how many patients med lists exceed the number of slots
+# Check whether/how many patients medications might have been truncated
+med_slots <- 20
+
+# n_slots = total number of dmd_code columns
 dmd_cols <- grep("^med_dmd_code", names(data_preprocessed), value = TRUE)
 n_slots <- length(dmd_cols)
-last_slot <- paste0("med_dmd_code_", n_slots)
+
+# columns that reflect the end of each window
+window_last_slots <- paste0(
+  "med_dmd_code_",
+  seq(med_slots, n_slots, by = med_slots)
+)
+# maybe truncated patients will have values in window_last_slots
 n_patients_at_slot_cap <- data_preprocessed |>
-  filter(!is.na(.data[[last_slot]])) |>
+  filter(if_any(all_of(window_last_slots), ~ !is.na(.x))) |>
   nrow()
 
 if (n_patients_at_slot_cap > 0) {
   warning(sprintf(
-    "%d patients filled all %d medication slots: medications may be truncated",
+    "%d patients filled all %d slots in at least one window: medications may be truncated",
     n_patients_at_slot_cap,
-    n_slots
+    med_slots
   ))
 }
 
@@ -110,7 +119,8 @@ flow <- data.frame(
 
 # Separate patients with no medications and record in flow ---------------
 data_with_meds <- data_preprocessed |>
-  filter(!is.na(med_dmd_code_1)) # if first slot empty, all slots empty
+  filter(if_any(all_of(dmd_cols), ~ !is.na(.x)))
+# i.e. take anyone who has any dmd_col which is not NA (i.e. anyone with 1+ medicine)
 
 flow <- rbind(
   flow,
@@ -186,7 +196,7 @@ flow <- rbind(
   flow,
   data.frame(
     Description = c(
-      "DIAGNOSTIC: patients with all medication slots filled",
+      "DIAGNOSTIC: patients with all slots filled in at least one window",
       "DIAGNOSTIC: numbers with BNF code imputed from VTM"
     ),
     N_patients = c(n_patients_at_slot_cap, n_imputed_patients),
