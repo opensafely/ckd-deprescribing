@@ -87,15 +87,19 @@ all_patient_ids <- tibble(patient_id = data_preprocessed$patient_id)
 dmd_cols <- grep("^med_dmd_code", names(data_preprocessed), value = TRUE)
 n_slots <- length(dmd_cols)
 last_slot <- paste0("med_dmd_code_", n_slots)
+last_date <- paste0("med_date_", n_slots)
 n_patients_at_slot_cap <- data_preprocessed |>
   filter(!is.na(.data[[last_slot]])) |>
   nrow()
 
 if (n_patients_at_slot_cap > 0) {
   warning(sprintf(
-    "%d patients filled all %d medication slots: medications may be truncated",
+    "%d patients filled all %d medication slots: worst truncated individual = %d days captured",
     n_patients_at_slot_cap,
-    n_slots
+    n_slots,
+    as.integer(
+      study_dates$index_date - max(data_preprocessed[[last_date]], na.rm = TRUE)
+    )
   ))
 }
 
