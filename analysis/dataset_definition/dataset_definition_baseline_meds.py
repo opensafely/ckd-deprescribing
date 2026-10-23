@@ -3,8 +3,7 @@
 # 1. Reads study dates from output/study_dates.json
 # 2. Filters the population to patients in dataset_inex_cleaned
 # 3. Calls add_prescription_columns() to create wide format prescription
-#    columns for up to max_med prescriptions in the days_before_index 
-#    window before index date.
+#    columns.
 #
 # Output: dataset_baseline_meds.arrow (see yaml: generate_dataset_baseline_meds)
 # Test: test_dataset_definition_baseline_meds.py
@@ -30,6 +29,5 @@ dataset_inex_cleaned = table_from_file(
 dataset = create_dataset()
 dataset.define_population(dataset_inex_cleaned.exists_for_patient())
 
-# add wide format prescription columns for up to max_meds prescriptions
-# in the days_before_index window before index date
-add_prescription_columns(dataset, index_date, max_meds=125, days_before_index=180)
+# add wide format prescription columns
+add_prescription_columns(dataset, index_date, med_slots=20, window_days=7, n_windows=2)
