@@ -80,6 +80,15 @@ data_preprocessed <- fn_preprocess(
 ) |>
   collect() # have to collect for the next steps
 
+message(sprintf(
+  "%d patients with code: 274512008; %d patients with code: 304540007",
+  sum(data_preprocessed$med_bin_discont_code_1),
+  sum(data_preprocessed$med_bin_discont_code_2)
+))
+
+data_preprocessed <- data_preprocessed |>
+  select(-med_bin_discont_code_1, -med_bin_discont_code_2)
+
 # Full list of patient IDs for denominator in later summaries
 all_patient_ids <- tibble(patient_id = data_preprocessed$patient_id)
 

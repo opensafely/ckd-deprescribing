@@ -11,6 +11,7 @@
 
 from ehrql import create_dataset, table_from_file
 from fn_baseline_meds_variables import add_prescription_columns
+from ehrql.tables.tpp import clinical_events
 
 # define the project-relevant dates
 import json
@@ -31,3 +32,11 @@ dataset.define_population(dataset_inex_cleaned.exists_for_patient())
 
 # add wide format prescription columns
 add_prescription_columns(dataset, index_date, med_slots=20, window_days=7, n_windows=2)
+
+dataset.med_bin_discont_code_1 = clinical_events.where(
+    clinical_events.snomedct_code.is_in(["274512008"])
+).exists_for_patient()
+
+dataset.med_bin_discont_code_2 = clinical_events.where(
+    clinical_events.snomedct_code.is_in(["304540007"])
+).exists_for_patient()
