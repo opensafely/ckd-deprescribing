@@ -45,7 +45,7 @@ test_data = {
     },
 
 
-    5: {    # 2nd medicine prescribed before 90 day window around index date
+    5: {  
         
         "patients": { # one row per patient
             "date_of_birth": date(1910, 1, 1), # always first day of month, never NULL
@@ -83,20 +83,20 @@ test_data = {
             "med_dmd_code_3": None,
             "med_date_3": None,
             # ...
-            "med_dmd_code_21": "34953211000001105",
-            "med_date_21": date(2022, 2, 22),
+            "med_dmd_code_20": "34953211000001105",
+            "med_date_20": date(2022, 2, 22),
+            "med_dmd_code_21": None,
+            "med_date_21": None,
             "med_dmd_code_22": None,
             "med_date_22": None,
-            "med_dmd_code_23": None,
-            "med_date_23": None,
             # ...
-            "med_dmd_code_41": None,
-            "med_date_41": None,
+            "med_dmd_code_39": None,
+            "med_date_39": None,
             # ...
-            "med_dmd_code_61": "34953211000001105",
-            "med_date_61": date(2022, 2, 2),
-            "med_dmd_code_62": None,
-            "med_date_62": None,
+            "med_dmd_code_58": "34953211000001105",
+            "med_date_58": date(2022, 2, 2),
+            "med_dmd_code_59": None,
+            "med_date_59": None,
 
         },
     },
@@ -120,10 +120,10 @@ test_data = {
 
         "expected_in_population": True,
         "expected_columns": {
-            "med_dmd_code_21": "360711000001100",
+            "med_dmd_code_20": "360711000001100",
+            "med_date_20": date(2022, 2, 20),
+            "med_dmd_code_21": "34953211000001105",
             "med_date_21": date(2022, 2, 20),
-            "med_dmd_code_22": "34953211000001105",
-            "med_date_22": date(2022, 2, 20),
             "med_dmd_code_3": None,
             "med_date_3": None,
             "med_dmd_code_4": None,
@@ -154,10 +154,10 @@ test_data = {
 
         "expected_in_population": True,
         "expected_columns": {
-            "med_dmd_code_41": "34953211000001105",
-            "med_date_41": date(2022, 2, 12),
-            "med_dmd_code_42": None,
-            "med_date_42": None,
+            "med_dmd_code_39": "34953211000001105",
+            "med_date_39": date(2022, 2, 12),
+            "med_dmd_code_40": None,
+            "med_date_40": None,
             "med_dmd_code_3": None,
             "med_date_3": None,
             "med_dmd_code_4": None,
@@ -228,32 +228,27 @@ test_data = {
             "med_dmd_code_5": None,
             "med_date_5": None,
             # window 1
-            "med_dmd_code_21": "9557111000001102",
+            "med_dmd_code_20": "9557111000001102",
+            "med_date_20": date(2022, 2, 22),
+            "med_dmd_code_21": "360711000001100",
             "med_date_21": date(2022, 2, 22),
-            "med_dmd_code_22": "360711000001100",
+            "med_dmd_code_22": "34953211000001105",
             "med_date_22": date(2022, 2, 22),
-            "med_dmd_code_23": "34953211000001105",
+            "med_dmd_code_23": "21801411000001101",
             "med_date_23": date(2022, 2, 22),
-            "med_dmd_code_24": "21801411000001101",
-            "med_date_24": date(2022, 2, 22),
-            "med_dmd_code_25": None,
-            "med_date_25": None
+            "med_dmd_code_24": None,
+            "med_date_24": None
         },
     },
 
 
-    16: {   # tests max_meds=15 logic.
-            # Exactly 16 distinct prescriptions — verifies all slots filled and slot 15 contains
-            # the oldest prescription bar 1 
+    16: {   # tests max_med logic.
+
         "patients": { # one row per patient
             "date_of_birth": date(1910, 1, 1), # always first day of month, never NULL
             },
 
         "medications": [ # many rows per patient
-            {
-                "date": date(2022, 3, 1), 
-                "dmd_code": "10000000000000001"
-            },
             {
                 "date": date(2022, 3, 1),
                 "dmd_code": "10000000000000002"
@@ -331,11 +326,11 @@ test_data = {
                  "dmd_code": "10000000000000020"
             },
             {
-                "date": date(2022, 2, 23), # oldest in window 0 — should be dropped
+                "date": date(2022, 2, 23), #20 = oldest in window 0 — should be dropped
                 "dmd_code": "10000000000000021"
             },
             {
-                "date": date(2022, 2, 22), # window 1 — should be in slot 21
+                "date": date(2022, 2, 22), # window 1 — should be in slot 20
                 "dmd_code": "10000000000000022"
             }
         ],
@@ -381,13 +376,11 @@ test_data = {
             "med_date_18": date(2022, 3, 1),
             "med_dmd_code_19": "10000000000000002",
             "med_date_19": date(2022, 3, 1),
-            "med_dmd_code_20": "10000000000000001",
-            "med_date_20": date(2022, 3, 1),
             # window 1
-            "med_dmd_code_21": "10000000000000022",
-            "med_date_21": date(2022, 2, 22),
-            "med_dmd_code_22": None,
-            "med_date_22": None
+            "med_dmd_code_20": "10000000000000022",
+            "med_date_20": date(2022, 2, 22),
+            "med_dmd_code_21": None,
+            "med_date_21": None
         },
     },
 

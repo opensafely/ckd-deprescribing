@@ -93,7 +93,7 @@ data_preprocessed <- data_preprocessed |>
 all_patient_ids <- tibble(patient_id = data_preprocessed$patient_id)
 
 # Check whether/how many patients medications might have been truncated
-med_slots <- 20
+med_slots <- 19
 
 # n_slots = total number of dmd_code columns
 dmd_cols <- grep("^med_dmd_code", names(data_preprocessed), value = TRUE)
