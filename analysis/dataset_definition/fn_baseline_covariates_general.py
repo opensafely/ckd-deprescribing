@@ -211,7 +211,7 @@ recent_hba1c = last_matching_event_clinical_snomed_before(
     )
 ).numeric_value
 
-diabetes_drugs = matching_med_dmd_between(dm_drug_codes_dmd, index_date - days(365), index_date).exists_for_patient()
+diabetes_drugs = matching_med_dmd_between(dm_drug_codes_dmd, index_date - days(364), index_date).exists_for_patient()
 
 diabetes = case(
     when(
@@ -280,8 +280,8 @@ uacr_date = case(
 # patient values of <3 will display as 3 - relational operator is not exposed
 uacr_category = case(
     when(uacr_value <= 3).then("A1"),
-    when((uacr_value > 3) & (uacr_value < 30)).then("A2"),
-    when(uacr_value >= 30).then("A3"),
+    when((uacr_value > 3) & (uacr_value <= 30)).then("A2"),
+    when(uacr_value > 30).then("A3"),
     otherwise="Missing",
 )
 
@@ -375,8 +375,11 @@ smoking_status = case(
 n_creatinine_tests = (
     clinical_events
     .where(clinical_events.snomedct_code.is_in(creatinine_codes))
-    .where(clinical_events.date.is_on_or_between(index_date - days(365), index_date))
-    .where(clinical_events.numeric_value.is_not_null())
+    .where(clinical_events.date.is_on_or_between(index_date - days(364), index_date))
+    .where(
+        (clinical_events.numeric_value >= 20)
+        & (clinical_events.numeric_value <= 3000)
+    )
     .date
     .count_distinct_for_patient()
 )
