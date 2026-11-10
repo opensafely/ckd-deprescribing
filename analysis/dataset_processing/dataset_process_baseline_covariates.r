@@ -86,7 +86,7 @@ data_preprocessed <- fn_preprocess(
 data_ref <- fn_ref(
   input = data_preprocessed,
   suffix = "process_baseline_covariates",
-  describe = FALSE
+  describe = TRUE
 )
 
 # Save cleaned dataset to output folder ----------------------------------
