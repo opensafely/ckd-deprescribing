@@ -11,6 +11,7 @@
 
 from ehrql import create_dataset, table_from_file
 from fn_baseline_meds_variables import add_prescription_columns
+from ehrql.tables.tpp import clinical_events
 
 # define the project-relevant dates
 import json

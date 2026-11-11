@@ -15,7 +15,8 @@
 #
 # Groups at patient/bnf_substance_code level. This means that:
 #  - combination meds are counted separately
-#  - >1 dose of a medicine (e.g. levothyroxine 50mcg+25mcg) counts once
+#  - >1 dose of a medicine (e.g. levothyroxine 50mcg+25mcg) would count as
+#    two prescriptions, so hence n_distinct(med_date) is used
 #
 # Arguments:
 #   data : one row per prescription. Must contain
@@ -52,7 +53,7 @@ fn_flag_chronic_meds <- function(
     ) |>
     group_by(patient_id, bnf_substance_code) |>
     summarise(
-      n_scripts = n(),
+      n_scripts = n_distinct(med_date),
       days_before_index_most_recent_prescription = as.integer(
         index_date - max(med_date)
       ),
@@ -108,7 +109,7 @@ fn_estimate_med_intervals <- function(
     filter(med_date <= index_date) |>
     group_by(patient_id, bnf_substance_code) |>
     summarise(
-      n_scripts = n(),
+      n_scripts = n_distinct(med_date),
       days_spanning_first_and_last = as.integer(max(med_date) - min(med_date)),
       .groups = "drop"
     ) |>
