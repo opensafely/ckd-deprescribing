@@ -141,7 +141,7 @@ actions:
 
   table_1:
     run: r:v3 analysis/dataset_analysis/table_1.r
-    needs: [dataset_cleaning_inex]
+    needs: [dataset_process_baseline_covariates_general]
     outputs:
       moderately_sensitive:
         table_1: output/tables/table_1.csv
