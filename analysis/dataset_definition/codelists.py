@@ -197,30 +197,36 @@ dm_drug_codes_dmd = codelist_from_csv(
     column="code"
 )
 
-# # Clinical values (most-recent numeric before index) ---------------------
+# Clinical values (most-recent numeric before index) ---------------------
+# BMI
+bmi_value_codes_snomed = codelist_from_csv(
+    "codelists/nhsd-primary-care-domain-refsets-bmival_cod.csv",
+    column="code"
+)
+
 # # Total cholesterol
 # cholesterol_codes_snomed = codelist_from_csv(
 #     #"codelists/user-mletts92-total-cholesterol.csv",
 #     column="code"
 # )
-# # Urinary albumin:creatinine ratio (uACR)
-# uacr_codes_snomed = codelist_from_csv(
-#     #"codelists/user-mletts92-urinary-albumin-creatinine-ratio.csv",
-#     column="code"
-# )
-# # Urinary protein:creatinine ratio (uPCR)
-# upcr_codes_snomed = codelist_from_csv(
-#     #"codelists/user-mletts92-urinary-protein-creatinine-ratio.csv",
-#     column="code"
-# )
+# Urinary albumin:creatinine ratio (uACR)
+uacr_codes_snomed = codelist_from_csv(
+    "codelists/bristol-urine-albumin-creatinine-ratio.csv",
+    column="code"
+)
+# Urinary protein:creatinine ratio (uPCR)
+upcr_codes_snomed = codelist_from_csv(
+    "codelists/bristol-urine-protein-creatinine-ratio.csv",
+    column="code"
+)
 
 
 # # Smoking status --------------------------------------------------------
-# smoking_codes_snomed = codelist_from_csv(
-#     #"codelists/user-mletts92-smoking-status.csv",
-#     column="code",
-#     #category_column="category"
-# )
+smoking_clear = codelist_from_csv(
+    "codelists/opensafely-smoking-clear.csv",
+    column="CTV3Code",
+    category_column="Category"
+)
 
 # # Comorbidities ---------------------------------------------------------
 # liver_disease_codes_snomed = codelist_from_csv(
@@ -311,3 +317,45 @@ with open("analysis/config/medication_of_interest.csv") as f:
             row["codelist_path"],
             column="code"
         )
+
+#######################################
+# Cambridge multimorbidity score
+#######################################
+
+# Dictionary of codelists for Cambridge MultiMorbidityScore
+cms_filepaths_dict = {
+    "alcohol_snomed": "codelists/bristol-cambridge-multimorbidity-score-alcohol-problems.csv", # ever recorded
+    "anxiety_snomed": "codelists/bristol-cambridge-multimorbidity-score-anxiety-or-depression.csv",
+    # code in last 12 months OR ≥4 anxiolytic/hypnotic prescriptions in last 12 months OR ≥4 anti-depressant prescriptions (excluding low dose tricyclics) in last 12 months
+    "anxiety_dmd": "codelists/bristol-multimorbidity_prescription_anxiolytics_anti_depressants_bnf-dmd.csv", # as above - NB one combined list
+    "af_snomed": "codelists/bristol-multimorbidity_atrial-fibrillation.csv", # ever recorded
+    "cancer_snomed": "codelists/bristol-multimorbidity_cancer.csv", # first recorded in last 5 years
+    # "ckd_snomed": "codelists/bristol-multimorbidity_chronic-kidney-disease.csv", # everyone in my study will score for this
+    "cld_snomed": "codelists/bristol-cambridge-multimorbidity-score-chronic-liver-disease-and-viral-hepatitis.csv", # ever recorded
+    "constipation_dmd": "codelists/bristol-multimorbidity_prescription_constipation_bnf_dmd_converted.csv", # 4+ prescriptions in the last 12 months
+    "copd_snomed": "codelists/bristol-cambridge-multimorbidity-score-copd.csv", # ever recorded
+    "dementia_snomed": "codelists/bristol-multimorbidity_dementia.csv", # ever recorded
+    "diabetes_snomed": "codelists/bristol-multimorbidity_diabetes.csv", # ever recorded
+    "epilepsy_snomed": "codelists/bristol-multimorbidity_epilepsy.csv", # ever recorded AND 1+ prescriptions in last 12 months
+    "epilepsy_dmd": "codelists/bristol-multimorbidity_prescription_epilepsy_bnf_dmd_converted.csv", # ever recorded AND 1+ prescription in last 12 months
+    "hf_snomed": "codelists/bristol-multimorbidity_heart-failure.csv", # ever recorded
+    "ibs_snomed": "codelists/bristol-multimorbidity_irritable-bowel-syndrome.csv", # ever recorded OR 4+ antispasmodic prescriptions in last 12 months
+    "ibs_dmd": "codelists/bristol-multimorbidity_prescription_anti_spasmodic_bnf-dmd.csv", # ever recorded OR 4+ antispasmodic prescriptions in last 12 months
+    "learning_disability_snomed": "codelists/bristol-cambridge-multimorbidity-score-learning-disability.csv", # ever recorded
+    "ms_snomed": "codelists/bristol-cambridge-multimorbidity-score-multiple-sclerosis.csv", # ever recorded
+    "pain_analgesics_dmd": "codelists/bristol-multimorbidity_prescription_analgesics_opiods_exc_migraine_bnf_dmd_converted.csv", # (OR below) = 4+ prescriptions in last 12 months
+    "pain_antiepileptics_dmd": "codelists/bristol-multimorbidity_prescription_antiepileptics_for_pain_bnf_dmd_converted.csv", # (OR above) = 4+ prescriptions in last 12 months, only if no epilepsy code
+    "parkinsonism_snomed": "codelists/bristol-cambridge-multimorbidity-score-parkinsonism.csv", # ever recorded
+    "prostate_snomed": "codelists/bristol-cambridge-multimorbidity-score-disorder-of-prostate.csv", # ever recorded
+    "psychosis_snomed": "codelists/bristol-multimorbidity_psychosisbipolar-disorder.csv", # ever recorded OR lithium ever prescribed
+    "psychosis_dmd": "codelists/bristol-multimorbidity_prescription_schizophrenia_bipolar_disorder_bnf-dmd.csv", # ever recorded OR lithium ever prescribed
+    "pvd_snomed": "codelists/bristol-cambridge-multimorbidity-score-peripheral-vascular-disease-leg.csv", # ever recorded
+    "substance_misuse_snomed": "codelists/bristol-cambridge-multimorbidity-score-substance-misuse.csv", # ever recorded
+}
+
+# Convert to codelist dictionary
+cms_codelists_dict = {
+    name: codelist_from_csv(path, column="code")
+    for name, path
+    in cms_filepaths_dict.items()
+}

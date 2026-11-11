@@ -1,5 +1,35 @@
 bristol/statins-dmd/428242f0/
 bristol/proton-pump-inhibitors-dmd/0c233572/
+bristol/urine-albumin-creatinine-ratio/3036a9d4/
+bristol/urine-protein-creatinine-ratio/7e17c369/
+
+# multimorbidity score codelists
+bristol/cambridge-multimorbidity-score-alcohol-problems/277d5a57/
+bristol/cambridge-multimorbidity-score-anxiety-or-depression/408ccd8c/
+bristol/multimorbidity_atrial-fibrillation/0f16bd85/
+bristol/multimorbidity_cancer/7e1f8a31/
+bristol/cambridge-multimorbidity-score-chronic-liver-disease-and-viral-hepatitis/72abb3f6/
+bristol/multimorbidity_chronic-kidney-disease/651016fc
+bristol/cambridge-multimorbidity-score-copd/45fbb675/
+bristol/multimorbidity_dementia/43e863e5/
+bristol/multimorbidity_diabetes/2ad8f0b0/
+bristol/multimorbidity_epilepsy/78ba0a45/
+bristol/multimorbidity_heart-failure/4c00a3c7/
+bristol/multimorbidity_irritable-bowel-syndrome/32f13092/
+bristol/cambridge-multimorbidity-score-learning-disability/13dcd00b/
+bristol/cambridge-multimorbidity-score-multiple-sclerosis/2217da6b/
+bristol/cambridge-multimorbidity-score-parkinsonism/61bde9a0/
+bristol/cambridge-multimorbidity-score-peripheral-vascular-disease-leg/48ae766b/
+bristol/cambridge-multimorbidity-score-disorder-of-prostate/6ff8f400/
+bristol/multimorbidity_psychosisbipolar-disorder/19e1bd5d/
+bristol/cambridge-multimorbidity-score-substance-misuse/56e980cb/
+bristol/multimorbidity_prescription_anxiolytics_anti_depressants_bnf-dmd/52ebc409/
+bristol/multimorbidity_prescription_constipation_bnf_dmd_converted/6cc1eacd/
+bristol/multimorbidity_prescription_epilepsy_bnf_dmd_converted/53b27798/
+bristol/multimorbidity_prescription_anti_spasmodic_bnf-dmd/0257ea7e/
+bristol/multimorbidity_prescription_schizophrenia_bipolar_disorder_bnf-dmd/07bd6a6a/
+bristol/multimorbidity_prescription_analgesics_opiods_exc_migraine_bnf_dmd_converted/37f0446d/
+bristol/multimorbidity_prescription_antiepileptics_for_pain_bnf_dmd_converted/1ee0d138/
 
 user/mletts92/chronic-kidney-disease-stage-4/3e8d63c4
 user/mletts92/chronic-kidney-disease-stage-5-not-receiving-kidney-replacement-therapy/579cd6f9
@@ -16,10 +46,12 @@ nhsd-primary-care-domain-refsets/mi_cod/20250912
 nhsd-primary-care-domain-refsets/strk_cod/20250912
 nhsd-primary-care-domain-refsets/dmtype1_cod/20250912/
 nhsd-primary-care-domain-refsets/dmnontype1_cod/20250912
+nhsd-primary-care-domain-refsets/bmival_cod/20260630/
 
 opensafely/ethnicity-snomed-0removed/22911876
 opensafely/glycated-haemoglobin-hba1c-tests-numerical-value/5134e926
 opensafely/chronic-kidney-disease-codes-all-stages-with-numeric-column/2a95faf7
+opensafely/smoking-clear/10307fc4
 
 reducehf/myocardial-infarction-icd10/6b463edb
 reducehf/heart-failure-primary-outcome-icd/7b34dfb4

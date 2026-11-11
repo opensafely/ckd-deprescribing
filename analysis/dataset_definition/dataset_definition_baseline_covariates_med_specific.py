@@ -20,7 +20,7 @@ with open("output/study_dates.json") as f:
     study_dates = json.load(f)
 index_date = study_dates["index_date"]
 
-# target medicine, passed on the command line as `-- --medicine=ppi`
+# target medicine, passed on the command line as `-- --medicine=ppis`
 medicine = get_parameter(name="medicine")
 
 # load dataset_inex_cleaned. Only used to define the population (the whole

@@ -12,18 +12,21 @@ from ehrql import (
     when,
     case,
     days,
+    minimum_of
 )
 
 from ehrql.tables.tpp import (
     clinical_events,
-    ethnicity_from_sus,
     addresses,
     apcs,
     medications,
-    practice_registrations
+    practice_registrations,
+    patients,
+    ons_deaths
 )
 
 from codelists import *
+from fn_cambridgemultimorbidityscore import get_cms_on_date
 
 from variable_helper_functions import (
     get_latest_ethnicity,
@@ -33,6 +36,9 @@ from variable_helper_functions import (
     ever_matching_event_apcs_icd10_before,
     ever_matching_procedure_apcs_opcs4_before,
     matching_med_dmd_between,
+    last_matching_event_clinical_ctv3_before,
+    ever_matching_event_clinical_ctv3_before,
+    filter_codes_by_category
 )
 
 import json
@@ -113,14 +119,47 @@ care_home = case(
 ##############################################################################
 # Clinical values (most recent on or before index)
 ##############################################################################
+# BP
 most_recent_sbp = last_matching_event_clinical_snomed_before(
-    sbp_codes, index_date, where=clinical_events.numeric_value.is_not_null()
+    sbp_codes, 
+    index_date, 
+    where = (
+        (clinical_events.numeric_value >= 40)
+        & (clinical_events.numeric_value <= 300)
     )
+)
+
+# BMI
+bmi_measurement = last_matching_event_clinical_snomed_before(
+    bmi_value_codes_snomed,
+    index_date,
+    where = (
+        (clinical_events.numeric_value >= 10)
+        & (clinical_events.numeric_value <= 100)
+    )
+)
+
+bmi_value = bmi_measurement.numeric_value
+
+bmi_grouping = case(
+    when(bmi_value < 18.5).then("Underweight (<18.5)"),
+    when((bmi_value >= 18.5) & (bmi_value < 25)).then("Healthy weight (18.5-24.9)"),
+    when((bmi_value >= 25.0) & (bmi_value < 30)).then("Overweight (25-29.9)"),
+    when(bmi_value >= 30.0).then("Obese (>=30)"),
+    otherwise = "Missing" 
+)
 
 ##############################################################################
-# History of CV disease: previous MI, coronary revascularisation, heart 
-# failure, stroke 
+# COMORBIDITIES
 ##############################################################################
+# Multimorbidity
+death_date = minimum_of(patients.date_of_death, ons_deaths.date)
+cms_parts = get_cms_on_date(index_date, death_date, return_components=True)
+cms_score = cms_parts.pop("cms") # remove and return the score from the dict
+
+# History of CV disease: previous MI, coronary revascularisation, heart 
+# failure, stroke ----------------------------------------------------- 
+
 # Previous MI or coronary revascularisation
 mi_or_coronary_revasc = (
     ever_matching_event_clinical_snomed_before(mi_codes_snomed, index_date).exists_for_patient()
@@ -164,10 +203,15 @@ t1dm_diagnosis = ever_matching_event_clinical_snomed_before(dm1_codes_snomed, in
 other_dm_diagnosis = ever_matching_event_clinical_snomed_before(dm_not1_codes_snomed, index_date).exists_for_patient()
 
 recent_hba1c = last_matching_event_clinical_snomed_before(
-    hba1c_codes_snomed, index_date, where=clinical_events.numeric_value.is_not_null()
+    hba1c_codes_snomed, 
+    index_date, 
+    where = (
+        (clinical_events.numeric_value >= 15)
+        & (clinical_events.numeric_value <= 200)
+    )
 ).numeric_value
 
-diabetes_drugs = matching_med_dmd_between(dm_drug_codes_dmd, index_date - days(365), index_date).exists_for_patient()
+diabetes_drugs = matching_med_dmd_between(dm_drug_codes_dmd, index_date - days(364), index_date).exists_for_patient()
 
 diabetes = case(
     when(
@@ -176,32 +220,90 @@ diabetes = case(
     otherwise=False,
 )
 
-# ##############################################################################
-# # Urinary protein/albumin excretion
-# ##############################################################################
-# # Most recent uACR and uPCR values before index. The uPCR->uACR conversion
-# # (divide by 2.655 for men and 1.7566 for women, applied to mg/g or mg/mmol)
-# #  is sex-dependent and is left to the R processing stage.
-# most_recent_uacr = last_matching_event_clinical_snomed_before(uacr_codes_snomed, index_date, where=numeric_only)
-# most_recent_upcr = last_matching_event_clinical_snomed_before(upcr_codes_snomed, index_date, where=numeric_only)
+##############################################################################
+# Urinary protein/albumin excretion
+##############################################################################
+# Most recent uACR and uPCR values before index. The uPCR->uACR conversion
+# (divide by 2.655 for men and 1.7566 for women, applied to mg/g or mg/mmol)
+# - numbers obtained from CKDPC risk calculator paper - appendix S1
+# https://www.kidney-international.org/article/S0085-2538(18)30097-8/fulltext
 
-# ##############################################################################
-# # Smoking status
-# ##############################################################################
-# # Most recent smoking status before index, mapped to current/former/never.
-# # Assumes the codelist's category column uses S (smoker), E (ex-smoker), N
-# # (never) - adjust the mapping when the real codelist is added.
-# def get_smoking_status(index_date):
-#     latest_smoking_category = (
-#         last_matching_event_clinical_snomed_before(smoking_codes_snomed, index_date)
-#         .snomedct_code.to_category(smoking_codes_snomed)
-#     )
-#     return case(
-#         when(latest_smoking_category == "S").then("current"),
-#         when(latest_smoking_category == "E").then("former"),
-#         when(latest_smoking_category == "N").then("never"),
-#         otherwise=None,
-#     )
+most_recent_uacr = last_matching_event_clinical_snomed_before(
+    uacr_codes_snomed, 
+    index_date, 
+    where = (
+        (clinical_events.numeric_value >= 0)
+        & (clinical_events.numeric_value <= 2500)
+    )
+)
+
+most_recent_upcr = last_matching_event_clinical_snomed_before(
+    upcr_codes_snomed, 
+    index_date, 
+    where = (
+        (clinical_events.numeric_value >= 0)
+        & (clinical_events.numeric_value <= 2500)
+    )
+)
+
+conversion_factor = case(
+    when(patients.sex == "male").then(2.655),
+    when(patients.sex == "female").then(1.7566)
+)
+
+# Define whichever proteinuria measurement is more recent
+uacr_source = case(
+    when(
+        most_recent_uacr.exists_for_patient()
+        & (
+            ~most_recent_upcr.exists_for_patient()
+            | most_recent_uacr.date.is_on_or_after(most_recent_upcr.date)
+        )
+    ).then("uACR"),
+    when(most_recent_upcr.exists_for_patient()).then("uPCR"),
+    otherwise="Missing"
+)
+
+# And then convert uPCR values to uACR if required
+uacr_value = case(
+    when(uacr_source == "uACR").then(most_recent_uacr.numeric_value),
+    when(uacr_source == "uPCR").then(most_recent_upcr.numeric_value / conversion_factor)
+)
+
+uacr_date = case(
+    when(uacr_source == "uACR").then(most_recent_uacr.date),
+    when(uacr_source == "uPCR").then(most_recent_upcr.date)
+)
+
+# Then map to KDIGO albuminuria categories
+# Officially A1 is <3, but coded as <=3 here because in clinical_events table
+# patient values of <3 will display as 3 - relational operator is not exposed
+uacr_category = case(
+    when(uacr_value <= 3).then("A1"),
+    when((uacr_value > 3) & (uacr_value <= 30)).then("A2"),
+    when(uacr_value > 30).then("A3"),
+    otherwise="Missing",
+)
+
+##############################################################################
+# Smoking status
+##############################################################################
+# Most recent smoking status before index, mapped to:
+# S (smoker), E (ex-smoker), N (never-smoker), M (missing)
+most_recent_smoking_cat = (
+    last_matching_event_clinical_ctv3_before(smoking_clear, index_date)
+    .ctv3_code.to_category(smoking_clear)
+)
+ever_smoked = ever_matching_event_clinical_ctv3_before(
+    (filter_codes_by_category(smoking_clear, include=["S", "E"])), index_date
+    ).exists_for_patient()
+
+smoking_status = case(
+    when(most_recent_smoking_cat == "S").then("S"),
+    when((most_recent_smoking_cat == "E") | ((most_recent_smoking_cat == "N") & (ever_smoked == True))).then("E"),
+    when((most_recent_smoking_cat == "N") & (ever_smoked == False)).then("N"),
+    otherwise="M"
+)
 
 # ##############################################################################
 # # Frailty
@@ -240,7 +342,7 @@ diabetes = case(
 # )
 
 # ##############################################################################
-# # Clinical events e.g. falls/hospitalisations
+# # Clinical events + processes e.g. falls/hospitalisations
 # ##############################################################################
 # # Falls in primary (SNOMED) or secondary (ICD-10) care
 # prior_falls = (
@@ -268,6 +370,20 @@ diabetes = case(
 #     care_facility_move_codes_snomed, index_date
 # ).date
 
+# Number of kidney function checks in the past year
+# Multiple tests on same date count once
+n_creatinine_tests = (
+    clinical_events
+    .where(clinical_events.snomedct_code.is_in(creatinine_codes))
+    .where(clinical_events.date.is_on_or_between(index_date - days(364), index_date))
+    .where(
+        (clinical_events.numeric_value >= 20)
+        & (clinical_events.numeric_value <= 3000)
+    )
+    .date
+    .count_distinct_for_patient()
+)
+
 #########################################################################
 # COMBINE ALL COVARIATE VARIABLES INTO ONE FUNCTION
 #########################################################################
@@ -293,13 +409,16 @@ def add_baseline_covariates_general(dataset, dataset_inex_cleaned):
         "basecov_gen_date_sbp": most_recent_sbp.date,
         # "basecov_gen_num_cholesterol": most_recent_cholesterol.numeric_value,
         # "basecov_gen_date_cholesterol": most_recent_cholesterol.date,
-        # "basecov_gen_num_uacr": most_recent_uacr.numeric_value,
-        # "basecov_gen_date_uacr": most_recent_uacr.date,
-        # "basecov_gen_num_upcr": most_recent_upcr.numeric_value,
-        # "basecov_gen_date_upcr": most_recent_upcr.date,
+        "basecov_gen_num_uacr": uacr_value,
+        "basecov_gen_date_uacr": uacr_date,
+        "basecov_gen_cat_uacr_category": uacr_category,
+        "basecov_gen_cat_uacr_source": uacr_source,
+        "basecov_gen_num_bmi_value": bmi_value,
+        "basecov_gen_cat_bmi_category": bmi_grouping,
+        "basecov_gen_date_bmi": bmi_measurement.date,
 
         # smoking
-        # "basecov_gen_cat_smoking": get_smoking_status(index_date),
+        "basecov_gen_cat_smoker_status": smoking_status,
 
         # comorbidities
         "basecov_gen_bin_dm": diabetes,
@@ -308,13 +427,20 @@ def add_baseline_covariates_general(dataset, dataset_inex_cleaned):
         # "basecov_gen_bin_cancer": cancer,
         # "basecov_gen_bin_dementia": dementia,
         # "basecov_gen_bin_copd": copd,
+        "basecov_gen_num_cms": cms_score,
 
         # recent events / healthcare interaction
         # "basecov_gen_bin_falls": prior_falls,
         # "basecov_gen_date_last_hosp_discharge": last_hosp_discharge_date,
         # "basecov_gen_bin_structured_med_review": structured_med_review,
         # "basecov_gen_date_care_facility_move": care_facility_move_date,
+        "basecov_gen_num_n_scr_tests": n_creatinine_tests
     }
+
+    columns.update({
+        f"basecov_gen_bin_cms_{name}": value
+        for name, value in cms_parts.items()
+        })
 
     for name, expr in columns.items():
         dataset.add_column(name, expr)
