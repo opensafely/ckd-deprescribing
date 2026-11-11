@@ -1,8 +1,8 @@
-# Protocol: Descriptive Analysis of Medication Discontinuation for People Living with Advanced Chronic Kidney Disease
+# Descriptive Analysis of Prescribing and Medication Discontinuation for People Living with Advanced Chronic Kidney Disease in England: An OpenSAFELY Study Protocol
 Matthew Letts<sup>1,2</sup>, Robert Porteous<sup>1</sup>, Rachel
 Denholm<sup>1</sup>, Rupert Payne<sup>3</sup>, Jonathan
 Sterne<sup>1</sup>, Fergus Caskey<sup>2</sup>
-24 June 2026
+11 November 2026
 
 <sup>1</sup> Electronic Health Records Group, Population Health
 Sciences, Bristol Medical School, University of Bristol, Bristol, UK
@@ -15,12 +15,12 @@ of Exeter, Exeter, UK
 
 ------------------------------------------------------------------------
 
-Version controlled via
-[GitHub](https://github.com/opensafely/ckd-deprescribing/tree/main/protocols)
+Git version control visible on
+[Github](https://github.com/opensafely/ckd-deprescribing/tree/main/protocols)
 
 ------------------------------------------------------------------------
 
-# Background
+# Background - NEEDS UPDATING
 
 Ninety-eight percent of people living with chronic kidney disease stages
 4 and 5 not receiving kidney replacement therapy - CKD 4/5 - live with
@@ -59,10 +59,10 @@ focus of this study.
 
 # Objectives
 
-1.  To describe patterns of prescribing at a national level for people
-    living with advanced CKD
+1.  To describe patterns of prescribing for people with incident CKD
+    G3a, G3b, G4, and G5.
 2.  To establish the patterns of discontinuation of common medicines in
-    people in England living with advanced CKD.
+    these groups over time.
 3.  To identify the clinical and sociodemographic factors associated
     with variances in these patterns.
 
@@ -71,8 +71,7 @@ focus of this study.
 ## Study design
 
 We will conduct cross-sectional and longitudinal analyses of a
-retrospective cohort of individuals living with advanced kidney disease
-living in England.
+retrospective cohort of individuals living with CKD living in England.
 
 ## Data sources
 
@@ -88,37 +87,45 @@ will utilise OpenSAFELY-TPP’s established linkages to:
 
 ## Study population
 
-This retrospective cohort study will analyse the cohort of individuals
-living with CKD 4/5 on 01/03/2022 (the **‘index date’**), and then
-follow up their prescriptions for the following 4 years.
+### Summary
+
+This retrospective cohort study will include individuals from their date
+of incident diagnosis of CKD G3a, G3b, G4, and G5 (the **‘index date’**)
+between 1st January 2011 and 31st December 2025. Each person may
+contribute to the study at more than one time during the period if their
+CKD progresses. Prescribing will be followed up for 4 years subsequent
+to each index date to assess for medication discontinuation.
 
 ### Inclusion criteria
 
-Individuals will be included in the cohort if on the index date they
-meet all the following criteria:
+The index date will be defined as (9) EITHER:
+
+- The first date that two, plausible (20-3000 mg/mmol) serum creatinine
+  measurements that are \>90 days apart are consistent with an estimated
+  glomerular filtration rate (eGFR) \<60 (CKD G3a), \<45 (CKD G3b), \<30
+  (CKD G4), \<15 (CKD G5) mls/min/1.73m<sup>2</sup> (calculated using
+  the 2009 CKD-EPI equation as recommended by the [UK Kidney
+  Association](https://www.ukkidney.org/health-professionals/information-resources/uk-eckd-guide/measurement-kidney-function)).
+- The date of the first SNOMED code indicating a diagnosis of CKD G3a,
+  G3b, G4, G5.
+
+In addition, on the index date individuals must meet all the following
+criteria:
 
 - Alive
 - Aged ≥18 and ≤110 years
 - Continuous registration at a single GP practice that uses TPP software
-  for at least the one year prior.
-- Evidence of advanced chronic kidney disease, confirmed by the presence
-  of one or both of the following (9):
-  - The two most recent, plausible serum creatinine measurements that
-    are \>90 days apart are consistent with an estimated glomerular
-    filtration rate (eGFR) \<30 mls/min/1.73m<sup>2</sup> (calculated
-    using the 2009 CKD-EPI equation as recommended by the [UK Kidney
-    Association](https://www.ukkidney.org/health-professionals/information-resources/uk-eckd-guide/measurement-kidney-function)).
-  - A prior SNOMED code indicating a diagnosis of CKD, with the most
-    recent stage being CKD 4 and 5
+  for at least one year prior.
 - Known sex that is exactly ‘male’ or ‘female’
 - Known region
 - Known IMD
 
 ### Exclusion criteria
 
-- People in receipt of kidney replacement therapy (KRT). This is defined
-  as a code indicating dialysis or transplant prior to the index date,
-  or on the index date itself. This method has been shown to be
+- People who have received kidney replacement therapy (KRT) of any form
+  prior to the index date will be excluded. This is defined as a SNOMED
+  code indicating receipt of dialysis or transplant prior to the index
+  date, or on the index date itself. This method has been shown to be
   sensitive for identifying the prevalent KRT population in England
   (10).
 
@@ -143,8 +150,8 @@ is after today - Remove patients whose year of birth is after today
 
 ### Prescribing data
 
-In this analysis we will study baseline prescribing on the index date,
-and the trends of medication discontinuation over time.
+In this analysis we will study prescribing on the index date and the
+trends of medication discontinuation over time.
 
 The medication table within OpenSAFELY-TPP contains information for
 every medication that is prescribed in primary care. Each prescription
@@ -193,13 +200,12 @@ We will include medications based on their drug type and route.
   6, 7, 8, 9, and 10. These chapters, mirroring those used by the
   [NHSBSA medicines
   optimisation](https://www.nhsbsa.nhs.uk/access-our-data-products/epact2/dashboards-and-specifications/medicines-optimisation-polypharmacy)
-  dashboards, include the medicines that are most likely to be oral, and
-  therefore contributing to pill burden and medication harm. Excluded
-  BNF chapters include mainly non-oral,specialist products and devices
-  that are unlikely to be targets for discontinuation.
+  dashboards, include the medicines that are most likely to be oral.
+  Other BNF chapters include mainly non-oral, specialist products and
+  devices that are not within the scope of this work.
 - Route. We will only include medications that are orally administered.
 
-It will not be possible to distinguish PRN (as required) prescriptions
+It will not be possible to distinguish as required (PRN) prescriptions
 from regular prescriptions, and so all medications will be assumed
 regular.
 
@@ -207,6 +213,8 @@ regular.
 
 Combination products have distinct dm+d and BNF substance codes and so
 will be counted as a single drug.
+
+# START HERE NEXT TIME
 
 #### Timeframe
 
