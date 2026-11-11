@@ -27,6 +27,12 @@ source(here::here(
   "utilities",
   "fn_ref.r"
 ))
+source(here::here(
+  "analysis",
+  "r_functions",
+  "utilities",
+  "fn_data_describing.r"
+))
 
 # Create output folders --------------------------------------------------
 message("Create output folders")
@@ -86,8 +92,28 @@ data_preprocessed <- fn_preprocess(
 data_ref <- fn_ref(
   input = data_preprocessed,
   suffix = "process_baseline_covariates",
-  describe = TRUE
+  describe = FALSE
 )
+
+# Break certain continuous variables into categories ---------------------
+data_ref <- data_ref |>
+  mutate(
+    basecov_gen_cat_n_scr_tests = cut(
+      basecov_gen_num_n_scr_tests,
+      breaks = c(-Inf, 1, 3, 5, Inf),
+      labels = c("0-1", "2-3", "4-5", "6+")
+    )
+  )
+
+data_ref <- data_ref |>
+  mutate(
+    basecov_gen_cat_cms = cut(
+      percent_rank(basecov_gen_num_cms),
+      breaks = c(0, 0.25, 0.5, 0.75, 1),
+      labels = c("Q1", "Q2", "Q3", "Q4"),
+      include.lowest = TRUE
+    )
+  )
 
 # Save cleaned dataset to output folder ----------------------------------
 message("Saving cleaned dataset to output folder")
