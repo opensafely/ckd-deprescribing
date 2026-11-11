@@ -33,18 +33,9 @@ dir_create(here::here("output", "tables"))
 # Load the population dataset --------------------------------------------
 message("Load the desired columns of the dataset")
 
-# wanted_cols <- c(
-#   "patient_id",
-#   "inex_dem_num_age",
-#   "inex_dem_cat_sex",
-#   "inex_num_egfr_1",
-#   "inex_cat_ckd_stage"
-#   # add more as desired
-# )
-
-input_filename <- "dataset_baseline_covariates_general.arrow"
+input_filename <- "dataset_baseline_covariates_general_processed.arrow"
 dataset <- arrow::open_dataset(
-  here::here("output", input_filename),
+  here::here("output", "data", input_filename),
   format = "ipc"
 ) |>
   collect()
@@ -55,17 +46,19 @@ message("Process the dataset")
 # Create a CKD stage column
 dataset <- dataset |>
   mutate(
-    ckd_stage = paste0("G", basecov_gen_cat_ckd_stage)
+    basecov_gen_cat_ckd_stage = paste0("G", basecov_gen_cat_ckd_stage)
   )
 
 # Define the variables of interest for the table
 message("Define the variables of interest")
 
-strata_var <- "ckd_stage"
+strata_var <- "basecov_gen_cat_ckd_stage"
 
 continuous_vars <- c(
   "basecov_gen_num_age",
-  "basecov_gen_num_egfr_1"
+  "basecov_gen_num_egfr_1",
+  "basecov_gen_num_sbp",
+  "basecov_gen_num_cms"
   # add more
 )
 categorical_vars <- c(
@@ -75,7 +68,12 @@ categorical_vars <- c(
   "basecov_gen_cat_region",
   "basecov_gen_bin_care_home",
   "basecov_gen_bin_dm",
-  "basecov_gen_bin_cvd_history"
+  "basecov_gen_bin_cvd_history",
+  "basecov_gen_cat_uacr_category",
+  "basecov_gen_cat_bmi_category",
+  "basecov_gen_cat_smoker_status",
+  "basecov_gen_cat_n_scr_tests",
+  "basecov_gen_cat_cms"
   # add more
 )
 
@@ -87,11 +85,13 @@ totals <- dataset |>
   count(across(all_of(strata_var)), name = "stratum_N_sdc_applied") |>
   mutate(
     stratum_N_sdc_applied = as.integer(fn_apply_sdc(stratum_N_sdc_applied))
-  ) |>
-  # add in overall total n for whole dataset
+  )
+
+# add in overall total n - the sum of the rounded strata totals
+totals <- totals |>
   bind_rows(tibble(
     !!strata_var := "Overall",
-    stratum_N_sdc_applied = as.integer(fn_apply_sdc(nrow(dataset)))
+    stratum_N_sdc_applied = sum(totals$stratum_N_sdc_applied)
   ))
 
 ############################################################################
@@ -133,28 +133,32 @@ categorical_vars_counts <- categorical_vars_long |>
     characteristic,
     category,
     across(all_of(strata_var)),
-    sort = TRUE,
     name = "N"
-  )
+  ) |>
+  mutate(N_sdc_applied = as.integer(fn_apply_sdc(N)))
 
-# Then the overall counts for each characteristic/category
+# Then the overall counts - the sum of the SDC applied strata counts
+# sum(x, na.rm=TRUE) over two redacted/NA cells would produce 0, so
+# na_if() turns back to NA
 message("---Count overall numbers in each category")
 categorical_vars_counts <- categorical_vars_counts |>
   bind_rows(
     categorical_vars_counts |>
-      summarise(N = sum(N), .by = c(characteristic, category)) |>
+      summarise(
+        N_sdc_applied = na_if(sum(N_sdc_applied, na.rm = TRUE), 0L),
+        .by = c(characteristic, category)
+      ) |>
       mutate(!!strata_var := "Overall")
   )
-
 
 # Add in percentages (using SDC principles)
 message("---Add in percentages")
 categorical_vars_counts <- categorical_vars_counts |>
   left_join(totals, by = strata_var) |>
   mutate(
-    N_sdc_applied = as.integer(fn_apply_sdc(N)),
     percent_sdc_applied = round(100 * N_sdc_applied / stratum_N_sdc_applied, 1)
-  )
+  ) |>
+  filter(category != "FALSE") # remove FALSE binary rows
 
 # Add a row at the top which is the total numbers overall and in strata
 message("---And add rows for totals across strata_var")
@@ -163,7 +167,7 @@ categorical_vars_counts <- bind_rows(
     distinct(across(all_of(strata_var)), stratum_N_sdc_applied) |>
     mutate(
       characteristic = "Total",
-      category = NA_character_,
+      category = "All",
       N_sdc_applied = stratum_N_sdc_applied,
       percent_sdc_applied = NA_real_
     ),
@@ -190,7 +194,9 @@ continuous_vars_long <- tibble()
 # decide number of decimal places to round to for every continuous variable
 round_value_lookup <- c(
   basecov_gen_num_age = 0,
-  basecov_gen_num_egfr_1 = 1
+  basecov_gen_num_egfr_1 = 1,
+  basecov_gen_num_sbp = 0,
+  basecov_gen_num_cms = 2
   # add more as becomes necessary - every continuous var needs to be here
 )
 
@@ -249,7 +255,8 @@ message("Build final table 1")
 
 # Coerce the categorical counts to strings so bind_rows works
 categorical_vars_wide <- categorical_vars_wide |>
-  mutate(across(starts_with("N_sdc_applied"), as.character))
+  mutate(across(starts_with("N_sdc_applied"), as.character)) |>
+  mutate(across(starts_with("N_sdc_applied"), ~ replace_na(., "[REDACTED]")))
 
 table_1 <- bind_rows(categorical_vars_wide, continuous_vars_wide)
 
