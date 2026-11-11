@@ -139,7 +139,7 @@ def meets_cms_criteria(
                         filtered.date, 
                         death_date=death_date
                         ).is_not_null()
-                ).count_for_patient() >= dmd_min_count
+                ).date.count_distinct_for_patient() >= dmd_min_count
             )
 
     if not conditions:
