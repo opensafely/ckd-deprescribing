@@ -1,6 +1,6 @@
 ---
 title: "Patterns of Prescribing and Medication Discontinuation for People in England who Develop Chronic Kidney Disease Stages G3a to G5: An OpenSAFELY Study Protocol"
-version-date: "13 November 2026"
+version-date: "16 November 2026"
 author: "Matthew Letts^1,2^, Robert Porteous^1^, Rachel Denholm^1^, Rupert Payne^3^, Jonathan Sterne^1^, Fergus Caskey^2^"
 number-sections: true
 format:
@@ -26,7 +26,7 @@ Version date: {{< meta version-date >}}. Git version control visible on [Github]
 
 # Background
 
-Ninety-six percent of people living with chronic kidney disease (CKD) stages 3a, 3b, 4 and 5 live with multiple long-term conditions [@Hawthorne2023]. Resultantly, polypharmacy is highly prevalent. In particular, people with CKD stages 4 and 5 are prescribed on average 8-9 medicines per day (and >100 pills per week) [@vanOosten2021]. Polypharmacy is well linked to avoidable harms such as falls and hospitalisations [@Fried2014] so handling it safely is a key action area within multiple national and international policy initiatives [@DHSC2021; @WHO2023]. Indeed, the World Health Organisation's currently active global patient safety challenge is to achieve *Medication Without Harm* [@WHO2023]. For people with CKD, the risk of medication-related harm is augmented by unpredictable drug handling and excretion [@Laville2020], making them a high priority group to study [@Mohottige2021]. Added to this, clinical trials that establish the safety and effectiveness of medicines often exclude people living with CKD, and do not reflect their comorbidity and diversity, so clinicians are often prescribing based on limited evidence [@Colombijn2024]
+Ninety-six percent of people living with chronic kidney disease (CKD) stages 3a, 3b, 4 and 5 live with multiple long-term conditions [@Hawthorne2023]. Resultantly, polypharmacy is highly prevalent. In particular, people with CKD stages 4 and 5 are prescribed on average 8-9 medicines per day (and >100 pills per week) [@vanOosten2021]. Polypharmacy is well linked to avoidable harms such as falls and hospitalisations [@Fried2014] so handling it safely is a key action area within multiple national and international policy initiatives [@DHSC2021; @WHO2023]. Indeed, the World Health Organisation's currently active global patient safety challenge is to achieve *Medication Without Harm* [@WHO2023]. For people with CKD, the risk of medication-related harm is augmented by unpredictable drug handling and excretion [@Laville2020], making them a high priority group to study [@Mohottige2021]. Added to this, clinical trials that establish the safety and effectiveness of medicines often exclude people living with CKD, and do not reflect their comorbidity and diversity, so clinicians are often prescribing based on limited evidence [@Colombijn2024].
 
 Deprescribing - the systematic process of stopping or reducing medicines - is a proposed way of reducing the harms associated with polypharmacy. Within the recently updated KDIGO (Kidney Disease | Improving Global Outcomes) CKD practice guideline there is a new chapter entitled *Medication management and Drug Stewardship*, in which the authors acknowledge the importance of handling polypharmacy in people with kidney disease, whilst also stating that evidence to guide practice is limited [@Stevens2024]. For people living with CKD, there is little knowledge of how much deprescribing occurs, and research into the effects of deprescribing on clinically-relevant outcomes is needed. 
 
@@ -38,7 +38,7 @@ We will characterise the patterns of prescribing at the population-level in Engl
 
 1. To describe the numbers and types of chronic prescriptions people are in receipt of when they first reach CKD stages G3a, G3b, G4, and G5.
 2. To describe patterns of discontinuation of certain chronically prescribed medicines in the 4 years after reaching each stage of CKD.
-3. *Only if time, and for a select few medicines* To identify the clinical and sociodemographic factors associated with medication discontinuation.
+3. *Exploratory:* To identify the clinical and sociodemographic factors associated with discontinuation of statins and proton pump inhibitors.
 
 # Methods
 
@@ -58,7 +58,7 @@ We will analyse the primary care record data of people living in England that is
 
 ### Summary
 
-Individuals will enter the study population on the date(s) that they reach CKD stages G3a, G3b, G4, or G5 (the **index date(s)**) between 1st January 2011 and 31st December 2022 (the **study window**). Each person may contribute to more than one CKD stage cohort if their CKD progresses over this time. Prescribing will be followed up for 4 years subsequent to each index date to assess for medication discontinuation.
+Individuals will enter the study population on the date(s) that they reach CKD stages G3a, G3b, G4, or G5 (the **index date(s)**) between 1st January 2011 and 31st December 2022 (the **study window**). Each person may contribute to more than one CKD stage cohort if their CKD progresses over this time. Prescribing will be followed up for 4 years subsequent to each index date to assess for medication discontinuation. The last possible date of follow-up is therefore 31st December 2026 (the **study end date**).
 
 ### Defining chronic kidney disease
 
@@ -79,21 +79,23 @@ The index date for each CKD cohort will be the date of the second of two eGFR me
 - Both below the upper limit of that CKD stage
 - Not separated by a measurement above the upper limit of that CKD stage
 
-The person will be included in the given CKD stage cohort the first time that these criteria are met, so long as this falls within the study window. Each qualifying pair counts towards one stage only: the less advanced stage of the two measurements. People whose kidney function declines quickly, or who are tested infrequently, may skip stages (see @tbl-inc)
+The person will be included in the given CKD stage cohort the first time that these criteria are met, so long as this falls within the study window. Each qualifying pair counts towards one stage only: the less advanced stage of the two measurements. People whose kidney function declines quickly, or who are tested infrequently, may skip stages (see @tbl-inc).
 
-| Date       | eGFR | Enters cohort (if so, which one?) |
-|------------|------|------------------------|
-| 01/01/2012 | 70   | No                     |
-| 01/06/2012 | 59   | No                     |
-| 01/01/2013 | 51   | Yes (CKD G3a)          |
-| 01/06/2013 | 28   | No                     | 
-| 01/01/2014 | 20   | Yes (CKD G4)           |
-| 01/06/2014 | 14   | No                     |
-| 01/01/2015 | 10   | Yes (CKD G5)           |
+| Date       | eGFR | Enters cohort | Explanation          |
+|------------|------|---------------|----------------------|
+| 01/01/2012 | 70   | No            | eGFR ≥60             |
+| 01/06/2012 | 59   | No            | First value <60     |
+| 01/07/2012 | 58   | No            | <90 days after 01/06/2012 |
+| 01/01/2013 | 51   | Yes (CKD G3a) | Two values eGFR <60 |
+| 01/06/2013 | 28   | No            | First value below CKD G3a |
+| 01/09/2013 | 31   | Yes (CKD G3b) | Two eGFR <45, not both <30 |
+| 01/01/2014 | 20   | No            | Values <30 not consecutive |
+| 01/06/2014 | 14   | Yes (CKD G4)  | Two eGFR <30, not both <15 |
+| 01/01/2015 | 10   | Yes (CKD G5)  | Two eGFR <15 |
 
 : Example patient to demonstrate cohort inclusion logic {#tbl-inc}
 
-> **QUESTION:** Is the 2x eGFR values requirement too strict? An alternative would be to require two eGFRs ≥90 days apart only for first entry, with later stages entered at the first eGFR below that stage's threshold. This would capture progression in a more timely way, but risks including AKI episodes. I worry that if we wait until the 2nd confirmed eGFR we will miss some deprescribing that has been triggered by the first eGFR reading, and that clinicians may be tempted to recheck the first abnormal creatinine value, but if someone is slowly progressing towards kidney failure, then only one value below a certain threshold would be enough to consider them in the more severe stage.
+> **QUESTION:** Is the 2x eGFR values requirement too strict? An alternative would be to require two eGFRs ≥90 days apart only for first entry, with later stages entered at the first eGFR below that stage's threshold. This would capture progression in a more timely way, but risks including AKI episodes, and is inconsistent. I worry that if we wait until the 2nd confirmed eGFR we will miss some deprescribing that has been triggered by the first eGFR reading, and that clinicians may be tempted to recheck the first abnormal creatinine value, but if someone is slowly progressing towards kidney failure, then only one value below a certain threshold would be enough to consider them in the more severe stage. Could add a sensitivity analysis where discontinuation is mapped from the 1st eGFR (in those who go on to have 2 eGFRs, immortal time bias being an issue though).
 
 > **QUESTION:** Should a SNOMED code indicating CKD G3a-G5 be an alternative route to the index date, a sensitivity analysis, or not used? I think probably not use as they are poorly recorded in general and I would imagine do not well align temporally with eGFR decline.
 
@@ -170,7 +172,7 @@ Medicines will be counted at BNF substance level, so different strengths and for
 #### Timeframe
 Conceptually, for a medicine to be discontinued, it must be first in *chronic* use, i.e. being used on the index date, and regularly prior to that. There is no consensus regarding how to define a chronic prescription within electronic health record data. OpenSAFELY-TPP lacks data to show the clinician-intended duration for each prescription, and therefore assumptions about the length of each prescription are required to establish what a person could have been taking on any given date. It has previously been shown that for five of the commonest medicines, 92% were prescribed for 28 or 56 days, with the remainder being prescribed for 7 or 84 days [@Mackenna2025]. 
 
-Considering this variability, we will define a medication as chronic, and include it in our analyses, if all of the following are true:
+Chronic use is defined once, and this single definition is used to count and describe chronic medicines at BNF substance level (Objective 1), and to identify chronic users of each medication class for discontinuation analyses (Objective 2). A medicine is classed as chronic if all of the following are true:
 
 * In the 180 days up to and including the index date:
   + It is prescribed two or more times (*regular*)
@@ -184,37 +186,33 @@ Considering this variability, we will define a medication as chronic, and includ
 
 Chronic use on the index date and discontinuation over the subsequent 4 years will then be assessed at the level of the medication classes pre-specified in @tbl-meds. These classes have been chosen to reflect those known to be common in this population [@Schmidt2019; @vanOosten2021], and those identified as targets for discontinuation [@Mohottige2021; @Triantafylidis2018]. A class will be considered in chronic use if prescriptions of any medicine within it meet the chronic definition. We will capture the first discontinuation event only, and switching between medicines within a class will not be counted as discontinuation.
 
-| Medication class                  | BNF level          | BNF code(s)                                                    |
-|-----------------------------------|--------------------|----------------------------------------------------------------|
-| Proton pump inhibitors            | Paragraph          | 010305*                                                        |
-| Loop diuretics                    | Paragraph          | 020202*                                                        |
-| Potassium-sparing diuretics       | Paragraph          | 020203*                                                        |
-| Renin-angiotensin system drugs    | Paragraph          | 020505*                                                        |
-| Direct oral anticoagulants        | Substance          | 0208020AA (Edoxaban), 0208020X0 (Dabigatran), 0208020Y0 (Rivaroxaban), 0208020Z0 (Apixaban) |
-| Lipid-regulating drugs            | Section            | 0212*                                                          |
-| Opioid analgesics                 | Paragraph          | 040702*                                                        |
-| Sulfonylureas                     | Subparagraph       | 0601021*                                                       |
-| Biguanides                        | Subparagraph       | 0601022*                                                       |
-| SGLT2 inhibitors                  | Substance          | 0601023AG (Dapagliflozin), 0601023AM (Canagliflozin), 0601023AN (Empagliflozin), 0601023AX (Ertugliflozin) |
-| Oral iron                         | Subparagraph       | 0901011*                                                       |
-| NSAIDs                            | Paragraph          | 100101*                                                        |
+| Medication class               | British National Formulary (BNF) code(s)                       |
+|--------------------------------|----------------------------------------------------------------|
+| Proton pump inhibitors         | 010305* (Proton pump inhibitors) |
+| Loop diuretics                 | 020202* (Loop diuretics), 0202040B0 (Furosemide + Amiloride), 0202040D0 (Loop diuretics + Amiloride), 0202040T0 (Loop diuretics + Spironolactone), 0202040U0 (Loop diuretics + Triamterene), 0202080C0 (Bumetanide + Potassium), 0202080K0 (Furosemide + Potassium) |
+| Potassium-sparing diuretics    | 020203* (Potassium-sparing diuretics and aldosterone antagonists), 020204* (Potassium-sparing diuretics + other diuretics) |
+| Renin-angiotensin system drugs | 020505* (Drugs affecting the renin-angiotensin system), 0206020Z0 (Valsartan + Amlodipine) |
+| Direct oral anticoagulants     | 0208020AA (Edoxaban), 0208020X0 (Dabigatran), 0208020Y0 (Rivaroxaban), 0208020Z0 (Apixaban) |
+| Statins                        | 0212000B0 (Atorvastatin), 0212000C0 (Cerivastatin), 0212000M0 (Fluvastatin), 0212000X0 (Pravastatin), 0212000AA (Rosuvastatin), 0212000Y0 (Simvastatin), 0212000AC (Simvastatin + Ezetimibe), 0212000AJ (Simvastatin + Fenofibrate) |
+| Sulfonylureas                  | 0601021* (Sulfonylureas) |
+| Biguanides                     | 0601022B0 (Metformin), 0601023AJ (Metformin + Alogliptin), 0601023AP (Metformin + Canagliflozin), 0601023AL (Metformin + Dapagliflozin), 0601023AR (Metformin + Empagliflozin), 0601023AF (Metformin + Linagliptin), 0601023W0 (Metformin + Pioglitazone), 0601023V0 (Metformin + Rosiglitazone), 0601023AH (Metformin + Saxagliptin), 0601023AD (Metformin + Sitagliptin), 0601023Z0 (Metformin + Vildagliptin) |
+| SGLT2 inhibitors               | 0601023AM (Canagliflozin), 0601023AG (Dapagliflozin), 0601023AN (Empagliflozin), 0601023AX (Ertugliflozin), 0601023AP (Canagliflozin + Metformin), 0601023AL (Dapagliflozin + Metformin), 0601023AV (Dapagliflozin + Saxagliptin), 0601023AY (Empagliflozin + Linagliptin), 0601023AR (Empagliflozin + Metformin) |
+| Oral iron                      | 0901011* (Oral iron) |
+| NSAIDs                         | 100101* (Non-steroidal anti-inflammatory drugs), 0407010AD (Ibuprofen + Paracetamol), 0407041AE (Naproxen + Sumatriptan) |
 
-: Medication classes that will be studied for discontinuation {#tbl-meds}
+: Medication classes that will be studied for discontinuation. An asterisk denotes all substances whose code begins with those characters, including any combination products within that grouping {#tbl-meds}
 
 > **QUESTION:** What do you think about this list of medicines? I had a longer list previously, which included medicines that I was simply interested to see how much prescribing there was of (e.g. phosphate binders, sodium bicarbonate, calcium-channel blockers and alpha/beta blockers) but these are unlikely to be deprescribed as someone enters a new level of CKD so that's why I removed them as that is the focus of this project. But I could re-include. There is perhaps something to be said for including all the antihypertensives in case we study them later on.
 
 ### Defining discontinuation
 
-Within OpenSAFELY-TPP the duration of each prescription is unknown, and there is no standardised way of defining discontinuation within electronic healthcare record data. 
+Within OpenSAFELY-TPP the duration of each prescription is unknown, and there is no standardised way of defining discontinuation within electronic healthcare record data. We will identify discontinuation events as the absence of continued prescribing (a *gap* in prescribing). Methodological work comparing definitions in electronic health data has found that short gaps (30 to 60 days) may often not reflect true discontinuation, and has suggested gaps of at least 90 days [@Dublin2025].
 
-In this study, we will firstly calculate the average prescription duration (APD). Every medication class for every individual will be placed into a category based on whether it appears to be prescribed every 7, 14, 28, 56, or 84 days – the typical prescribing durations in English primary care [@Mackenna2025]. The APD will be calculated for each substance in the class from the gaps between its prescriptions in the 180 days up to and including the index date, rounded to the nearest of 7, 14, 28, 56 or 84 days; the class APD will be the longest of these.
+**Discontinuation** of a medication class will be defined as the first period of *more than 90 days* without a prescription for any medicine in the class, counted from the last prescription on or before the index date, or from any subsequent prescription. The **date of discontinuation** will be defined as the date of the last prescription before discontinuation plus 91 days (i.e. the first day after the 90 day gap).
 
-Discontinuation will be characterised by the absence of continued prescribing. Dose reductions will not be captured, as dosing information is not easily analysable in OpenSAFELY-TPP.
+Dose reductions will not be captured, as dosing information is not easily analysable in OpenSAFELY-TPP.
 
-**Discontinuation** will be defined as the first period of *greater than APD + 60 days* following the last prescription on or before the index date, or any subsequent prescription, where there is no further prescription. The **date of discontinuation** will be defined as the date of the last prescription before discontinuation plus the APD.
-
-If follow-up ends before APD + 60 days have passed since the last prescription, the class will not be counted as discontinued. We will also report the proportion of discontinued medicine classes that are prescribed again within 12 months of the date of discontinuation.
-
+If follow-up ends before the 90-day gap has been completed, the class is not counted as discontinued. We will also report the proportion of discontinued medicine classes that are prescribed again within 12 months of the date of discontinuation.
 
 ## Covariates
 
@@ -223,7 +221,7 @@ We will ascertain the following covariates to describe each cohort:
 - Time-fixed covariates:
   + Sex (male, female)
   + Ethnicity (5 categories, plus unknown)
-- Time-varying covariates on each index date:
+- Covariates measured on each index date:
   + Age (years)
   + Index of Multiple Deprivation (IMD) quintile
   + Region
@@ -246,17 +244,17 @@ Descriptive statistics will be used to describe baseline characteristics of each
 ### Baseline prescribing
 For each cohort at baseline we will present:
 
-1. The total number of chronic medicines per person, and the proportions without polypharmacy (0-4 medicines), with polypharmacy (5-9 medicines) and with hyperpolypharmacy (10+ medicines).
+1. The total number of chronic medicines per person, and the proportions without polypharmacy (0-4 medicines), with polypharmacy (5-9 medicines) and with hyperpolypharmacy (10+ medicines). In this instance, given our restriction to chronic oral medicines only, the proportion with polypharmacy/hyperpolypharmacy will be lower than in other studies.
 2. The proportions of individuals with chronic use of each medication class in @tbl-meds.
 
 The number of chronic medicines will be stratified by age, sex, ethnicity and deprivation. 
 
 ### Medication discontinuation 
-To examine discontinuation during follow up, we will analyse each medication class in each CKD cohort. Each analysis population will consist chronic users of that class on the index date. Time zero will be the index date. Death and initiation of KRT will be treated as competing events, and individuals will be censored at the end of the 4-year follow-up period or end of registration.
+To examine discontinuation during follow up, we will analyse each medication class in each CKD cohort. Each analysis population will consist of chronic users of that class on the index date. Time zero will be the index date. Death and initiation of KRT will be treated as competing events, and individuals will be censored at the end of the 4-year follow-up period or end of registration. 
 
-Cumulative incidence functions (CIFs) for discontinuation will be estimated for each medication class within each CKD stage cohort, accounting for death and initiation of KRT as competing events. For all medication classes, the cumulative incidence of discontinuation at 1, 2 and 4 years after the index date, and the number of individuals at risk, will be presented in a summary table. CIF curves will be plotted only for lipid-regulating drugs and proton-pump inhibitors.
+Cumulative incidence functions (CIFs) for discontinuation will be estimated for each medication class within each CKD stage cohort, accounting for death and initiation of KRT as competing events. For all medication classes, the cumulative incidence of discontinuation at 1, 2 and 4 years after the index date, and the number of individuals at risk, will be presented in a summary table. CIF curves will be plotted only for statins and proton-pump inhibitors.
 
-*If time* factors associated with discontinuation of lipid-regulating drugs and proton pump inhibitors will be explored using regression models including the covariates listed above.
+As an exploratory analysis, factors associated with discontinuation of statins and proton-pump inhibitors will be explored using regression models including the covariates listed above.
 
 ### Software
 All analyses will be run on the OpenSAFELY Data Analytics Platform. Data extraction scripts will be written using the electronic health record query language (ehrQL), and data processing and analysis scripts will be written using R. OpenSAFELY tightly controls the version of R (4.6.1) and the  available packages that can be [used](https://github.com/opensafely-core/r-docker/blob/main/v3/packages.md) in order to maximise reproducibility of code, and to enable local testing.
@@ -265,19 +263,22 @@ All analyses will be run on the OpenSAFELY Data Analytics Platform. Data extract
 Sensitivity analyses will explore the effect of:
 
 - Varying the definition of a chronic medication use (using different numbers and timeframes of prescriptions).
-- Defining discontinuation using a fixed gap with no APD, and varying the grace period added to the APD.
+- Defining discontinuation in different ways:
+  + Varying the fixed length gap to 120 and 180 days.
+  + Using a gap length that is allowed to vary per person, per medication class. This gap will be defined as the average prescription duration (APD) + 90 days, where the APD is calculated from the gaps between consecutive prescription dates in the 180 days up to and including the index date for each substance in the class. The mean gap is rounded to the nearest 7, 14, 28, 56, or 84 days (the typical prescribing durations in English primary care [@Mackenna2025]) and the class APD is the longest of these. 
+
 
 ### Statistical disclosure control
 All outputs will adhere to OpenSAFELY's statistical disclosure control principles: all counts will be rounded to the nearest 5 and counts of 7 or fewer will be suppressed.
 
 
 ## Planned tables and figures
-- Figure 1: Flowchart of cohort inclusion
-- Table 1: Baseline characteristics of the population, by CKD stage
-- Table 2: Total numbers of chronic medicines and medicine class use on the index date, by CKD stage
-- Table 3: Cumulative incidence of discontinuation at 1, 2 and 4 years, by medication class and CKD stage
-- Figure 2: Cumulative incidence of discontinuation over 4 years for lipid-regulating drugs and proton-pump inhibitors, by CKD stage
-- *If time* Table 4: Factors associated with discontinuation, just lipid-regulating drugs and proton-pump inhibitors, by CKD stage
+- Planned figure 1: Flowchart of cohort inclusion
+- Planned table 1: Baseline characteristics of the population, by CKD stage
+- Planned table 2: Total numbers of chronic medicines and medicine class use on the index date, by CKD stage
+- Planned table 3: Cumulative incidence of discontinuation at 1, 2 and 4 years, by medication class and CKD stage
+- Planned figure 2: Cumulative incidence of discontinuation over 4 years for statins and proton-pump inhibitors, by CKD stage
+- Planned table 4 (exploratory): Factors associated with discontinuation of statins and proton-pump inhibitors, by CKD stage
 
 ## Study limitations
 
