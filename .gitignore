@@ -14,7 +14,10 @@ venv/
 local_processing/generate_dummy_tables/
 local_processing/outputs/
 docs/nhsbsa_dmd*
+docs/cohort-inclusion-diagram.drawio
 /ehrql-dummy-data*
 docs/deprescribing_factors*
 docs/ckd_cohort*
 *claude*
+protocols/protocol_cure*
+protocols/protocol_stale*

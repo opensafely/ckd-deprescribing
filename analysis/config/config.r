@@ -21,6 +21,39 @@ write_json(
   pretty = TRUE
 )
 
+# CKD cohort config ------------------------------------------------------
+# This sets the study wide parameters, the study window start/end, how long
+# follow up is, the KDIGO CKD stage cuts, and then which CKD stages to
+# include, and which people to remove during first pass and whether the first
+# pass just restricts based on eGFR or uACR.
+
+ckd_cohort_config <- list(
+  study_window_start = "2022-03-01",
+  study_window_end = "2026-02-28",
+  follow_up_years = 4,
+  ckd_stages = list(
+    g3a = list(upper = 60, lower = 45),
+    g3b = list(upper = 45, lower = 30),
+    g4 = list(upper = 30, lower = 15),
+    g5 = list(upper = 15, lower = 0)
+  ),
+  ckd_stages_included = I(c("g4", "g5")),
+  first_pass_scr_cutoff = list(
+    # creatinine <= cutoffs always eGFR >= 60 (CKD-EPI 2009, age <= 110)
+    female = 67.2,
+    male = 85.1
+  ),
+  first_pass_uacr_cutoff = 3,
+  first_pass_filter = I(c("egfr")) # can add uACR later if desired
+)
+
+write_json(
+  ckd_cohort_config,
+  path = here::here("output", "ckd_cohort_config.json"),
+  auto_unbox = TRUE,
+  pretty = TRUE
+)
+
 # Which BNF chapters to exclude ------------------------------------------
 # BNF chapter list for reference:
 #   01: gastro-intestinal system
