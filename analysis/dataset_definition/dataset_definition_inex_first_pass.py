@@ -19,8 +19,8 @@ with open("output/ckd_cohort_config.json") as f:
     config = json.load(f)
 study_window_start = config["study_window_start"]
 study_window_end = config["study_window_end"]
-scr_cutoff_female = config["first_pass_scr_cutoff"["female"]]
-scr_cutoff_male = config["first_pass_scr_cutoff"["male"]]
+scr_cutoff_female = config["first_pass_scr_cutoff"]["female"]
+scr_cutoff_male = config["first_pass_scr_cutoff"]["male"]
 uacr_cutoff = config["first_pass_uacr_cutoff"]
 
 # initialise the dataset
