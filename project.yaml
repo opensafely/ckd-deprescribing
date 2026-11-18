@@ -10,6 +10,28 @@ actions:
         ckd_cohort_config_json: output/ckd_cohort_config.json
 
 
+  generate_dataset_inex_first_pass:
+    run: >
+        ehrql:v1 generate-dataset analysis/dataset_definition/dataset_definition_inex_first_pass.py
+        --dummy-tables dummy_tables/
+        --output output/dataset_inex_first_pass.arrow
+        --test-data-file analysis/dataset_definition/test_dataset_definition_inex_first_pass.py
+    needs: [study_config]
+    outputs:
+      highly_sensitive:
+        dataset_inex_first_pass: output/dataset_inex_first_pass.arrow
+
+
+  dataset_process_inex_first_pass:
+    run: r:v3 analysis/dataset_processing/dataset_process_inex_first_pass.r
+    needs: [study_config, generate_dataset_inex_first_pass]
+    outputs:
+      highly_sensitive:
+        inex_first_pass_processed: output/data/dataset_inex_first_pass_processed.arrow
+      moderately_sensitive:
+        cleaning_inex_first_pass_data_flow: output/data_descriptions/cleaning_inex_first_pass/data_flow.csv
+ 
+
   generate_dataset_inex:
     run: >
         ehrql:v1 generate-dataset analysis/dataset_definition/dataset_definition_inex.py
