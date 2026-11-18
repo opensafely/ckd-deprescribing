@@ -7,7 +7,7 @@
 # Reusable ehrQL functions used across the study
 ##########################################################################
 
-from ehrql import when, case, days
+from ehrql import when, case, days, maximum_of
 
 from ehrql.tables.tpp import (
     clinical_events,
@@ -160,6 +160,14 @@ def count_recent_meds(index_date, days_before_index=90):
 ##########################################################################
 # TODO: need to refactor extraction functions that are not yet using these
 # TODO: decide whether should change .is_on_or_before() to .is_before()
+
+# --- checks two events >= gap_days apart, second in window ---------------
+def two_values_90d_apart(event_frame, window_start, window_end, gap_days=90):
+    first_date = event_frame.date.minimum_for_patient()
+    return event_frame.where(
+        event_frame.date.is_on_or_after(maximum_of(first_date + days(gap_days), window_start))
+        & event_frame.date.is_on_or_before(window_end)
+    ).exists_for_patient()
 
 # --- clinical_events, SNOMED -------------------------------------------
 def ever_matching_event_clinical_snomed_before(codelist, index_date, where=True):
