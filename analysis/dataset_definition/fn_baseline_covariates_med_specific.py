@@ -32,9 +32,9 @@ def add_baseline_covariates_med_specific(dataset, medicine, index_date):
     # PPI (proton pump inhibitors)
     ##################################################################
 
-    if medicine == "ppi":
+    if medicine == "ppis":
         columns = {
-            "basecov_ppi_bin_hf": (
+            "basecov_ppis_bin_hf": (
                  ever_matching_event_clinical_snomed_before(hf_codes_snomed, index_date).exists_for_patient()
                 | ever_matching_event_apcs_icd10_before(hf_codes_icd10, index_date).exists_for_patient()
             ),
@@ -44,9 +44,9 @@ def add_baseline_covariates_med_specific(dataset, medicine, index_date):
     # Statins 
     ##################################################################
 
-    elif medicine == "statin":
+    elif medicine == "statins":
         columns = {
-            "basecov_statin_bin_mi": (
+            "basecov_statins_bin_mi": (
                 ever_matching_event_clinical_snomed_before(mi_codes_snomed, index_date).exists_for_patient()
                 | ever_matching_event_apcs_icd10_before(mi_codes_icd10, index_date).exists_for_patient()
                 | ever_matching_procedure_apcs_opcs4_before(coronary_revasc_codes_opcs4, index_date).exists_for_patient()

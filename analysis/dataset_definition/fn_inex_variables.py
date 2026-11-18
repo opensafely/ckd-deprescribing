@@ -85,7 +85,7 @@ def add_demographic_inex_variables(
 
         "inex_dem_bin_alive": alive,
         "inex_dem_bin_age_include": (age >= 18) & (age <= 110),
-        "inex_dem_bin_12m_registered": registered_12m, # what about if someone has no end_date on a previous registration and they have two 'active registrations'
+        "inex_dem_bin_12m_registered": registered_12m, 
         "inex_dem_num_age": age,
         "inex_dem_cat_sex": patients.sex,
         "inex_dem_bin_sex": known_sex,

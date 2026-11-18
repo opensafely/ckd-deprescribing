@@ -19,8 +19,7 @@ with open("output/study_dates.json") as f:
     study_dates = json.load(f)
 index_date = study_dates["index_date"]
 
-# load dataset_inex_cleaned. columns={NULL} as no columns
-# required other than patient_id which is automatically imported
+# load dataset_inex_cleaned along with covariate columns
 dataset_inex_cleaned = table_from_file(
     "output/data/dataset_inex_cleaned.arrow",
     columns={
