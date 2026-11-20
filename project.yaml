@@ -42,6 +42,15 @@ actions:
     outputs:
       highly_sensitive:
         dataset_inex_second_pass: output/dataset_inex_second_pass.arrow
+
+  dataset_process_inex_second_pass:
+    run: r:v3 analysis/dataset_processing/dataset_process_inex_second_pass.r
+    needs: [study_config, dataset_process_inex_first_pass, generate_dataset_inex_second_pass]
+    outputs:
+      highly_sensitive:
+        inex_second_pass_processed: output/data/dataset_inex_second_pass_*.arrow
+      moderately_sensitive:
+        cleaning_inex_second_pass_data_flow: output/data_descriptions/cleaning_inex_second_pass/data_flow.csv
  
 
   generate_dataset_inex:
