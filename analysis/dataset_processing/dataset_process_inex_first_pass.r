@@ -76,8 +76,6 @@ flow <- data.frame(
 # Preprocess data: transform variables and modify dummy data -------------
 data_preprocessed <- fn_preprocess(
   arrow_data = data_input,
-  project_stage = "cleaning_inex_first_pass",
-  index_date = as.Date(config$study_window_start), # dummy data only
   one_row_per_patient = TRUE
 )
 

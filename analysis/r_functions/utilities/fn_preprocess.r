@@ -14,14 +14,17 @@
 
 fn_preprocess <- function(
   arrow_data,
-  project_stage,
-  index_date,
+  project_stage = NULL,
+  index_date = NULL,
   one_row_per_patient = TRUE
 ) {
   require(arrow)
   require(dplyr)
 
-  if (Sys.getenv("OPENSAFELY_BACKEND") %in% c("", "expectations")) {
+  if (
+    !is.null(project_stage) &&
+      Sys.getenv("OPENSAFELY_BACKEND") %in% c("", "expectations")
+  ) {
     arrow_data <- fn_modify_dummy_data(
       arrow_data,
       project_stage = project_stage,
