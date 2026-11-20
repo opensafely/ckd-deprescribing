@@ -30,6 +30,18 @@ actions:
         inex_first_pass_processed: output/data/dataset_inex_first_pass_processed.arrow
       moderately_sensitive:
         cleaning_inex_first_pass_data_flow: output/data_descriptions/cleaning_inex_first_pass/data_flow.csv
+
+
+  generate_dataset_inex_second_pass:
+    run: >
+        ehrql:v1 generate-dataset analysis/dataset_definition/dataset_definition_inex_second_pass.py
+        --dummy-tables dummy_tables/
+        --output output/dataset_inex_second_pass.arrow
+        --test-data-file analysis/dataset_definition/test_dataset_definition_inex_second_pass.py
+    needs: [study_config, dataset_process_inex_first_pass]
+    outputs:
+      highly_sensitive:
+        dataset_inex_second_pass: output/dataset_inex_second_pass.arrow
  
 
   generate_dataset_inex:
