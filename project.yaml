@@ -54,6 +54,33 @@ actions:
         cleaning_inex_second_pass_data_flow: output/data_descriptions/cleaning_inex_second_pass/data_flow.csv
  
 
+  # add similar generate_dataset_inex_ckd_cohort_{ckd_stage} actions for CKD 3a and 3b
+
+  generate_dataset_inex_ckd_cohort_g4:
+    run: >
+      ehrql:v1 generate-dataset analysis/dataset_definition/dataset_definition_inex_ckd_cohort.py
+      --dummy-tables dummy_tables/
+      --output output/dataset_inex_ckd_cohort_g4.arrow
+      --
+      --ckd_stage g4
+    needs: [study_config, dataset_process_inex_second_pass]
+    outputs:
+      highly_sensitive:
+        dataset_inex_ckd_cohort_g4: output/dataset_inex_ckd_cohort_g4.arrow
+
+
+  generate_dataset_inex_ckd_cohort_g5:
+    run: >
+      ehrql:v1 generate-dataset analysis/dataset_definition/dataset_definition_inex_ckd_cohort.py
+      --dummy-tables dummy_tables/
+      --output output/dataset_inex_ckd_cohort_g5.arrow
+      --
+      --ckd_stage g5
+    needs: [study_config, dataset_process_inex_second_pass]
+    outputs:
+      highly_sensitive:
+        dataset_inex_ckd_cohort_g5: output/dataset_inex_ckd_cohort_g5.arrow
+
   generate_dataset_inex:
     run: >
         ehrql:v1 generate-dataset analysis/dataset_definition/dataset_definition_inex.py
