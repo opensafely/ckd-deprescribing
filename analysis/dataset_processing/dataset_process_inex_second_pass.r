@@ -91,7 +91,7 @@ for (stage_name in names(second_pass_output_list)) {
       here::here(
         "output",
         "data",
-        paste0("dataset_inex_second_pass_", stage_name, ".arrow")
+        paste0("dataset_inex_second_pass_processed_", stage_name, ".arrow")
       )
     )
 
