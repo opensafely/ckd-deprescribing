@@ -32,10 +32,10 @@ ckd_cohort_config <- list(
   study_window_end = "2026-02-28",
   follow_up_years = 4,
   ckd_stages = list(
-    g3a = list(upper = 60, lower = 45),
-    g3b = list(upper = 45, lower = 30),
-    g4 = list(upper = 30, lower = 15),
-    g5 = list(upper = 15, lower = 0)
+    g3a = list(upper = 60),
+    g3b = list(upper = 45),
+    g4 = list(upper = 30),
+    g5 = list(upper = 15)
   ),
   ckd_stages_included = I(c("g4", "g5")),
   first_pass_scr_cutoff = list(

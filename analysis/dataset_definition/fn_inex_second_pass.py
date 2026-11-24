@@ -63,17 +63,11 @@ def egfr_ckdepi2009(study_window_end):
 #####################################################################
 # eGFR SCREENING VARIABLES
 #####################################################################
-# This adds 8 columns to the dataset. These are designed to flag the 
-# people who COULD be in the CKD cohorts based on eGFR measurements:
-#
-# - one flag per CKD stage if the individual has 2x eGFRs below the 
+# This adds 4 columns to the dataset. These are designed to flag the 
+# people who COULD be in the CKD cohorts based on eGFR measurements
+# one flag per CKD stage if the individual has 2x eGFRs below the 
 # stage's upper limit >= 90 days apart with the second in the study 
 # window
-
-# - and one flag per CKD stage if the individual has at least one 
-# eGFR that sits within that stage (it is possible that someone would
-# have two values below 60 but none between 45-59 hence this second
-# flag will help to reduce future computation)
 
 def add_inex_second_pass_variables(
     dataset,
@@ -89,7 +83,6 @@ def add_inex_second_pass_variables(
     # Loop through CKD 3a, 3b, 4 then 5
     for stage_name, stage_range in ckd_stages.items():
         upper = stage_range["upper"]
-        lower = stage_range["lower"]
 
         # T/F test over the event frame: is eGFR below upper range?
         below_upper = egfr < upper
@@ -106,14 +99,6 @@ def add_inex_second_pass_variables(
         )
 
         dataset.add_column(f"inex_ckd_bin_two_egfr_below_{upper}", two_below_upper)
-        dataset.add_column(
-            f"inex_ckd_bin_possible_{stage_name}",
-            scr.where(
-                two_below_upper
-                & (egfr >= lower)
-                & (egfr < upper)
-            ).exists_for_patient()
-        )
 
         # flag those who met that stage's criteria for the next loop
         prior_flag = two_below_upper
