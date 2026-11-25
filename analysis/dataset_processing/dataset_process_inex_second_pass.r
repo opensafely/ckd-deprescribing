@@ -95,7 +95,10 @@ for (stage_name in names(second_pass_output_list)) {
       )
     )
 
-  flow <- bind_rows(flow, second_pass_output_list[[stage_name]]$flow)
+  flow <- bind_rows(
+    flow,
+    second_pass_output_list[[stage_name]]$flow |> mutate(stage = stage_name)
+  )
 }
 
 flow <- flow |> mutate(N = fn_apply_sdc(N))
