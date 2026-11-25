@@ -43,6 +43,7 @@ ckd_cohort_config <- list(
     female = 67.2,
     male = 85.1
   ),
+  k_loops = 8,
   first_pass_uacr_cutoff = 3,
   first_pass_filter = I(c("egfr")) # can add uACR later if desired
 )

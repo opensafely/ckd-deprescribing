@@ -35,4 +35,4 @@ dataset = create_dataset()
 dataset.define_population(second_pass.exists_for_patient())
 
 # add the ckd_cohort variables
-add_inex_ckd_cohort_variables(dataset, study_window_start, study_window_end, ckd_stage, upper_limit, k_loops)
+add_inex_ckd_cohort_variables(dataset, study_window_start, study_window_end, upper_limit, k_loops)
