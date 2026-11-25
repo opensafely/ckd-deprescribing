@@ -2,12 +2,100 @@ version: '5.0'
 
 actions:
 
-  study_dates:
+  study_config:
     run: r:v3 analysis/config/config.r
     outputs:
       highly_sensitive:
         study_dates_json: output/study_dates.json
+        ckd_cohort_config_json: output/ckd_cohort_config.json
 
+
+  generate_dataset_inex_first_pass:
+    run: >
+        ehrql:v1 generate-dataset analysis/dataset_definition/dataset_definition_inex_first_pass.py
+        --dummy-tables dummy_tables/
+        --output output/dataset_inex_first_pass.arrow
+        --test-data-file analysis/dataset_definition/test_dataset_definition_inex_first_pass.py
+    needs: [study_config]
+    outputs:
+      highly_sensitive:
+        dataset_inex_first_pass: output/dataset_inex_first_pass.arrow
+
+
+  dataset_process_inex_first_pass:
+    run: r:v3 analysis/dataset_processing/dataset_process_inex_first_pass.r
+    needs: [study_config, generate_dataset_inex_first_pass]
+    outputs:
+      highly_sensitive:
+        inex_first_pass_processed: output/data/dataset_inex_first_pass_processed.arrow
+      moderately_sensitive:
+        process_inex_first_pass_data_flow: output/data_descriptions/process_inex_first_pass/data_flow.csv
+
+
+  generate_dataset_inex_second_pass:
+    run: >
+        ehrql:v1 generate-dataset analysis/dataset_definition/dataset_definition_inex_second_pass.py
+        --dummy-tables dummy_tables/
+        --output output/dataset_inex_second_pass.arrow
+        --test-data-file analysis/dataset_definition/test_dataset_definition_inex_second_pass.py
+    needs: [study_config, dataset_process_inex_first_pass]
+    outputs:
+      highly_sensitive:
+        dataset_inex_second_pass: output/dataset_inex_second_pass.arrow
+
+
+  dataset_process_inex_second_pass:
+    run: r:v3 analysis/dataset_processing/dataset_process_inex_second_pass.r
+    needs: [study_config, dataset_process_inex_first_pass, generate_dataset_inex_second_pass]
+    outputs:
+      highly_sensitive:
+        inex_second_pass_processed: output/data/dataset_inex_second_pass_processed*.arrow
+      moderately_sensitive:
+        process_inex_second_pass_data_flow: output/data_descriptions/process_inex_second_pass/data_flow.csv
+ 
+
+  # add similar generate_dataset_inex_ckd_cohort_{ckd_stage} actions for CKD 3a and 3b
+
+  generate_dataset_inex_ckd_cohort_g4:
+    run: >
+      ehrql:v1 generate-dataset analysis/dataset_definition/dataset_definition_inex_ckd_cohort.py
+      --dummy-tables dummy_tables/
+      --output output/dataset_inex_ckd_cohort_g4.arrow
+      --
+      --ckd_stage g4
+    needs: [study_config, dataset_process_inex_second_pass]
+    outputs:
+      highly_sensitive:
+        dataset_inex_ckd_cohort_g4: output/dataset_inex_ckd_cohort_g4.arrow
+
+
+  generate_dataset_inex_ckd_cohort_g5:
+    run: >
+      ehrql:v1 generate-dataset analysis/dataset_definition/dataset_definition_inex_ckd_cohort.py
+      --dummy-tables dummy_tables/
+      --output output/dataset_inex_ckd_cohort_g5.arrow
+      --
+      --ckd_stage g5
+    needs: [study_config, dataset_process_inex_second_pass]
+    outputs:
+      highly_sensitive:
+        dataset_inex_ckd_cohort_g5: output/dataset_inex_ckd_cohort_g5.arrow
+
+
+  dataset_process_inex_ckd_cohort:
+    run: r:v3 analysis/dataset_processing/dataset_process_inex_ckd_cohort.r
+    needs: [study_config, dataset_process_inex_first_pass, dataset_process_inex_second_pass, generate_dataset_inex_ckd_cohort_g4, generate_dataset_inex_ckd_cohort_g5]
+    outputs:
+      highly_sensitive:
+        inex_ckd_cohort_processed: output/data/dataset_inex_ckd_cohort_processed_*.arrow
+      moderately_sensitive:
+        process_inex_ckd_cohort_data_flow: output/data_descriptions/process_inex_ckd_cohort/data_flow_*.csv
+        process_inex_ckd_cohort_data_descriptions: output/data_descriptions/process_inex_ckd_cohort/*.txt
+        process_inex_ckd_cohort_med_count_summary: output/data_descriptions/process_inex_ckd_cohort/med_count_summary.csv
+        process_inex_ckd_cohort_egfr_gap_summary: output/data_descriptions/process_inex_ckd_cohort/egfr_gap_summary.csv
+        process_inex_ckd_cohort_index_year_summary: output/data_descriptions/process_inex_ckd_cohort/index_year_summary.csv
+        process_inex_ckd_cohort_loop_restart_summary: output/data_descriptions/process_inex_ckd_cohort/loop_restart_summary.csv
+        process_inex_ckd_cohort_secondary_krt_summary: output/data_descriptions/process_inex_ckd_cohort/secondary_krt_summary.csv
 
   generate_dataset_inex:
     run: >
@@ -15,7 +103,7 @@ actions:
         --dummy-tables dummy_tables/
         --output output/dataset_inex.arrow
       # --test-data-file analysis/dataset_definition/test_dataset_definition_inex.py
-    needs: [study_dates]
+    needs: [study_config]
     outputs:
       highly_sensitive:
         dataset_inex: output/dataset_inex.arrow
@@ -40,7 +128,7 @@ actions:
       --dummy-tables dummy_tables/
       --output output/dataset_baseline_covariates_general.arrow
     #  --test-data-file analysis/dataset_definition/test_dataset_definition_baseline_covariates_general.py
-    needs: [study_dates, dataset_cleaning_inex]
+    needs: [study_config, dataset_cleaning_inex]
     outputs:
       highly_sensitive:
         dataset_baseline_covariates_general: output/dataset_baseline_covariates_general.arrow
@@ -52,7 +140,7 @@ actions:
       --dummy-tables dummy_tables/
       --output output/dataset_baseline_covariates_med_specific_ppis.arrow
       -- --medicine ppis
-    needs: [study_dates, dataset_cleaning_inex]
+    needs: [study_config, dataset_cleaning_inex]
     outputs:
       highly_sensitive:
         dataset_baseline_covariates_med_specific_ppis: output/dataset_baseline_covariates_med_specific_ppis.arrow
@@ -64,7 +152,7 @@ actions:
       --dummy-tables dummy_tables/
       --output output/dataset_baseline_covariates_med_specific_statins.arrow
       -- --medicine statins
-    needs: [study_dates, dataset_cleaning_inex]
+    needs: [study_config, dataset_cleaning_inex]
     outputs:
       highly_sensitive:
         dataset_baseline_covariates_med_specific_statins: output/dataset_baseline_covariates_med_specific_statins.arrow
@@ -73,7 +161,7 @@ actions:
   # Process baseline covariates - pass med_specific_{medicine} arg to combine general covariates with that medicine_specific covariates
   dataset_process_baseline_covariates_general:
     run: r:v3 analysis/dataset_processing/dataset_process_baseline_covariates.r
-    needs: [study_dates, generate_dataset_baseline_covariates_general]
+    needs: [study_config, generate_dataset_baseline_covariates_general]
     outputs: 
       highly_sensitive:
         dataset_baseline_covariates_general_processed: output/data/dataset_baseline_covariates_general_processed.arrow
@@ -81,7 +169,7 @@ actions:
 
   dataset_process_baseline_covariates_med_specific_statins:
     run: r:v3 analysis/dataset_processing/dataset_process_baseline_covariates.r med_specific_statins
-    needs: [study_dates, generate_dataset_baseline_covariates_general, generate_dataset_baseline_covariates_med_specific_statins]
+    needs: [study_config, generate_dataset_baseline_covariates_general, generate_dataset_baseline_covariates_med_specific_statins]
     outputs: 
       highly_sensitive:
         dataset_baseline_covariates_med_specific_statins_processed: output/data/dataset_baseline_covariates_med_specific_statins_processed.arrow
@@ -89,7 +177,7 @@ actions:
 
   dataset_process_baseline_covariates_med_specific_ppis:
     run: r:v3 analysis/dataset_processing/dataset_process_baseline_covariates.r med_specific_ppis
-    needs: [study_dates, generate_dataset_baseline_covariates_general, generate_dataset_baseline_covariates_med_specific_ppis]
+    needs: [study_config, generate_dataset_baseline_covariates_general, generate_dataset_baseline_covariates_med_specific_ppis]
     outputs: 
       highly_sensitive:
         dataset_baseline_covariates_med_specific_ppis_processed: output/data/dataset_baseline_covariates_med_specific_ppis_processed.arrow
@@ -101,7 +189,7 @@ actions:
       --dummy-tables dummy_tables/
       --output output/dataset_baseline_meds.arrow
     # --test-data-file analysis/dataset_definition/test_dataset_definition_baseline_meds.py
-    needs: [study_dates, dataset_cleaning_inex]
+    needs: [study_config, dataset_cleaning_inex]
     outputs:
       highly_sensitive:
         dataset_baseline_meds: output/dataset_baseline_meds.arrow
@@ -109,7 +197,7 @@ actions:
 
   dataset_process_baseline_meds:
     run: r:v3 analysis/dataset_processing/dataset_process_baseline_meds.r
-    needs: [generate_dataset_baseline_meds, study_dates]
+    needs: [generate_dataset_baseline_meds, study_config]
     outputs:
       highly_sensitive:
         dataset_baseline_meds_processed: output/data/dataset_baseline_meds_processed.arrow
@@ -123,7 +211,7 @@ actions:
 
   analyse_baseline_meds:
     run: r:v3 analysis/dataset_analysis/analyse_baseline_meds.r
-    needs: [dataset_process_baseline_meds, study_dates]
+    needs: [dataset_process_baseline_meds, study_config]
     outputs:
       highly_sensitive:
         dataset_baseline_meds_analysed: output/data/dataset_baseline_meds_analysed.arrow
@@ -154,7 +242,7 @@ actions:
       --output output/dataset_discont_meds_baseline_statins.arrow
       --
       --medication statins
-    needs: [study_dates, dataset_cleaning_inex]
+    needs: [study_config, dataset_cleaning_inex]
     outputs:
       highly_sensitive:
         dataset_discont_meds_baseline_statins: output/dataset_discont_meds_baseline_statins.arrow
@@ -167,7 +255,7 @@ actions:
       --output output/dataset_discont_meds_baseline_ppis.arrow
       --
       --medication ppis
-    needs: [study_dates, dataset_cleaning_inex]
+    needs: [study_config, dataset_cleaning_inex]
     outputs:
       highly_sensitive:
         dataset_discont_meds_baseline_ppis: output/dataset_discont_meds_baseline_ppis.arrow
@@ -176,7 +264,7 @@ actions:
 
   dataset_process_moi_at_baseline:
     run: r:v3 analysis/discontinuation/dataset_processing/dataset_process_moi_at_baseline.r
-    needs: [generate_dataset_discont_meds_baseline_statins, generate_dataset_discont_meds_baseline_ppis, study_dates]
+    needs: [generate_dataset_discont_meds_baseline_statins, generate_dataset_discont_meds_baseline_ppis, study_config]
     outputs:
       highly_sensitive:
         dataset_statins_at_baseline_processed: output/data/dataset_statins_at_baseline_processed.arrow
@@ -196,7 +284,7 @@ actions:
       --output output/dataset_discont_meds_follow_up_statins.arrow
       --
       --medication statins
-    needs: [study_dates, dataset_process_moi_at_baseline]
+    needs: [study_config, dataset_process_moi_at_baseline]
     outputs:
       highly_sensitive:
         dataset_discont_meds_follow_up_statins: output/dataset_discont_meds_follow_up_statins.arrow
@@ -209,7 +297,7 @@ actions:
       --output output/dataset_discont_meds_follow_up_ppis.arrow
       --
       --medication ppis
-    needs: [study_dates, dataset_process_moi_at_baseline]
+    needs: [study_config, dataset_process_moi_at_baseline]
     outputs:
       highly_sensitive:
         dataset_discont_meds_follow_up_ppis: output/dataset_discont_meds_follow_up_ppis.arrow

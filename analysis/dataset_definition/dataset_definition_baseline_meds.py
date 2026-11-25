@@ -31,4 +31,4 @@ dataset = create_dataset()
 dataset.define_population(dataset_inex_cleaned.exists_for_patient())
 
 # add wide format prescription columns
-add_prescription_columns(dataset, index_date, med_slots=19, window_days=7, n_windows=26)
+add_prescription_columns(dataset, index_date, med_slots=19, window_days=7, n_windows=2)
