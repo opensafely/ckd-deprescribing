@@ -1,12 +1,14 @@
 ##########################################################################
-# This script does the following:
+# This script does the following for each CKD stage in ckd_stages_included:
 # 1. Loads output/dataset_inex_ckd_cohort_{ckd_stage}.arrow
-# 2. Type formats the variables
-# 3. Computes the numbers that are excluded at each step of the CKD
-#    cohort definition and demographic inclusions and exclusions and
-#    then compiles into a flow table
-# 6. Tabulates medication counts 90 + 180 days before index date
-# 7. Saves cleaned dataset, med-summary, flow-tables and description files
+# 2. Type formats the variables and describes the input (skimr)
+# 3. Applies CKD cohrot definition and index date criteria
+# 4. Describes the final cohort and tabulates diagnostics: med counts,
+#    eGFR date gaps, index_date years, how many cohort def loops were
+#    required and the distribution of secondary care KRT codes
+# 5. Saves cohort, and a flow table that continues from 1st/2nd pass steps
+
+# Diagnostic tables are combined across stages and then saved
 ##########################################################################
 
 # Import libraries and functions -----------------------------------------

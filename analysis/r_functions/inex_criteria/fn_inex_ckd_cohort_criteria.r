@@ -10,11 +10,12 @@
 #   the loop (everyone still in the cohort after this has a qualifying pair)
 # - no eGFR prior to the qualifying pair at or above the limit (not incident)
 # - index date outside the study window
-# - not registered on index date,
+# - not registered on index date
 # - not registered 12+ months by index date
 # - not alive on index date
 # - not aged 18-110 on index date
-# - kidney replacement therapy on or before index date
+# - most recent primary care KRT code before index is dialysis
+# - most recent primary care KRT code before index is transplant
 #
 # Then counts and records exclusions at each step
 ##########################################################################
@@ -44,7 +45,7 @@ fn_inex_ckd_cohort_criteria <- function(
     flow,
     "inex_ckd_bin_resolved",
     sprintf(
-      "CKD cohort: Resolved after %s loop restarts",
+      "CKD cohort: Resolved within %s loop restarts",
       k_loops
     )
   )
