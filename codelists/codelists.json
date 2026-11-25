@@ -216,12 +216,6 @@
       "downloaded_at": "2026-05-29 13:22:19.855768Z",
       "sha": "9a0095e6e3484c801a015dcdeb6ff2f08d467e71"
     },
-    "user-mletts92-test-dmd.csv": {
-      "id": "user/mletts92/test-dmd/15906684",
-      "url": "https://www.opencodelists.org/codelist/user/mletts92/test-dmd/15906684/",
-      "downloaded_at": "2026-11-20 10:04:06.446460+00:00Z",
-      "sha": "080a4fa749f9e6831326a668650aa487928bdcef"
-    },
     "nhsd-primary-care-domain-refsets-dialysis_cod.csv": {
       "id": "nhsd-primary-care-domain-refsets/dialysis_cod/20260630",
       "url": "https://www.opencodelists.org/codelist/nhsd-primary-care-domain-refsets/dialysis_cod/20260630/",
