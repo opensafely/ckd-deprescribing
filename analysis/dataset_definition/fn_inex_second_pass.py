@@ -9,56 +9,13 @@
 # IMPORTS
 #####################################################################
 
-from ehrql import minimum_of, maximum_of
-
-from ehrql.tables.tpp import patients, clinical_events
+from ehrql.tables.tpp import patients
 
 from variable_helper_functions import (
     two_values_90d_apart,
-    ever_matching_event_clinical_snomed_before
+    creatinine_events_before,
+    egfr_ckdepi2009
 )
-
-from codelists import creatinine_codes
-
-#####################################################################
-# eGFR PER CREATININE TEST
-#####################################################################
-# CKD-EPI 2009 without ethnicity coefficient, age on the test date.
-# https://www.niddk.nih.gov/research-funding/research-programs/
-# kidney-clinical-research-epidemiology/laboratory/
-# glomerular-filtration-rate-equations/adults/previous/
-
-# Returns:
-# - scr - event frame of plausible creatinine events before window_end
-# - egfr - eGFR value for each row in scr
-
-def egfr_ckdepi2009(study_window_end):
-
-    scr = ever_matching_event_clinical_snomed_before(
-        creatinine_codes,
-        study_window_end,
-        where=(
-            (clinical_events.numeric_value >= 20)
-            & (clinical_events.numeric_value <= 3000)
-        )
-    )
-
-    age = patients.age_on(scr.date)
-    sex = patients.sex
-    kappa = sex.map_values({"female": 61.9, "male": 79.6})
-    alpha = sex.map_values({"female": -0.329, "male": -0.411})
-    female_multiplier = sex.map_values({"female": 1.018, "male": 1.0})
-    ratio = scr.numeric_value / kappa
-
-    egfr = (
-        141
-        * minimum_of(ratio, 1.0) ** alpha
-        * maximum_of(ratio, 1.0) ** -1.209
-        * 0.993 ** age.as_float()
-        * female_multiplier
-    )
-
-    return scr, egfr
 
 #####################################################################
 # eGFR SCREENING VARIABLES
@@ -76,8 +33,9 @@ def add_inex_second_pass_variables(
     ckd_stages
 ):
 
-    scr, egfr = egfr_ckdepi2009(study_window_end)
-    
+    scr = creatinine_events_before(study_window_end)
+    egfr = egfr_ckdepi2009(scr.numeric_value, patients.age_on(scr.date), patients.sex)
+
     prior_flag = None
 
     # Loop through CKD 3a, 3b, 4 then 5

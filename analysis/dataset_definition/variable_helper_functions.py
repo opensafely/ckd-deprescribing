@@ -7,7 +7,7 @@
 # Reusable ehrQL functions used across the study
 ##########################################################################
 
-from ehrql import when, case, days, maximum_of
+from ehrql import when, case, days, maximum_of, minimum_of
 
 from ehrql.tables.tpp import (
     clinical_events,
@@ -16,6 +16,8 @@ from ehrql.tables.tpp import (
     apcs,
     medications,
 )
+
+from codelists import creatinine_codes
 
 
 ##########################################################################
@@ -153,6 +155,45 @@ def count_recent_meds(index_date, days_before_index=90):
         medications.date.is_on_or_after(index_date - days(days_before_index))
     )
     return wanted_medications.count_for_patient()
+
+
+##########################################################################
+# Kidney function
+##########################################################################
+# creatinine_events_before() returns an event frame of plausible
+# (20-3000 umol/L) creatinine events on or before end_date.
+#
+# egfr_ckdepi2009() returns eGFR from creatinine, age and sex using
+# CKD-EPI 2009 without ethnicity coefficient. Works on event-level or
+# patient-level series.
+# https://www.niddk.nih.gov/research-funding/research-programs/
+# kidney-clinical-research-epidemiology/laboratory/
+# glomerular-filtration-rate-equations/adults/previous/
+
+def creatinine_events_before(end_date):
+    return ever_matching_event_clinical_snomed_before(
+        creatinine_codes,
+        end_date,
+        where=(
+            (clinical_events.numeric_value >= 20)
+            & (clinical_events.numeric_value <= 3000)
+        )
+    )
+
+
+def egfr_ckdepi2009(creatinine, age, sex):
+    kappa = sex.map_values({"female": 61.9, "male": 79.6})
+    alpha = sex.map_values({"female": -0.329, "male": -0.411})
+    female_multiplier = sex.map_values({"female": 1.018, "male": 1.0})
+    ratio = creatinine / kappa
+
+    return (
+        141
+        * minimum_of(ratio, 1.0) ** alpha
+        * maximum_of(ratio, 1.0) ** -1.209
+        * 0.993 ** age.as_float()
+        * female_multiplier
+    )
 
 
 ##########################################################################

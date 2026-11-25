@@ -22,10 +22,10 @@ from ehrql.tables.tpp import (
 
 from variable_helper_functions import (
     ever_matching_event_clinical_snomed_before,
-    count_recent_meds
-)    
-
-from fn_inex_second_pass import egfr_ckdepi2009
+    count_recent_meds,
+    creatinine_events_before,
+    egfr_ckdepi2009
+)
 
 from codelists import (
     primary_care_krt_codes,
@@ -49,7 +49,8 @@ def define_ckd_cohorts(
     k_loops
 ):
 
-    scr, egfr = egfr_ckdepi2009(study_window_end)
+    scr = creatinine_events_before(study_window_end)
+    egfr = egfr_ckdepi2009(scr.numeric_value, patients.age_on(scr.date), patients.sex)
 
     # Define two event frames based on whether the eGFRs are above
     # or below (high or low) the upper limit for this stage of CKD
