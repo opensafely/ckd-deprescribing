@@ -66,9 +66,9 @@ test_data = {
             "inex_ckd_date_egfr0": date(2021, 1, 1),
             "inex_ckd_date_egfr1": date(2022, 6, 1),
             "inex_ckd_date_index_date": date(2022, 10, 1),
-            "inex_ckd_bin_no_egfr0": False,
-            "inex_ckd_bin_no_egfr2": False,
-            "inex_ckd_bin_unresolved": False,
+            "inex_ckd_bin_has_egfr0": True,
+            "inex_ckd_bin_has_egfr2": True,
+            "inex_ckd_bin_resolved": True,
             "inex_ckd_num_n_loop_restarts": 0,
             "inex_ckd_bin_same_registration": True,
             "inex_ckd_bin_index_in_window": True,
@@ -96,11 +96,11 @@ test_data = {
         "expected_columns": {
             "inex_ckd_date_egfr1": date(2022, 6, 1),
             "inex_ckd_date_index_date": date(2022, 8, 30),
-            "inex_ckd_bin_no_egfr2": False,
+            "inex_ckd_bin_has_egfr2": True,
         },
     },
 
-    6: {    # lows only 89 days apart -> no eGFR2 (cannot confirm CKD)
+    6: {    # lows only 89 days apart -> has_egfr2 False (cannot confirm CKD)
 
         "patients": female_1952(),
         "practice_registrations": registered_2010(),
@@ -113,8 +113,8 @@ test_data = {
         "expected_in_population": True,
         "expected_columns": {
             "inex_ckd_date_index_date": None,
-            "inex_ckd_bin_no_egfr2": True,
-            "inex_ckd_bin_unresolved": False,
+            "inex_ckd_bin_has_egfr2": False,
+            "inex_ckd_bin_resolved": True,
             "inex_ckd_num_n_loop_restarts": 0,
         },
     },
@@ -136,7 +136,7 @@ test_data = {
             "inex_ckd_date_egfr0": date(2022, 4, 1),
             "inex_ckd_date_egfr1": date(2022, 5, 1),
             "inex_ckd_date_index_date": date(2022, 9, 1),
-            "inex_ckd_bin_unresolved": False,
+            "inex_ckd_bin_resolved": True,
             "inex_ckd_num_n_loop_restarts": 1,
         },
     },
@@ -160,7 +160,7 @@ test_data = {
         },
     },
 
-    21: {   # no earlier high -> no eGFR0 (cannot confirm incident)
+    21: {   # no earlier high -> has_egfr0 False (cannot confirm incident)
 
         "patients": female_1952(),
         "practice_registrations": registered_2010(),
@@ -173,7 +173,7 @@ test_data = {
         "expected_columns": {
             "inex_ckd_date_egfr0": None,
             "inex_ckd_date_index_date": date(2022, 8, 1),
-            "inex_ckd_bin_no_egfr0": True,
+            "inex_ckd_bin_has_egfr0": False,
             "inex_ckd_bin_same_registration": False,
         },
     },
@@ -192,13 +192,13 @@ test_data = {
         "expected_in_population": True,
         "expected_columns": {
             "inex_ckd_date_index_date": None,
-            "inex_ckd_bin_no_egfr2": True,
-            "inex_ckd_bin_unresolved": False,
+            "inex_ckd_bin_has_egfr2": False,
+            "inex_ckd_bin_resolved": True,
             "inex_ckd_num_n_loop_restarts": 1,
         },
     },
 
-    30: {   # every pair broken by a high for more than k_loops rounds -> unresolved
+    30: {   # every pair broken by a high for more than k_loops rounds -> not resolved
 
         "patients": female_1952(),
         "practice_registrations": registered_2010(),
@@ -206,8 +206,8 @@ test_data = {
 
         "expected_in_population": True,
         "expected_columns": {
-            "inex_ckd_bin_no_egfr2": False,
-            "inex_ckd_bin_unresolved": True,
+            "inex_ckd_bin_has_egfr2": True,
+            "inex_ckd_bin_resolved": False,
             "inex_ckd_num_n_loop_restarts": k_loops + 1,
         },
     },
@@ -261,7 +261,7 @@ test_data = {
         "expected_in_population": True,
         "expected_columns": {
             "inex_ckd_date_index_date": None,
-            "inex_ckd_bin_no_egfr2": True,
+            "inex_ckd_bin_has_egfr2": False,
         },
     },
 
@@ -305,7 +305,7 @@ test_data = {
         "expected_in_population": True,
         "expected_columns": {
             "inex_ckd_date_egfr0": date(2021, 6, 1),
-            "inex_ckd_bin_no_egfr0": False,
+            "inex_ckd_bin_has_egfr0": True,
             "inex_dem_bin_is_registered": True,
             "inex_dem_bin_12m_registered": False,
             "inex_ckd_bin_same_registration": False,

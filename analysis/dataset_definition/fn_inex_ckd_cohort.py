@@ -91,15 +91,15 @@ def define_ckd_cohorts(
                 otherwise=egfr1_date
             )
     
-    unresolved = egfr3_date.is_not_null()
-    no_egfr2 = egfr2_date.is_null()
+    resolved = egfr3_date.is_null()
+    has_egfr2 = egfr2_date.is_not_null()
 
     # eGFR0 = the last eGFR on or above the limit before eGFR1
     egfr0_date = all_high_egfrs.where(
         all_high_egfrs.date.is_before(egfr1_date)
     ).date.maximum_for_patient()
 
-    no_egfr0 = egfr0_date.is_null()
+    has_egfr0 = egfr0_date.is_not_null()
 
     # for interest: flag when a single registration spans eGFR0 to eGFR2
     same_registration = (
@@ -112,10 +112,10 @@ def define_ckd_cohorts(
 
         "inex_ckd_date_egfr1": egfr1_date,
         "inex_ckd_date_index_date": egfr2_date,
-        "inex_ckd_bin_no_egfr0": no_egfr0,
+        "inex_ckd_bin_has_egfr0": has_egfr0,
         "inex_ckd_date_egfr0": egfr0_date,
-        "inex_ckd_bin_unresolved": unresolved,
-        "inex_ckd_bin_no_egfr2": no_egfr2,
+        "inex_ckd_bin_resolved": resolved,
+        "inex_ckd_bin_has_egfr2": has_egfr2,
         "inex_ckd_num_n_loop_restarts": n_loop_restarts,
         "inex_ckd_bin_same_registration": same_registration
 
