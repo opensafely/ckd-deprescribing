@@ -29,7 +29,7 @@ actions:
       highly_sensitive:
         inex_first_pass_processed: output/data/dataset_inex_first_pass_processed.arrow
       moderately_sensitive:
-        cleaning_inex_first_pass_data_flow: output/data_descriptions/cleaning_inex_first_pass/data_flow.csv
+        process_inex_first_pass_data_flow: output/data_descriptions/process_inex_first_pass/data_flow.csv
 
 
   generate_dataset_inex_second_pass:
@@ -51,7 +51,7 @@ actions:
       highly_sensitive:
         inex_second_pass_processed: output/data/dataset_inex_second_pass_processed*.arrow
       moderately_sensitive:
-        cleaning_inex_second_pass_data_flow: output/data_descriptions/cleaning_inex_second_pass/data_flow.csv
+        process_inex_second_pass_data_flow: output/data_descriptions/process_inex_second_pass/data_flow.csv
  
 
   # add similar generate_dataset_inex_ckd_cohort_{ckd_stage} actions for CKD 3a and 3b

@@ -220,7 +220,7 @@ fn_modify_dummy_data <- function(
       )
   } else if (project_stage == "process_baseline_meds") {
     # intentionally leave blank - no modifications to dummy data
-  } else if (project_stage == "cleaning_inex_first_pass") {
+  } else if (project_stage == "process_inex_first_pass") {
     # intentionally leave blank - no modifications to dummy data
   } else if (project_stage == "process_moi_at_baseline") {
     # intentionally leave blank - no modifications to dummy data

@@ -48,7 +48,7 @@ dir_create(here::here("output", "data"))
 dir_create(here::here(
   "output",
   "data_descriptions",
-  "cleaning_inex_first_pass"
+  "process_inex_first_pass"
 ))
 
 # Import config ----------------------------------------------------------
@@ -109,14 +109,14 @@ first_pass_output_list$data |>
     here::here("output", "data", "dataset_inex_first_pass_processed.arrow")
   )
 
-message("Save flow table to output/data_descriptions/cleaning_inex_first_pass/")
+message("Save flow table to output/data_descriptions/process_inex_first_pass/")
 flow <- first_pass_output_list$flow |> mutate(N = fn_apply_sdc(N)) # Apply SDC to the N column
 write_csv(
   flow,
   here::here(
     "output",
     "data_descriptions",
-    "cleaning_inex_first_pass",
+    "process_inex_first_pass",
     "data_flow.csv"
   )
 )

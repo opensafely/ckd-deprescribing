@@ -40,7 +40,7 @@ dir_create(here::here("output", "data"))
 dir_create(here::here(
   "output",
   "data_descriptions",
-  "cleaning_inex_second_pass"
+  "process_inex_second_pass"
 ))
 
 # Import config ----------------------------------------------------------
@@ -61,7 +61,7 @@ flow <- read_csv(
   here::here(
     "output",
     "data_descriptions",
-    "cleaning_inex_first_pass",
+    "process_inex_first_pass",
     "data_flow.csv"
   ),
   show_col_types = FALSE
@@ -101,14 +101,14 @@ for (stage_name in names(second_pass_output_list)) {
 flow <- flow |> mutate(N = fn_apply_sdc(N))
 
 message(
-  "Save flow table to output/data_descriptions/cleaning_inex_second_pass/"
+  "Save flow table to output/data_descriptions/process_inex_second_pass/"
 )
 write_csv(
   flow,
   here::here(
     "output",
     "data_descriptions",
-    "cleaning_inex_second_pass",
+    "process_inex_second_pass",
     "data_flow.csv"
   )
 )
